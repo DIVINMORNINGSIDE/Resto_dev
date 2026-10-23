@@ -1,53 +1,84 @@
-# 🍔 Mon Miam Miam
+# Mon Miam Miam
 
-**Application web de gestion des commandes et de fidélisation pour le restaurant ZeDuc@Space.**
+Application web de commande et de fidélité du restaurant **ZeDuc@Space** : commande sur place ou en livraison, suivi en temps réel, points de fidélité, parrainage, et back-office pour les employés, le gérant et l'administrateur.
 
-![Statut du projet](https://img.shields.io/badge/Statut-En%20développement-orange)
-![Licence](https://img.shields.io/badge/Licence-Propriétaire-blue)
+## Stack
 
-## 📖 À propos du projet
+| Couche | Outil |
+| --- | --- |
+| Application (front + back) | Next.js 16 (App Router, Server Actions, Cache Components), TypeScript |
+| Interface | Tailwind CSS 4, polices Playfair Display, Karla, Josefin Sans |
+| Base de données, auth, temps réel | Supabase (PostgreSQL 17, Auth, Realtime) |
+| Tests | Vitest (unitaires), Playwright (bout en bout) |
+| CI | GitHub Actions |
 
-**Mon Miam Miam** est une plateforme web sur-mesure développée pour le restaurant **ZeDuc@Space**. 
+## Démarrer en local
 
-Face à la complexité et à la perte de temps générées par la gestion des commandes et des livraisons via des applications de messagerie (WhatsApp, etc.), ce projet vise à **digitaliser et fluidifier l'ensemble du parcours de commande**. 
+Prérequis : Node.js 22 et Docker (pour Supabase local).
 
-L'application ne se contente pas de remplacer les messages : elle enrichit l'expérience client grâce à un système de fidélisation gamifié et offre à la direction un tableau de bord puissant pour piloter l'activité en temps réel.
-
-## ✨ Fonctionnalités principales
-
-### 📱 Côté Client
-- **Menu interactif** : Navigation fluide dans les catégories, visualisation des plats et personnalisation des options.
-- **Panier & Checkout** : Processus de commande rapide avec choix de livraison ou d'emport.
-- **Suivi de commande** : Statut en temps réel (Préparation, En cours de livraison, Livré).
-- **Programme de Fidélité** : Accumulation de points à chaque achat, système de parrainage et accès à des promotions exclusives.
-
-### 💻 Côté Administration & Staff
-- **Tableau de bord (Dashboard)** : Vue d'ensemble en temps réel des ventes, du panier moyen et des commandes en cours.
-- **Gestion des commandes** : Interface KDS (Kitchen Display System) pour la cuisine et interface de dispatch pour les livreurs.
-- **Gestion du catalogue** : Ajout, modification, mise en rupture de stock des plats et catégories.
-- **Statistiques & Rapports** : Analyse des performances, suivi des points de fidélité distribués et gestion des promotions.
-
-## 🛠️ Stack Technique
-
-*(À adapter selon ton architecture)*
-
-- **Frontend** : [React.js / Next.js / Vue.js] + [TailwindCSS / Material UI]
-- **Backend** : [Node.js / NestJS / Django / Spring Boot]
-- **Base de données** : [PostgreSQL / MongoDB / MySQL]
-- **Authentification** : [JWT / OAuth2 / Firebase Auth]
-- **Hébergement / Déploiement** : [Vercel / Docker / AWS / VPS]
-- **Outils** : Git, GitHub, [Claude Code / Cursor]
-
-## 🚀 Démarrage rapide
-
-### Prérequis
-- [Node.js] v18+
-- [Base de données] installée et configurée
-- [Gestionnaire de paquets] (npm, yarn, pnpm)
-
-### Installation
-
-1. Cloner le dépôt
 ```bash
-git clone https://github.com/[TonUsername]/mon-miam-miam.git
-cd mon-miam-miam
+npm install
+npm run db:start            # lance Supabase local, applique les migrations et les données de démo
+npx supabase status -o env  # affiche API_URL et PUBLISHABLE_KEY
+cp .env.example .env.local  # puis colle API_URL et PUBLISHABLE_KEY
+npm run dev                 # http://localhost:3000
+```
+
+Comptes de démo (mot de passe `MiamMiam2026`) :
+
+| Rôle | Email | Espace |
+| --- | --- | --- |
+| Étudiant | etudiant@miammiam.test | /espace |
+| Employé | employe@miammiam.test | /employe |
+| Gérant | gerant@miammiam.test | /gerant |
+| Administrateur | admin@miammiam.test | /admin |
+
+Les emails envoyés en local (confirmation, mot de passe oublié) sont visibles sur http://127.0.0.1:54324.
+
+## Scripts
+
+| Commande | Rôle |
+| --- | --- |
+| `npm run dev` | Serveur de développement |
+| `npm run lint` / `npm run typecheck` | Qualité du code |
+| `npm test` | Tests unitaires |
+| `npm run test:e2e` | Tests de bout en bout (Supabase local et application lancés) |
+| `npm run db:reset` | Recrée la base locale depuis les migrations et `supabase/seed.sql` |
+| `npm run db:types` | Régénère les types TypeScript de la base |
+
+## Structure
+
+```
+src/app/                  pages (accueil, (auth), espace, employe, gerant, admin)
+src/components/           composants d'interface et de chargement
+src/lib/auth/             rôles, validation des formulaires, accès aux données
+src/lib/supabase/         clients Supabase (navigateur, serveur, proxy) et types
+src/proxy.ts              rafraîchit la session et protège les espaces
+supabase/migrations/      schéma SQL versionné
+supabase/seed.sql         données de démonstration
+e2e/                      tests Playwright
+```
+
+## Sécurité des données
+
+- Chaque table a la Row Level Security activée. Un étudiant ne voit que ses commandes, ses points et ses réclamations ; le personnel voit tout.
+- Le rôle d'un compte n'est jamais lu depuis les données envoyées par le navigateur. Un utilisateur ne peut modifier que son nom, son téléphone et son adresse.
+- Commandes, points et parrainages ne s'écrivent que par des fonctions côté serveur (étape 3), pour qu'un client ne puisse pas fixer ses prix ni ses points.
+
+## Mise en ligne
+
+1. **Supabase** : créer un projet sur supabase.com, puis :
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref <ref-du-projet>
+   npx supabase db push            # applique les migrations
+   ```
+   Dans Authentication > URL Configuration, renseigner l'URL du site et ajouter `https://<domaine>/**` aux redirections autorisées. Dans Authentication > Providers > Email, exiger 8 caractères avec minuscules, majuscules et chiffres.
+2. **Vercel** : importer le dépôt GitHub, puis définir `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` et `NEXT_PUBLIC_SITE_URL`. Chaque push sur `main` est alors déployé.
+
+## Avancement
+
+- [x] Étape 1 : fondations (projet, schéma, authentification, rôles, CI)
+- [ ] Étape 2 : back-office (menu, employés, paramètres)
+- [ ] Étape 3 : commande, cuisine en temps réel, fidélité, parrainage, réclamations, statistiques
+- [ ] Étape 4 : qualité et mise en ligne
