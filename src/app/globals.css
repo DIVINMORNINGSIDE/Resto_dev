@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* Charte Mon Miam Miam : or #CFBD97 sur noir (client), back-office clair. */
+@theme {
+  --color-ink: #0b0a08;
+  --color-s1: #14120e;
+  --color-s2: #1c1914;
+  --color-s3: #25211a;
+  --color-line: #2e2921;
+  --color-gold: #cfbd97;
+  --color-gold-hi: #eadcb9;
+  --color-gold-lo: #8f7d57;
+  --color-cream: #f4eee2;
+  --color-mute: #a39a88;
+  --color-ok: #74c997;
+  --color-warn: #e9b45a;
+  --color-info: #93b3ec;
+  --color-bad: #f0907f;
+
+  --color-bo-bg: #f7f3ea;
+  --color-bo-card: #ffffff;
+  --color-bo-line: #e9e1cf;
+  --color-bo-text: #16140f;
+  --color-bo-text2: #645c4c;
+  --color-bo-gold: #7a6638;
+  --color-bo-ok: #1f7a4a;
+  --color-bo-okbg: #e4f2e9;
+  --color-bo-warn: #9a5800;
+  --color-bo-warnbg: #fbeedb;
+  --color-bo-info: #24539e;
+  --color-bo-infobg: #e3eaf7;
+  --color-bo-bad: #b42318;
+  --color-bo-badbg: #fbe5e2;
+
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-karla), "Helvetica Neue", Arial, sans-serif;
+  --font-deco: var(--font-josefin), "Futura", "Century Gothic", sans-serif;
+
+  --ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-rise: rise 0.5s var(--ease-soft) both;
+  --animate-breathe: breathe 1.8s ease-in-out infinite;
+
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(0.96);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    background: var(--color-ink);
+    color: var(--color-cream);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@utility deco {
+  font-family: var(--font-deco);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Squelette de chargement : reflet doré qui glisse. */
+@utility skeleton {
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    var(--color-s2) 0%,
+    var(--color-s3) 40%,
+    color-mix(in srgb, var(--color-gold) 18%, var(--color-s3)) 50%,
+    var(--color-s3) 60%,
+    var(--color-s2) 100%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+@utility skeleton-light {
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    var(--color-bo-line) 0%,
+    #f1ebdd 40%,
+    #fbf8f1 50%,
+    #f1ebdd 60%,
+    var(--color-bo-line) 100%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
