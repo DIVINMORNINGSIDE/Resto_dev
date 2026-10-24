@@ -4,9 +4,9 @@ export const LEGAL = {
   publisher: "ZeDuc@Space",
   address: "Résidence La Terrasse, Yansoki, Douala, Cameroun",
   // Responsable de la publication, email et téléphone de contact.
-  director: "",
-  email: "",
-  phone: "",
+  director: "the_morningside",
+  email: "divinmdiv@gmail.com",
+  phone: "+243 844 750 542",
   updatedAt: "24 octobre 2026",
 };
 

@@ -34,6 +34,7 @@ test("les pages légales sont accessibles depuis le pied de page", async ({ page
   await footer.getByRole("link", { name: "Mentions légales" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Mentions légales" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Hébergement" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "divinmdiv@gmail.com" })).toHaveAttribute("href", "mailto:divinmdiv@gmail.com");
   await page.getByRole("link", { name: "politique de confidentialité" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Confidentialité" })).toBeVisible();
   await expect(page.getByText("nous ne collectons aucune donnée bancaire")).toBeVisible();
