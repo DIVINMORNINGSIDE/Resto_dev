@@ -36,7 +36,7 @@ describe("matrice des droits", () => {
 
   it("gérant et admin seulement pour valider, réclamations, stats, paramètres, promotions, tableau de bord", () => {
     for (const permission of [
-      "validerCommande", "modifierMenu", "tableauDeBord", "reclamations", "statistiques", "parametres", "promotions",
+      "validerCommande", "modifierMenu", "tableauDeBord", "reclamations", "statistiques", "parametres", "promotions", "jeux",
     ] as const) {
       expect(can("gerant", permission)).toBe(true);
       expect(can("admin", permission)).toBe(true);

@@ -84,7 +84,7 @@ test("chaque rôle ne voit que ses rubriques", async ({ page }) => {
   await login(page, "gerant@miammiam.test");
   await expect(page).toHaveURL(/\/gerant$/);
   await expect(nav().getByRole("link")).toHaveText([
-    "Tableau de bord", "Commandes", "Menu", "Réclamations", "Statistiques", "Paramètres", "Promotions",
+    "Tableau de bord", "Commandes", "Menu", "Réclamations", "Statistiques", "Paramètres", "Promotions", "Mini-jeux",
   ]);
   await page.goto("/admin/employes");
   await expect(page).toHaveURL(/\/gerant$/);

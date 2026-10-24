@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { BoCard, BoField, BoNotice } from "@/components/backoffice/bo-form";
+import { BoCard, BoCheckbox, BoField, BoNotice } from "@/components/backoffice/bo-form";
 import { BoSubmit } from "@/components/backoffice/bo-submit";
 import { DAYS, type BoFormState } from "@/lib/backoffice/validation";
 import { formatFcfa } from "@/lib/format";
@@ -16,6 +16,8 @@ export type Settings = {
   redeemValueFcfa: number;
   pointsValidityMonths: number;
   referralBonusPoints: number;
+  gamesEnabled: boolean;
+  quizPoints: number;
 };
 
 export function SettingsForm({ settings }: { settings: Settings }) {
@@ -102,6 +104,28 @@ export function SettingsForm({ settings }: { settings: Settings }) {
           Règle actuelle : 1 point par tranche de {formatFcfa(settings.fcfaPerPoint)} dépensée,{" "}
           {settings.redeemPointsBlock} points = {formatFcfa(settings.redeemValueFcfa)} de réduction, valables{" "}
           {settings.pointsValidityMonths} mois.
+        </p>
+      </BoCard>
+
+      <BoCard className="flex flex-col gap-4">
+        <h2 className="font-display text-xl">Mini-jeux</h2>
+        <BoCheckbox
+          label="Jeux ouverts aux étudiants"
+          name="gamesEnabled"
+          defaultChecked={v ? v.gamesEnabled === "on" : settings.gamesEnabled}
+        />
+        <BoField
+          label="Points pour une bonne réponse au quiz"
+          name="quizPoints"
+          type="number"
+          min={0}
+          max={50}
+          defaultValue={val("quizPoints", settings.quizPoints)}
+          error={e.quizPoints}
+        />
+        <p className="rounded-xl bg-bo-bg px-4 py-3 text-sm text-bo-text2">
+          Chaque étudiant joue une fois par jour au quiz et à la roue. La roue rapporte 0, 1, 2, 3 ou 5 points
+          (1,5 point en moyenne).
         </p>
       </BoCard>
 

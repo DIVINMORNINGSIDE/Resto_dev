@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { getLoyaltyRules, getMyLoyalty } from "@/features/orders/queries";
 import { ShareCode } from "@/features/student/share-code";
@@ -16,6 +17,7 @@ const KIND_LABELS: Record<string, string> = {
   parrainage: "Parrainage",
   expiration: "Points expirés",
   ajustement: "Ajustement",
+  jeu: "Jeux du jour",
 };
 
 export default function LoyaltyPage() {
@@ -70,6 +72,10 @@ async function Loyalty() {
           <ShareCode code={profile.referralCode} />
         </section>
       </div>
+
+      <Link href="/espace/jeux" className="deco self-start text-accent underline hover:text-accent-hi">
+        Gagner des points aux jeux du jour
+      </Link>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:items-start">
 

@@ -15,6 +15,8 @@ const FIELDS = [
   "redeemValueFcfa",
   "pointsValidityMonths",
   "referralBonusPoints",
+  "gamesEnabled",
+  "quizPoints",
 ] as const;
 
 export async function updateSettings(_prev: BoFormState, formData: FormData): Promise<BoFormState> {
@@ -40,6 +42,8 @@ export async function updateSettings(_prev: BoFormState, formData: FormData): Pr
       redeem_value_fcfa: s.redeemValueFcfa,
       points_validity_months: s.pointsValidityMonths,
       referral_bonus_points: s.referralBonusPoints,
+      games_enabled: s.gamesEnabled,
+      quiz_points: s.quizPoints,
     })
     .eq("id", formData.get("id") as string)
     .select("id");

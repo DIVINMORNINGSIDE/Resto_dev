@@ -124,7 +124,24 @@ export const settingsSchema = z.object({
     .int("Bonus de parrainage : nombre entier.")
     .min(0, "Bonus de parrainage : 0 minimum.")
     .max(1_000, "Bonus de parrainage : 1000 maximum."),
+  gamesEnabled: z.string().transform((v) => v === "on"),
+  quizPoints: z.coerce
+    .number({ error: "Points du quiz invalides." })
+    .int("Points du quiz : nombre entier.")
+    .min(0, "Points du quiz : 0 minimum.")
+    .max(50, "Points du quiz : 50 maximum."),
 });
+
+// Question du quiz : 2 à 4 réponses, dont une bonne parmi celles remplies.
+export const quizQuestionSchema = z
+  .object({
+    question: z.string().trim().min(5, "Question trop courte.").max(200, "200 caractères maximum."),
+    choices: z.array(z.string().trim().max(80, "80 caractères maximum par réponse.")).length(4),
+    correct: z.coerce.number({ error: "Indique la bonne réponse." }).int().min(0).max(3),
+    isActive: z.string().transform((v) => v === "on"),
+  })
+  .refine((q) => q.choices.filter(Boolean).length >= 2, { message: "Donne au moins deux réponses.", path: ["choices"] })
+  .refine((q) => Boolean(q.choices[q.correct]), { message: "La bonne réponse doit être remplie.", path: ["correct"] });
 
 // Mot de passe provisoire lisible (sans 0/O ni 1/l/I) qui respecte la règle du site.
 export function generateTempPassword(random: (max: number) => number = cryptoRandom): string {

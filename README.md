@@ -191,6 +191,7 @@ e2e/                      tests Playwright
   - `get_stats` réserve les statistiques au personnel ;
   - `comment_my_order` laisse le client donner son avis sur sa propre commande, une fois servie ;
   - `top_customers` calcule le top 10 du jour, de la semaine ou du mois (prénom et initiale pour les étudiants, nom complet pour le personnel) ;
+  - `play_quiz` et `spin_wheel` (étudiants seulement) : une partie par jeu et par jour, tirage de la roue fait en base, points crédités avec la même validité que les autres ; `my_games_today` ne révèle la bonne réponse qu'après avoir joué, et la table des questions n'est lisible que par le gérant et l'admin ;
   - les points expirent après la durée réglée dans les paramètres : une tâche `pg_cron` (`expirer-points-fidelite`, chaque heure) retire les points échus, en consommant toujours d'abord ceux qui expirent le plus tôt ; `my_next_points_expiry` annonce la prochaine échéance au client.
 
 ## Mise en ligne
@@ -212,6 +213,7 @@ e2e/                      tests Playwright
 - **Employé** (`/employe`) : écran cuisine en temps réel, réclamations (réponse proposée au gérant), statistiques de la semaine.
 - **Gérant et admin** : supervision des commandes, validation des réclamations, statistiques par jour, semaine ou mois.
 - **Deuxième version** : affiches de promotions et d'événements publiées par le gérant ou l'admin (`/gerant/promotions`) et visibles sur l'accueil étudiant, top 10 des clients (`/espace/classement` et statistiques), avis après une commande servie, expiration des points avec rappel de la prochaine échéance.
+- **Mini-jeux** (`/espace/jeux`) : un quiz du jour et une roue de la chance, une partie de chaque par jour, pour gagner des points. Le gérant et l'admin gèrent les questions (`/gerant/jeux`), ouvrent ou ferment les jeux et règlent les points du quiz dans les paramètres.
 - **Tout le monde** : bandeau cookies (seulement des cookies nécessaires), mentions légales et politique de confidentialité. Les coordonnées légales se règlent dans `src/lib/legal.ts`.
 - **Paiement** : sur place ou à la livraison ; aucun paiement en ligne pour l'instant (CinetPay prévu plus tard).
 
@@ -224,3 +226,4 @@ Règles de fidélité (modifiables dans les paramètres) : 1 point par tranche d
 - [x] Étape 3 : commande, cuisine en temps réel, fidélité, parrainage, réclamations, statistiques
 - [x] Étape 4 : qualité et mise en ligne (cookies, pages légales, espace étudiant sur ordinateur, tests sur Chrome, Firefox et Safari)
 - [x] Étape 5 : deuxième version (affiches de promotions et d'événements, top 10 des clients, expiration des points, avis après commande)
+- [x] Plus tard (1) : mini-jeux (quiz du jour, roue de la chance)

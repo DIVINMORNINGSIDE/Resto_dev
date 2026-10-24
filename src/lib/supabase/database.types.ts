@@ -81,6 +81,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"game_plays": {
+                  Row: {
+                    "answer_index": number | null,"correct_index": number | null,"created_at": string,"game": string,"id": string,"played_on": string,"points": number,"question_id": string | null,"user_id": string,"wheel_segment": number | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "answer_index"?: number | null,"correct_index"?: number | null,"created_at"?: string,"game": string,"id"?: string,"played_on": string,"points"?: number,"question_id"?: string | null,"user_id": string,"wheel_segment"?: number | null
+                  }
+                  Update: {
+                    "answer_index"?: number | null,"correct_index"?: number | null,"created_at"?: string,"game"?: string,"id"?: string,"played_on"?: string,"points"?: number,"question_id"?: string | null,"user_id"?: string,"wheel_segment"?: number | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "game_plays_question_id_fkey"
+      columns: ["question_id"]
+isOneToOne: false
+      referencedRelation: "quiz_questions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "game_plays_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"loyalty_transactions": {
                   Row: {
                     "created_at": string,"expires_at": string | null,"id": string,"kind": Database["public"]['Enums']["loyalty_kind"],"note": string | null,"order_id": string | null,"points": number,"user_id": string
@@ -231,6 +257,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"quiz_questions": {
+                  Row: {
+                    "choices": (string)[],"correct_index": number,"created_at": string,"id": string,"is_active": boolean,"question": string,"restaurant_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "choices": (string)[],"correct_index": number,"created_at"?: string,"id"?: string,"is_active"?: boolean,"question": string,"restaurant_id"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "choices"?: (string)[],"correct_index"?: number,"created_at"?: string,"id"?: string,"is_active"?: boolean,"question"?: string,"restaurant_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "quiz_questions_restaurant_id_fkey"
+      columns: ["restaurant_id"]
+isOneToOne: false
+      referencedRelation: "restaurants"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"referrals": {
                   Row: {
                     "created_at": string,"id": string,"referee_id": string,"referrer_id": string,"reward_points": number | null,"rewarded_at": string | null
@@ -259,14 +305,14 @@ isOneToOne: false
                   ]
                 },"restaurants": {
                   Row: {
-                    "created_at": string,"fcfa_per_point": number,"id": string,"name": string,"opening_hours": NonNullable<Json>,"points_validity_months": number,"redeem_points_block": number,"redeem_value_fcfa": number,"referral_bonus_points": number,"slug": string,"updated_at": string
+                    "created_at": string,"fcfa_per_point": number,"games_enabled": boolean,"id": string,"name": string,"opening_hours": NonNullable<Json>,"points_validity_months": number,"quiz_points": number,"redeem_points_block": number,"redeem_value_fcfa": number,"referral_bonus_points": number,"slug": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"fcfa_per_point"?: number,"id"?: string,"name": string,"opening_hours"?: NonNullable<Json>,"points_validity_months"?: number,"redeem_points_block"?: number,"redeem_value_fcfa"?: number,"referral_bonus_points"?: number,"slug": string,"updated_at"?: string
+                    "created_at"?: string,"fcfa_per_point"?: number,"games_enabled"?: boolean,"id"?: string,"name": string,"opening_hours"?: NonNullable<Json>,"points_validity_months"?: number,"quiz_points"?: number,"redeem_points_block"?: number,"redeem_value_fcfa"?: number,"referral_bonus_points"?: number,"slug": string,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"fcfa_per_point"?: number,"id"?: string,"name"?: string,"opening_hours"?: NonNullable<Json>,"points_validity_months"?: number,"redeem_points_block"?: number,"redeem_value_fcfa"?: number,"referral_bonus_points"?: number,"slug"?: string,"updated_at"?: string
+                    "created_at"?: string,"fcfa_per_point"?: number,"games_enabled"?: boolean,"id"?: string,"name"?: string,"opening_hours"?: NonNullable<Json>,"points_validity_months"?: number,"quiz_points"?: number,"redeem_points_block"?: number,"redeem_value_fcfa"?: number,"referral_bonus_points"?: number,"slug"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -295,6 +341,9 @@ isOneToOne: false
 "get_stats":
 { Args: { "p_from": string,"p_to": string }; Returns: Json
                            },
+"my_games_today":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "my_next_points_expiry":
 { Args: Record<PropertyKey, never>; Returns: {
               "expires_at": string,"points": number
@@ -308,6 +357,11 @@ isOneToOne: false
 "place_order":
 { Args: { "p_arrival_time"?: string,"p_delivery_address"?: string,"p_items": Json,"p_order_type": Database["public"]['Enums']["order_type"],"p_redeem_blocks"?: number }; Returns: string
                            },
+"play_quiz":
+{ Args: { "p_answer": number,"p_question_id": string }; Returns: {
+              "correct_index": number,"points": number
+            }[]
+                           },
 "respond_complaint":
 { Args: { "p_complaint_id": string,"p_response": string }; Returns: undefined
                            },
@@ -317,6 +371,11 @@ isOneToOne: false
 "set_staff_role":
 { Args: { "p_role": Database["public"]['Enums']["app_role"],"p_user_id": string }; Returns: undefined
                            },
+"spin_wheel":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "points": number,"segment": number
+            }[]
+                           },
 "top_customers":
 { Args: { "p_period": string }; Returns: {
               "is_me": boolean,"name": string,"orders": number,"rank": number
@@ -324,7 +383,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "app_role": "etudiant"|"employe"|"gerant"|"admin","complaint_status": "ouverte"|"en_cours"|"reponse_proposee"|"resolue"|"rejetee","loyalty_kind": "gain"|"utilisation"|"parrainage"|"expiration"|"ajustement","order_status": "en_attente"|"en_preparation"|"prete"|"en_livraison"|"livree"|"annulee","order_type": "sur_place"|"livraison","promotion_kind": "promotion"|"evenement"
+            "app_role": "etudiant"|"employe"|"gerant"|"admin","complaint_status": "ouverte"|"en_cours"|"reponse_proposee"|"resolue"|"rejetee","loyalty_kind": "gain"|"utilisation"|"parrainage"|"expiration"|"ajustement"|"jeu","order_status": "en_attente"|"en_preparation"|"prete"|"en_livraison"|"livree"|"annulee","order_type": "sur_place"|"livraison","promotion_kind": "promotion"|"evenement"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -444,7 +503,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["etudiant", "employe", "gerant", "admin"],"complaint_status": ["ouverte", "en_cours", "reponse_proposee", "resolue", "rejetee"],"loyalty_kind": ["gain", "utilisation", "parrainage", "expiration", "ajustement"],"order_status": ["en_attente", "en_preparation", "prete", "en_livraison", "livree", "annulee"],"order_type": ["sur_place", "livraison"],"promotion_kind": ["promotion", "evenement"]
+            "app_role": ["etudiant", "employe", "gerant", "admin"],"complaint_status": ["ouverte", "en_cours", "reponse_proposee", "resolue", "rejetee"],"loyalty_kind": ["gain", "utilisation", "parrainage", "expiration", "ajustement", "jeu"],"order_status": ["en_attente", "en_preparation", "prete", "en_livraison", "livree", "annulee"],"order_type": ["sur_place", "livraison"],"promotion_kind": ["promotion", "evenement"]
           }
         }
 } as const

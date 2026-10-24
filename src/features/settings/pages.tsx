@@ -23,7 +23,7 @@ async function SettingsLoader() {
   const { data: r } = await supabase
     .from("restaurants")
     .select(
-      "id, name, opening_hours, fcfa_per_point, redeem_points_block, redeem_value_fcfa, points_validity_months, referral_bonus_points",
+      "id, name, opening_hours, fcfa_per_point, redeem_points_block, redeem_value_fcfa, points_validity_months, referral_bonus_points, games_enabled, quiz_points",
     )
     .order("created_at")
     .limit(1)
@@ -41,6 +41,8 @@ async function SettingsLoader() {
         redeemValueFcfa: r.redeem_value_fcfa,
         pointsValidityMonths: r.points_validity_months,
         referralBonusPoints: r.referral_bonus_points,
+        gamesEnabled: r.games_enabled,
+        quizPoints: r.quiz_points,
       }}
     />
   );
