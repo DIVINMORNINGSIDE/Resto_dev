@@ -277,8 +277,31 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "assign_staff_role":
+            "advance_order":
+{ Args: { "p_order_id": string,"p_status": Database["public"]['Enums']["order_status"] }; Returns: undefined
+                           },
+"assign_staff_role":
 { Args: { "p_email": string,"p_role": Database["public"]['Enums']["app_role"] }; Returns: string
+                           },
+"cancel_my_order":
+{ Args: { "p_order_id": string }; Returns: undefined
+                           },
+"decide_complaint":
+{ Args: { "p_bonus_points"?: number,"p_complaint_id": string,"p_decision": string }; Returns: undefined
+                           },
+"get_stats":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"my_referrals":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "first_name": string,"joined_at": string,"reward_points": number,"rewarded_at": string
+            }[]
+                           },
+"place_order":
+{ Args: { "p_arrival_time"?: string,"p_delivery_address"?: string,"p_items": Json,"p_order_type": Database["public"]['Enums']["order_type"],"p_redeem_blocks"?: number }; Returns: string
+                           },
+"respond_complaint":
+{ Args: { "p_complaint_id": string,"p_response": string }; Returns: undefined
                            },
 "set_staff_active":
 { Args: { "p_active": boolean,"p_user_id": string }; Returns: undefined
