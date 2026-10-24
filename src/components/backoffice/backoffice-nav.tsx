@@ -15,10 +15,10 @@ export function BackofficeNav({ label, root, items }: { label: string; root: str
           return (
             <span
               key={item.label}
-              className="flex shrink-0 items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm text-mute/70"
+              className="deco flex shrink-0 items-center justify-between gap-3 px-3 py-2.5 text-mute/70"
             >
               {item.label}
-              <span className="rounded-full border border-line px-2 text-[10px]">étape {item.step}</span>
+              <span className="border border-line px-2 text-[10px]">étape {item.step}</span>
             </span>
           );
         }
@@ -28,8 +28,8 @@ export function BackofficeNav({ label, root, items }: { label: string; root: str
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`shrink-0 rounded-xl px-3 py-2 text-sm font-semibold transition-colors duration-300 ease-soft ${
-              active ? "bg-gold text-ink" : "text-cream/85 hover:bg-s2 hover:text-cream"
+            className={`deco shrink-0 px-3 py-2.5 transition-colors duration-300 ease-soft ${
+              active ? "bg-accent text-ink" : "text-cream/85 hover:bg-s2 hover:text-cream"
             }`}
           >
             {item.label}

@@ -36,7 +36,7 @@ export function LoginForm() {
         required
         error={state.errors?.password}
       />
-      <Link href="/mot-de-passe-oublie" className="-mt-2 self-end text-sm text-gold hover:text-gold-hi">
+      <Link href="/mot-de-passe-oublie" className="-mt-2 self-end text-sm text-accent hover:text-accent-hi">
         Mot de passe oublié ?
       </Link>
       <SubmitButton pendingLabel="Connexion…">Se connecter</SubmitButton>

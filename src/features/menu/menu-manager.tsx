@@ -63,7 +63,7 @@ function ItemRow({ item, href }: { item: MenuRow; href?: string }) {
           <Link
             href={href}
             aria-label={`Modifier ${item.name}`}
-            className="ml-auto inline-flex min-h-11 items-center rounded-full border border-bo-line px-4 text-sm font-semibold hover:border-bo-gold sm:ml-0"
+            className="deco ml-auto inline-flex min-h-11 items-center rounded-sm border border-bo-line px-4 hover:border-bo-accent sm:ml-0"
           >
             Modifier
           </Link>

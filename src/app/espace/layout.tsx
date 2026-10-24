@@ -23,12 +23,12 @@ export default function StudentLayout({ children }: LayoutProps<"/espace">) {
             <li key={tab.label}>
               <span
                 aria-current={tab.label === "Accueil" ? "page" : undefined}
-                className={`flex min-h-14 flex-col items-center justify-center text-xs font-semibold ${
-                  tab.label === "Accueil" ? "text-gold" : "text-mute/60"
+                className={`deco flex min-h-14 flex-col items-center justify-center gap-0.5 text-[10px] ${
+                  tab.label === "Accueil" ? "border-t-2 border-accent text-accent" : "border-t-2 border-transparent text-mute/60"
                 }`}
               >
                 {tab.label}
-                {!tab.ready ? <span className="text-[10px] font-normal">bientôt</span> : null}
+                {!tab.ready ? <span className="text-[9px] font-normal normal-case tracking-normal">bientôt</span> : null}
               </span>
             </li>
           ))}

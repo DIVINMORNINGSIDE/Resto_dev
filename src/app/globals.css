@@ -1,28 +1,36 @@
 @import "tailwindcss";
 
-/* Charte Mon Miam Miam : or #CFBD97 sur noir (client), back-office clair. */
+/* Charte Mon Miam Miam, inspirée du site Kado : brun espresso, papier crème,
+   jaune vif en accent, titres condensés en capitales et angles vifs. */
 @theme {
-  --color-ink: #0b0a08;
-  --color-s1: #14120e;
-  --color-s2: #1c1914;
-  --color-s3: #25211a;
-  --color-line: #2e2921;
-  --color-gold: #cfbd97;
-  --color-gold-hi: #eadcb9;
-  --color-gold-lo: #8f7d57;
-  --color-cream: #f4eee2;
-  --color-mute: #a39a88;
+  --color-ink: #17110f;
+  --color-s1: #201816;
+  --color-s2: #2a201d;
+  --color-s3: #352925;
+  --color-line: #43352f;
+  --color-accent: #f6cf1f;
+  --color-accent-hi: #ffe04f;
+  --color-accent-lo: #c9b48a;
+  --color-cream: #f8f1e6;
+  --color-paper: #f8f1e6;
+  --color-mute: #ab9e92;
   --color-ok: #74c997;
   --color-warn: #e9b45a;
   --color-info: #93b3ec;
   --color-bad: #f0907f;
 
-  --color-bo-bg: #f7f3ea;
-  --color-bo-card: #ffffff;
-  --color-bo-line: #e9e1cf;
-  --color-bo-text: #16140f;
-  --color-bo-text2: #645c4c;
-  --color-bo-gold: #7a6638;
+  /* Pastels des cartes et des dégradés. */
+  --color-blush: #f6c6e2;
+  --color-peach: #fde6cf;
+  --color-sky: #cde6f7;
+  --color-lime: #e3f49a;
+
+  --color-bo-bg: #f8f1e6;
+  --color-bo-card: #fffdf9;
+  --color-bo-line: #e7dbc9;
+  --color-bo-text: #17110f;
+  --color-bo-text2: #6b5d52;
+  --color-bo-accent: #8a6400;
   --color-bo-ok: #1f7a4a;
   --color-bo-okbg: #e4f2e9;
   --color-bo-warn: #9a5800;
@@ -32,15 +40,25 @@
   --color-bo-bad: #b42318;
   --color-bo-badbg: #fbe5e2;
 
-  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
-  --font-body: var(--font-karla), "Helvetica Neue", Arial, sans-serif;
-  --font-deco: var(--font-josefin), "Futura", "Century Gothic", sans-serif;
+  --font-display: var(--font-anton), "Impact", "Arial Narrow", sans-serif;
+  --font-body: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  --font-deco: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+
+  /* Angles vifs partout : seuls les pastilles et interrupteurs restent ronds. */
+  --radius-xs: 1px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 3px;
+  --radius-xl: 3px;
+  --radius-2xl: 4px;
+  --radius-3xl: 4px;
 
   --ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   --animate-shimmer: shimmer 1.6s linear infinite;
   --animate-rise: rise 0.5s var(--ease-soft) both;
   --animate-breathe: breathe 1.8s ease-in-out infinite;
+  --animate-marquee: marquee 40s linear infinite;
 
   @keyframes shimmer {
     from {
@@ -58,6 +76,14 @@
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
     }
   }
   @keyframes breathe {
@@ -84,28 +110,37 @@
     -webkit-font-smoothing: antialiased;
   }
   :focus-visible {
-    outline: 2px solid var(--color-gold);
+    outline: 2px solid var(--color-accent);
     outline-offset: 3px;
-    border-radius: 6px;
+  }
+}
+
+/* Titres façon Kado : condensés, en capitales, interlignage serré. */
+@layer components {
+  .font-display {
+    text-transform: uppercase;
+    font-weight: 400;
+    line-height: 0.98;
+    letter-spacing: 0.005em;
   }
 }
 
 @utility deco {
   font-family: var(--font-deco);
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.08em;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-/* Squelette de chargement : reflet doré qui glisse. */
+/* Squelette de chargement : reflet jaune qui glisse. */
 @utility skeleton {
-  border-radius: 12px;
+  border-radius: 2px;
   background: linear-gradient(
     90deg,
     var(--color-s2) 0%,
     var(--color-s3) 40%,
-    color-mix(in srgb, var(--color-gold) 18%, var(--color-s3)) 50%,
+    color-mix(in srgb, var(--color-accent) 14%, var(--color-s3)) 50%,
     var(--color-s3) 60%,
     var(--color-s2) 100%
   );
@@ -114,13 +149,13 @@
 }
 
 @utility skeleton-light {
-  border-radius: 12px;
+  border-radius: 2px;
   background: linear-gradient(
     90deg,
     var(--color-bo-line) 0%,
-    #f1ebdd 40%,
-    #fbf8f1 50%,
-    #f1ebdd 60%,
+    #f1e7d6 40%,
+    #fffaf0 50%,
+    #f1e7d6 60%,
     var(--color-bo-line) 100%
   );
   background-size: 200% 100%;

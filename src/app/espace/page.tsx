@@ -22,29 +22,29 @@ async function StudentHome() {
   return (
     <div className="flex flex-col gap-5 animate-rise">
       <div>
-        <p className="deco text-gold">Bonjour</p>
-        <h1 className="mt-1 font-display text-4xl">{firstName}</h1>
+        <p className="deco text-accent">Bonjour</p>
+        <h1 className="mt-2 font-display text-6xl">{firstName}</h1>
       </div>
 
-      <section className="relative overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-s2 to-ink p-6">
-        <p className="deco text-gold-lo">Mes points de fidélité</p>
-        <p className="mt-2 font-display text-6xl tabular-nums text-gold">{profile.pointsBalance}</p>
-        <p className="mt-2 text-sm text-mute">1 point par tranche de 1 000 F dépensée · 15 points = 1 000 F de réduction</p>
+      <section className="relative overflow-hidden bg-gradient-to-b from-peach to-blush p-6 text-ink shadow-2xl shadow-ink/40">
+        <p className="deco text-ink/70">Mes points de fidélité</p>
+        <p className="mt-3 font-display text-7xl tabular-nums">{profile.pointsBalance}</p>
+        <p className="mt-3 text-sm text-ink/75">1 point par tranche de 1 000 F dépensée · 15 points = 1 000 F de réduction</p>
       </section>
 
-      <section className="rounded-3xl border border-line bg-s1 p-6">
-        <p className="deco text-gold-lo">Mon code de parrainage</p>
-        <p className="mt-2 font-deco text-3xl tracking-[0.3em] text-cream">{profile.referralCode}</p>
-        <p className="mt-2 text-sm text-mute">
+      <section className="bg-gradient-to-b from-sky to-lime p-6 text-ink">
+        <p className="deco text-ink/70">Mon code de parrainage</p>
+        <p className="mt-3 font-display text-4xl tracking-[0.12em]">{profile.referralCode}</p>
+        <p className="mt-2 text-sm text-ink/75">
           Partage-le : tu gagnes des points dès la première commande de ton filleul.
         </p>
       </section>
 
-      <p className="rounded-2xl border border-dashed border-line p-4 text-sm text-mute">
+      <p className="border border-dashed border-line p-4 text-sm text-mute">
         La commande en ligne arrive à l&apos;étape 3 du projet. Le menu est déjà visible sur l&apos;accueil.
       </p>
 
-      <SignOutButton className="self-start text-sm font-semibold text-mute hover:text-cream" />
+      <SignOutButton className="deco self-start border border-cream/30 px-4 py-3 text-cream/85 hover:border-cream hover:text-cream" />
     </div>
   );
 }
@@ -53,9 +53,9 @@ function StudentHomeSkeleton() {
   return (
     <div className="flex flex-col gap-5" aria-busy="true" aria-label="Chargement de ton espace">
       <Skeleton className="h-4 w-20" />
-      <Skeleton className="h-10 w-40" />
-      <Skeleton className="h-44 w-full rounded-3xl" />
-      <Skeleton className="h-36 w-full rounded-3xl" />
+      <Skeleton className="h-14 w-40" />
+      <Skeleton className="h-48 w-full" />
+      <Skeleton className="h-36 w-full" />
     </div>
   );
 }

@@ -71,7 +71,7 @@ export function ItemForm({ base, categories, item }: ItemFormProps) {
             <BoSubmit pendingLabel="Enregistrement…">{item ? "Enregistrer" : "Ajouter le plat"}</BoSubmit>
             <Link
               href={base}
-              className="inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold text-bo-text2 hover:text-bo-text"
+              className="deco inline-flex min-h-11 items-center rounded-sm px-5 text-bo-text2 hover:text-bo-text"
             >
               Annuler
             </Link>
@@ -139,13 +139,13 @@ function PhotoInput({ initial, error }: { initial: string; error?: string }) {
           <span className="absolute inset-0 grid place-items-center text-sm text-bo-text2">Aucune photo</span>
         ) : null}
         {uploading ? (
-          <span className="skeleton-light absolute inset-0 grid place-items-center rounded-none text-bo-gold">
+          <span className="skeleton-light absolute inset-0 grid place-items-center rounded-none text-bo-accent">
             <Spinner className="size-6" label="Envoi de la photo" />
           </span>
         ) : null}
       </div>
       <input type="hidden" name="imageUrl" value={url} />
-      <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-full border border-bo-line px-5 text-sm font-semibold hover:border-bo-gold has-[:disabled]:cursor-wait has-[:disabled]:opacity-70">
+      <label className="deco inline-flex min-h-11 cursor-pointer items-center justify-center rounded-sm border border-bo-line px-5 hover:border-bo-accent has-[:disabled]:cursor-wait has-[:disabled]:opacity-70">
         {url ? "Changer la photo" : "Choisir une photo"}
         <input
           type="file"

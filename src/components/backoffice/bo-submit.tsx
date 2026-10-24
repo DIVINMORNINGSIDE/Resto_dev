@@ -5,7 +5,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 const VARIANTS = {
   primary: "bg-bo-text text-bo-bg hover:bg-bo-text/85",
-  ghost: "border border-bo-line bg-bo-card text-bo-text hover:border-bo-gold",
+  ghost: "border border-bo-line bg-bo-card text-bo-text hover:border-bo-accent",
   danger: "border border-bo-bad/30 bg-bo-card text-bo-bad hover:bg-bo-badbg",
 };
 
@@ -36,7 +36,7 @@ export function BoSubmit({ children, pendingLabel, variant = "primary", classNam
       } : undefined}
       disabled={pending || disabled}
       aria-disabled={pending || disabled}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold transition duration-300 ease-soft disabled:cursor-wait disabled:opacity-70 ${VARIANTS[variant]} ${className}`}
+      className={`deco inline-flex min-h-11 items-center justify-center gap-2 rounded-sm px-5 transition duration-300 ease-soft disabled:cursor-wait disabled:opacity-70 ${VARIANTS[variant]} ${className}`}
     >
       {pending ? (
         <>

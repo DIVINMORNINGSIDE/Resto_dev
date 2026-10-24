@@ -43,7 +43,7 @@ export function SettingsForm({ settings }: { settings: Settings }) {
                 defaultValue={val(day, settings.openingHours[day] ?? "")}
                 placeholder="11:00 – 22:00 ou Fermé"
                 aria-invalid={Boolean(e[day])}
-                className="min-h-11 rounded-xl border border-bo-line bg-bo-card px-3.5 text-base focus:border-bo-gold focus:outline-none aria-invalid:border-bo-bad"
+                className="min-h-11 rounded-xl border border-bo-line bg-bo-card px-3.5 text-base focus:border-bo-accent focus:outline-none aria-invalid:border-bo-bad"
               />
               {e[day] ? <p className="col-start-2 text-sm text-bo-bad">{e[day]}</p> : null}
             </div>
