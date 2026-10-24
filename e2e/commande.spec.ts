@@ -12,15 +12,21 @@ async function points(page: Page): Promise<number> {
   return Number(await page.getByTestId("points-balance").filter({ visible: true }).textContent());
 }
 
-test("cliquer sur un plat de l'accueil ouvre la page Commander sur ce plat", async ({ page }) => {
+test("toute la carte d'un plat de l'accueil ouvre la page Commander sur ce plat", async ({ page }) => {
   await loginAs(page, STUDENT, /\/espace$/);
-  await page.goto("/");
-  await page.locator("#menu").getByRole("link", { name: "Brochettes de bœuf" }).click();
-  await expect(page).toHaveURL(/\/espace\/commander#plat-/);
-  await expect(page.getByRole("button", { name: "Ajouter Brochettes de bœuf au panier" })).toBeInViewport();
+  const card = () => page.locator("#menu li").filter({ hasText: "Brochettes de bœuf" });
+  // Clic sur la photo (milieu de la carte), puis sur la flèche (coin bas droit).
+  for (const corner of ["photo", "flèche"] as const) {
+    await page.goto("/");
+    const box = (await card().boundingBox())!;
+    const position = corner === "photo" ? { x: box.width / 2, y: box.height / 2 } : { x: box.width - 24, y: box.height - 24 };
+    await card().click({ position });
+    await expect(page).toHaveURL(/\/espace\/commander#plat-/);
+    await expect(page.getByRole("button", { name: "Ajouter Brochettes de bœuf au panier" })).toBeInViewport();
+  }
   // Un plat épuisé n'est pas cliquable.
   await page.goto("/");
-  await expect(page.locator("#menu").getByRole("link", { name: "Riz sauté poulet" })).toHaveCount(0);
+  await expect(page.locator("#menu").getByRole("link", { name: "Commander Riz sauté poulet" })).toHaveCount(0);
 });
 
 test("une commande va de l'étudiant à la cuisine, en direct, et crédite les points", async ({ page, browser }) => {
