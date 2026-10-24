@@ -18,19 +18,22 @@ type BackofficeShellProps = {
 export function BackofficeShell({ areaLabel, root, nav, children }: BackofficeShellProps) {
   return (
     <div className="flex min-h-dvh flex-1 flex-col bg-bo-bg text-bo-text [color-scheme:light] md:flex-row">
-      <aside className="flex flex-col gap-6 bg-ink px-4 py-5 text-cream md:sticky md:top-0 md:h-dvh md:w-64 md:shrink-0 md:py-8">
-        <Link href="/" className="flex items-center gap-3">
-          <Image src="/brand/emblem.png" alt="" width={36} height={36} className="rounded-full" />
-          <span className="leading-tight">
-            <b className="block font-display text-xl">Mon Miam Miam</b>
-            <span className="deco text-accent">{areaLabel}</span>
-          </span>
-        </Link>
-        <BackofficeNav label={`Navigation ${areaLabel}`} root={root} items={nav} />
-        <div className="mt-auto hidden md:block">
-          <Suspense fallback={<Skeleton className="h-10 w-full" />}>
-            <UserChip />
-          </Suspense>
+      {/* Le fond couvre toute la hauteur de la page ; le contenu reste fixe au défilement. */}
+      <aside className="bg-ink text-cream md:w-64 md:shrink-0">
+        <div className="flex flex-col gap-6 px-4 py-5 md:sticky md:top-0 md:h-dvh md:py-8">
+          <Link href="/" className="flex items-center gap-3">
+            <Image src="/brand/emblem.png" alt="" width={36} height={36} className="rounded-full" />
+            <span className="leading-tight">
+              <b className="block font-display text-xl">Mon Miam Miam</b>
+              <span className="deco text-accent">{areaLabel}</span>
+            </span>
+          </Link>
+          <BackofficeNav label={`Navigation ${areaLabel}`} root={root} items={nav} />
+          <div className="mt-auto hidden md:block">
+            <Suspense fallback={<Skeleton className="h-10 w-full" />}>
+              <UserChip />
+            </Suspense>
+          </div>
         </div>
       </aside>
       <main className="flex min-w-0 flex-1 flex-col px-4 py-6 md:px-10 md:py-10">{children}</main>
