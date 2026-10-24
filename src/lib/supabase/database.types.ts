@@ -277,7 +277,15 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "assign_staff_role":
+{ Args: { "p_email": string,"p_role": Database["public"]['Enums']["app_role"] }; Returns: string
+                           },
+"set_staff_active":
+{ Args: { "p_active": boolean,"p_user_id": string }; Returns: undefined
+                           },
+"set_staff_role":
+{ Args: { "p_role": Database["public"]['Enums']["app_role"],"p_user_id": string }; Returns: undefined
+                           }
           }
           Enums: {
             "app_role": "etudiant"|"employe"|"gerant"|"admin","complaint_status": "ouverte"|"en_cours"|"reponse_proposee"|"resolue"|"rejetee","loyalty_kind": "gain"|"utilisation"|"parrainage"|"expiration"|"ajustement","order_status": "en_attente"|"en_preparation"|"prete"|"en_livraison"|"livree"|"annulee","order_type": "sur_place"|"livraison","promotion_kind": "promotion"|"evenement"

@@ -1,19 +1,12 @@
-import { expect, test, type Page } from "@playwright/test";
-
-const PASSWORD = "MiamMiam2026";
-
-async function login(page: Page, email: string) {
-  await page.goto("/connexion");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
-  await page.getByRole("button", { name: "Se connecter" }).click();
-}
+import { expect, test } from "@playwright/test";
+import { login, PASSWORD } from "./helpers";
 
 test("l'accueil affiche le menu venant de la base", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Poulet DG" })).toBeVisible();
-  await expect(page.getByText("Plat du jour")).toBeVisible();
-  await expect(page.getByText("Épuisé")).toBeVisible();
+  const card = (name: string) => page.getByRole("listitem").filter({ has: page.getByRole("heading", { name }) });
+  await expect(card("Poulet DG").getByText("Plat du jour")).toBeVisible();
+  await expect(card("Riz sauté poulet").getByText("Épuisé")).toBeVisible();
 });
 
 test("un espace protégé renvoie vers la connexion", async ({ page }) => {

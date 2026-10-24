@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import {
-  BackofficeShell,
   DashboardHeader,
   DashboardSkeleton,
   StatCard,
@@ -12,20 +11,11 @@ import { getDashboardCounts } from "@/lib/dashboard";
 
 export const metadata: Metadata = { title: "Espace employé" };
 
-const NAV = [
-  { label: "Commandes", step: 3 },
-  { label: "Menu du jour", step: 2 },
-  { label: "Réclamations", step: 3 },
-  { label: "Stats de la semaine", step: 3 },
-];
-
 export default function EmployeePage() {
   return (
-    <BackofficeShell areaLabel="Espace employé" nav={NAV}>
-      <Suspense fallback={<DashboardSkeleton />}>
-        <EmployeeDashboard />
-      </Suspense>
-    </BackofficeShell>
+    <Suspense fallback={<DashboardSkeleton />}>
+      <EmployeeDashboard />
+    </Suspense>
   );
 }
 
