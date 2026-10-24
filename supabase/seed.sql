@@ -12,7 +12,8 @@ values (
 insert into public.categories (id, name, position) values
   ('00000000-0000-4000-8000-000000000101', 'Plats', 1),
   ('00000000-0000-4000-8000-000000000102', 'Grillades', 2),
-  ('00000000-0000-4000-8000-000000000103', 'Boissons', 3);
+  ('00000000-0000-4000-8000-000000000103', 'Boissons', 3),
+  ('00000000-0000-4000-8000-000000000104', 'Desserts', 4);
 
 insert into public.menu_items (category_id, name, description, price_fcfa, image_url, is_available, is_dish_of_day) values
   ('00000000-0000-4000-8000-000000000101', 'Poulet DG', 'Poulet fermier, plantains mûrs, carottes et haricots verts sautés.', 3500, '/photos/poulet.jpg', true, true),
@@ -21,7 +22,14 @@ insert into public.menu_items (category_id, name, description, price_fcfa, image
   ('00000000-0000-4000-8000-000000000102', 'Brochettes de bœuf', 'Trois brochettes marinées, oignons grillés, frites de plantain.', 2000, '/photos/brochette.jpg', true, false),
   ('00000000-0000-4000-8000-000000000101', 'Riz sauté poulet', 'Riz sauté, poulet, légumes croquants.', 2500, '/photos/riz.jpg', false, false),
   ('00000000-0000-4000-8000-000000000101', 'Spaghetti omelette', 'Le classique de la terrasse, sauce tomate épicée.', 1500, '/photos/spag.jpg', true, false),
-  ('00000000-0000-4000-8000-000000000103', 'Jus de bissap', 'Fleurs d''hibiscus, gingembre, menthe. Fait maison.', 500, '/photos/bissap.jpg', true, false);
+  ('00000000-0000-4000-8000-000000000103', 'Jus de bissap', 'Fleurs d''hibiscus, gingembre, menthe. Fait maison.', 500, '/photos/bissap.jpg', true, false),
+  -- Plats de démonstration pour une carte de plus de 8 plats (photos Unsplash).
+  ('00000000-0000-4000-8000-000000000101', 'Sauce gombo', 'Gombo frais, viande fumée et poisson sec, servi avec couscous de maïs.', 3000, 'https://images.unsplash.com/photo-1665332561290-cc6757172890?auto=format&fit=crop&w=900&q=80', true, false),
+  ('00000000-0000-4000-8000-000000000102', 'Poulet braisé', 'Demi-poulet mariné aux épices, braisé au feu de bois, frites ou plantain.', 3500, 'https://images.unsplash.com/photo-1610057098265-05f2bcbedd55?auto=format&fit=crop&w=900&q=80', true, false),
+  ('00000000-0000-4000-8000-000000000102', 'Bar et alloco', 'Bar grillé, plantains frits, oignons rouges et citron vert.', 4500, 'https://images.unsplash.com/photo-1783408356251-f4953f943bb2?auto=format&fit=crop&w=900&q=80', true, false),
+  ('00000000-0000-4000-8000-000000000103', 'Jus de gingembre', 'Gingembre frais, citron et ananas. Bien relevé.', 500, 'https://images.unsplash.com/photo-1631029098074-be99eb2b425c?auto=format&fit=crop&w=900&q=80', true, false),
+  ('00000000-0000-4000-8000-000000000104', 'Salade de fruits', 'Fruits de saison coupés minute.', 1000, 'https://images.unsplash.com/photo-1658431618300-a69b07fb5782?auto=format&fit=crop&w=900&q=80', true, false),
+  ('00000000-0000-4000-8000-000000000104', 'Beignets sucrés', 'Six beignets maison, sucre glace.', 500, 'https://images.unsplash.com/photo-1618411640018-972400a01458?auto=format&fit=crop&w=900&q=80', true, false);
 
 insert into public.promotions (kind, title, description, starts_at, ends_at) values
   ('evenement', 'Soirée Ligue des champions', 'Match sur grand écran, brochettes à 1 500 F pendant la mi-temps.', now(), now() + interval '30 days');
