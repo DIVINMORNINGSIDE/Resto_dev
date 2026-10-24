@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { login, PASSWORD } from "./helpers";
+import { login, openSectionsMenu, PASSWORD } from "./helpers";
 
 test("l'accueil affiche le menu venant de la base", async ({ page }) => {
   await page.goto("/");
@@ -7,6 +7,9 @@ test("l'accueil affiche le menu venant de la base", async ({ page }) => {
   await expect(menu.getByRole("heading", { name: "Poulet DG" })).toBeVisible();
   const card = (name: string) => menu.getByRole("listitem").filter({ has: page.getByRole("heading", { name }) });
   await expect(card("Poulet DG").getByText("Plat du jour")).toBeVisible();
+  // 8 plats d'abord ; le bouton déplie le reste de la carte (dont le plat épuisé).
+  await expect(menu.getByRole("listitem").filter({ visible: true })).toHaveCount(8);
+  await menu.getByRole("button", { name: /Voir tout le menu/ }).click();
   await expect(card("Riz sauté poulet").getByText("Épuisé")).toBeVisible();
   // Le panneau « plat du jour » reprend le plat marqué en base.
   await expect(page.locator("#du-jour").getByRole("heading", { name: "Poulet DG" })).toBeVisible();
@@ -15,13 +18,7 @@ test("l'accueil affiche le menu venant de la base", async ({ page }) => {
 test("le lien Fidélité de l'accueil explique le programme et mène à l'espace fidélité", async ({ page, isMobile }) => {
   await page.goto("/");
   const link = page.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Fidélité" });
-  // Sur mobile, les liens sont dans le menu déroulant : on l'ouvre jusqu'à voir le lien.
-  if (isMobile) {
-    await expect(async () => {
-      if (!(await link.isVisible())) await page.getByLabel("Sections de la page").click();
-      await expect(link).toBeVisible({ timeout: 1000 });
-    }).toPass();
-  }
+  if (isMobile) await openSectionsMenu(page, link);
   await link.click();
   const loyalty = page.locator("#fidelite");
   await expect(loyalty.getByRole("heading", { name: /points/i })).toBeInViewport();
@@ -73,7 +70,7 @@ test("mauvais mot de passe : message clair", async ({ page }) => {
   );
 });
 
-test("inscription d'un étudiant puis déconnexion", async ({ page }, testInfo) => {
+test("inscription d'un étudiant puis déconnexion", async ({ page, isMobile }, testInfo) => {
   const email = `e2e-${testInfo.project.name}-${Date.now()}@miammiam.test`;
   await page.goto("/inscription");
   await page.getByLabel("Nom complet").fill("Jean Test");
@@ -93,5 +90,8 @@ test("inscription d'un étudiant puis déconnexion", async ({ page }, testInfo) 
 
   await page.getByRole("button", { name: "Se déconnecter" }).click();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("link", { name: "Se connecter" })).toBeVisible();
+  // Sous 1 024 px, le lien du compte est dans le menu déroulant.
+  const signIn = page.getByRole("link", { name: "Se connecter" });
+  if (isMobile) await openSectionsMenu(page, signIn);
+  await expect(signIn).toBeVisible();
 });

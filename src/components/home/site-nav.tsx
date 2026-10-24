@@ -30,7 +30,7 @@ export function SiteNav() {
           </ul>
         </nav>
         <div className="flex items-center gap-2">
-          {/* Sous 1 024 px, les liens passent dans un menu déroulant. */}
+          {/* Sous 1 024 px, les liens et le compte passent dans un menu déroulant. */}
           <details className="group relative lg:hidden">
             <summary
               aria-label="Sections de la page"
@@ -49,12 +49,20 @@ export function SiteNav() {
                     </SectionLink>
                   </li>
                 ))}
+                {/* Tant que ce menu existe, le lien du compte y est rangé. */}
+                <li className="mt-1 border-t border-cream/10 pt-2">
+                  <Suspense fallback={<AccountLinkSkeleton />}>
+                    <AccountLink className="w-full" />
+                  </Suspense>
+                </li>
               </ul>
             </nav>
           </details>
-          <Suspense fallback={<AccountLinkSkeleton />}>
-            <AccountLink />
-          </Suspense>
+          <div className="hidden lg:block">
+            <Suspense fallback={<AccountLinkSkeleton />}>
+              <AccountLink />
+            </Suspense>
+          </div>
           <SectionLink
             href="#menu"
             className="deco hidden min-h-10 items-center gap-2 bg-accent px-4 text-ink transition hover:bg-accent-hi sm:inline-flex"

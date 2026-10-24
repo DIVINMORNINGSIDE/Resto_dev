@@ -38,6 +38,7 @@ test.describe("menu du gérant", () => {
 
     // Visible sur le menu public, avec la photo envoyée au stockage.
     await page.goto("/");
+    await page.getByRole("button", { name: /Voir tout le menu/ }).click();
     const card = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: dish }) });
     await expect(card.getByRole("img", { name: dish })).toHaveAttribute("src", /menu-photos/);
 
@@ -162,6 +163,17 @@ test("l'admin modifie les paramètres du restaurant", async ({ page }) => {
 
   await bonus.fill("5");
   await page.getByLabel("dimanche").fill("Fermé");
+  await page.getByRole("button", { name: "Enregistrer les paramètres" }).click();
+  await expect(page.getByText("Paramètres enregistrés.")).toBeVisible();
+
+  // Le nom affiché remplace l'ancien sur le site public.
+  await page.getByLabel("Nom affiché").fill("Big Fish");
+  await page.getByRole("button", { name: "Enregistrer les paramètres" }).click();
+  await expect(page.getByText("Paramètres enregistrés.")).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByText("Bienvenue au Big Fish")).toBeVisible();
+  await page.goto("/admin/parametres");
+  await page.getByLabel("Nom affiché").fill("ZeDuc@Space");
   await page.getByRole("button", { name: "Enregistrer les paramètres" }).click();
   await expect(page.getByText("Paramètres enregistrés.")).toBeVisible();
 
