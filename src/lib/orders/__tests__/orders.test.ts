@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { cartCount, cartReducer, cartSubtotal, sanitizeCart, type CartLine } from "../cart";
 import { DEFAULT_RULES, maxRedeemBlocks, orderTotals, pointsEarned } from "../loyalty";
-import { nextStatuses, trackingSteps } from "../status";
+import { nextStatuses, staffNextStatuses, trackingSteps } from "../status";
 import { arrivalFromClock, periodRange, suggestedArrival } from "../time";
 import { checkoutSchema } from "../validation";
 
@@ -57,6 +57,13 @@ describe("statuts de commande", () => {
     expect(nextStatuses("livraison", "en_livraison")).toEqual(["livree"]);
     expect(nextStatuses("livraison", "livree")).toEqual([]);
     expect(trackingSteps("sur_place")).not.toContain("en_livraison");
+  });
+
+  it("l'employé ne valide ni n'annule, il fait avancer les commandes acceptées", () => {
+    expect(staffNextStatuses("sur_place", "en_attente", false)).toEqual([]);
+    expect(staffNextStatuses("sur_place", "en_attente", true)).toEqual(["en_preparation", "annulee"]);
+    expect(staffNextStatuses("sur_place", "en_preparation", false)).toEqual(["prete"]);
+    expect(staffNextStatuses("livraison", "prete", false)).toEqual(["en_livraison"]);
   });
 });
 

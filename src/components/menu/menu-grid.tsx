@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getPublicMenu } from "@/features/home/queries";
+import { getCurrentProfile } from "@/lib/auth/dal";
+import { can } from "@/lib/auth/roles";
 import { formatFcfa } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowIcon } from "@/components/ui/arrow-icon";
@@ -11,9 +13,11 @@ const FIRST_DISHES = 8;
 
 // Cartes façon Kado : photo pleine, nom en haut, prix et flèche en bas.
 // Toute la carte d'un plat disponible mène à la page Commander, sur ce plat
-// (la connexion est demandée d'abord si besoin).
+// (la connexion est demandée d'abord si besoin). Le personnel voit le menu
+// sans pouvoir commander : ses cartes ne sont pas cliquables.
 export async function MenuGrid() {
-  const items = await getPublicMenu();
+  const [items, profile] = await Promise.all([getPublicMenu(), getCurrentProfile()]);
+  const canOrder = !profile || can(profile.role, "commander");
 
   if (!items) {
     return <p className="text-center text-bad">Le menu n&apos;a pas pu être chargé. Réessaie dans un instant.</p>;
@@ -57,7 +61,7 @@ export async function MenuGrid() {
                 <p className="deco text-[10px] text-cream/70">{item.categoryName}</p>
                 <b className="text-sm tabular-nums">{formatFcfa(item.priceFcfa)}</b>
               </div>
-              {item.isAvailable ? (
+              {item.isAvailable && canOrder ? (
                 <span className="grid size-7 shrink-0 place-items-center bg-cream text-ink transition duration-300 ease-soft group-hover:bg-accent">
                   <ArrowIcon className="size-3.5 -rotate-45" />
                 </span>
@@ -68,7 +72,7 @@ export async function MenuGrid() {
                 {item.description}
               </p>
             ) : null}
-            {item.isAvailable ? (
+            {item.isAvailable && canOrder ? (
               // Posé en dernier, au-dessus de tout le reste : toute la carte est cliquable
               // (photo, nom, prix et flèche).
               <Link

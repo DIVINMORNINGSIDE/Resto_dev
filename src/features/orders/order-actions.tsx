@@ -2,16 +2,32 @@
 
 import { useState, useTransition } from "react";
 import { Spinner } from "@/components/ui/spinner";
-import { actionLabel, nextStatuses, type OrderStatus, type OrderType } from "@/lib/orders/status";
+import { actionLabel, staffNextStatuses, type OrderStatus, type OrderType } from "@/lib/orders/status";
 import { advanceOrder } from "./actions";
 
 // Boutons de la carte cuisine : l'étape suivante en évidence, annuler en retrait.
-export function OrderActions({ id, number, type, status }: { id: string; number: string; type: OrderType; status: OrderStatus }) {
+export function OrderActions({
+  id,
+  number,
+  type,
+  status,
+  canValidate,
+}: {
+  id: string;
+  number: string;
+  type: OrderType;
+  status: OrderStatus;
+  canValidate: boolean;
+}) {
   const [pending, startTransition] = useTransition();
   const [target, setTarget] = useState<OrderStatus>();
   const [error, setError] = useState<string>();
-  const next = nextStatuses(type, status);
-  if (!next.length) return null;
+  const next = staffNextStatuses(type, status, canValidate);
+  if (!next.length) {
+    return status === "en_attente" ? (
+      <p className="bg-bo-warnbg px-3 py-2 text-sm text-bo-warn">En attente de validation par le gérant.</p>
+    ) : null;
+  }
 
   function go(to: OrderStatus) {
     if (to === "annulee" && !window.confirm(`Annuler la commande ${number} ?`)) return;

@@ -13,7 +13,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 // Espace d'arrivée de chaque rôle après connexion.
 export const ROLE_HOME: Record<AppRole, string> = {
   etudiant: "/espace",
-  employe: "/employe",
+  employe: "/employe/commandes",
   gerant: "/gerant",
   admin: "/admin",
 };
@@ -21,12 +21,42 @@ export const ROLE_HOME: Record<AppRole, string> = {
 // Pages réservées aux visiteurs : une fois connecté, on file vers son espace.
 export const GUEST_ONLY_PATHS = ["/connexion", "/inscription"];
 
-// Qui peut ouvrir chaque espace. Le personnel peut aussi commander comme un client.
+const STAFF: readonly AppRole[] = ["employe", "gerant", "admin"];
+const MANAGERS: readonly AppRole[] = ["gerant", "admin"];
+
+// Matrice des droits : qui peut faire quoi. La base applique les mêmes règles
+// (RLS et fonctions SQL) ; cette copie sert à protéger les pages et à n'afficher
+// que les liens utiles.
+export const PERMISSIONS = {
+  // Seul un étudiant passe commande ; le personnel voit le menu sans commander.
+  commander: ["etudiant"],
+  voirCommandes: STAFF,
+  // Accepter une commande (la lancer en cuisine) ou l'annuler.
+  validerCommande: MANAGERS,
+  voirMenu: STAFF,
+  // Créer, supprimer un plat ou changer son prix. L'employé ne change que la disponibilité.
+  modifierMenu: MANAGERS,
+  tableauDeBord: MANAGERS,
+  reclamations: MANAGERS,
+  statistiques: MANAGERS,
+  parametres: MANAGERS,
+  promotions: MANAGERS,
+  personnel: ["admin"],
+} as const satisfies Record<string, readonly AppRole[]>;
+
+export type Permission = keyof typeof PERMISSIONS;
+
+export function can(role: AppRole, permission: Permission): boolean {
+  return (PERMISSIONS[permission] as readonly AppRole[]).includes(role);
+}
+
+// Qui peut ouvrir chaque espace. L'espace étudiant (commander, panier, fidélité)
+// est réservé aux étudiants ; chaque page vérifie ensuite sa permission.
 const AREA_ACCESS: Record<string, readonly AppRole[]> = {
-  "/espace": ROLES,
+  "/espace": PERMISSIONS.commander,
   "/compte": ROLES,
-  "/employe": ["employe", "gerant", "admin"],
-  "/gerant": ["gerant", "admin"],
+  "/employe": STAFF,
+  "/gerant": MANAGERS,
   "/admin": ["admin"],
 };
 

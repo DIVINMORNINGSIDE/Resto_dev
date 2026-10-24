@@ -3,7 +3,7 @@
 import { createClient as createStatelessClient } from "@supabase/supabase-js";
 import { refresh } from "next/cache";
 import { requireRole } from "@/lib/auth/dal";
-import { allowedRolesFor, ROLE_HOME, ROLE_LABELS, ROLES, type AppRole } from "@/lib/auth/roles";
+import { PERMISSIONS, ROLE_HOME, ROLE_LABELS, ROLES, type AppRole } from "@/lib/auth/roles";
 import { fieldErrors } from "@/lib/auth/validation";
 import { assignableRoles, generateTempPassword, staffInviteSchema, type BoFormState } from "@/lib/backoffice/validation";
 import type { Database } from "@/lib/supabase/database.types";
@@ -23,7 +23,7 @@ function rpcMessage(error: { code?: string; message: string }): string {
 }
 
 export async function addStaff(_prev: BoFormState, formData: FormData): Promise<BoFormState> {
-  const viewer = await requireRole(allowedRolesFor("/gerant"));
+  const viewer = await requireRole(PERMISSIONS.personnel);
   const values = { email: text(formData, "email"), fullName: text(formData, "fullName"), role: text(formData, "role") };
   const parsed = staffInviteSchema.safeParse(values);
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -81,7 +81,7 @@ export async function addStaff(_prev: BoFormState, formData: FormData): Promise<
 }
 
 export async function changeStaffRole(_prev: BoFormState, formData: FormData): Promise<BoFormState> {
-  await requireRole(allowedRolesFor("/gerant"));
+  await requireRole(PERMISSIONS.personnel);
   const role = text(formData, "role") as AppRole;
   if (!ROLES.includes(role)) return { message: UNEXPECTED };
   const supabase = await createClient();
@@ -94,7 +94,7 @@ export async function changeStaffRole(_prev: BoFormState, formData: FormData): P
 }
 
 export async function setStaffActive(_prev: BoFormState, formData: FormData): Promise<BoFormState> {
-  await requireRole(allowedRolesFor("/gerant"));
+  await requireRole(PERMISSIONS.personnel);
   const active = text(formData, "active") === "true";
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_staff_active", { p_user_id: text(formData, "id"), p_active: active });

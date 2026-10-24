@@ -37,11 +37,22 @@ export function nextStatuses(type: OrderType, status: OrderStatus): OrderStatus[
   }
 }
 
+// Accepter une commande (la lancer en cuisine) ou l'annuler : réservé au gérant
+// et à l'admin. L'employé fait avancer les commandes déjà acceptées.
+export function needsValidation(to: OrderStatus): boolean {
+  return to === "en_preparation" || to === "annulee";
+}
+
+// Étapes que ce compte peut déclencher depuis l'écran des commandes.
+export function staffNextStatuses(type: OrderType, status: OrderStatus, canValidate: boolean): OrderStatus[] {
+  return nextStatuses(type, status).filter((to) => canValidate || !needsValidation(to));
+}
+
 // Libellé du bouton qui mène à ce statut.
 export function actionLabel(type: OrderType, to: OrderStatus): string {
   switch (to) {
     case "en_preparation":
-      return "Lancer en cuisine";
+      return "Valider et lancer en cuisine";
     case "prete":
       return "Marquer prête";
     case "en_livraison":

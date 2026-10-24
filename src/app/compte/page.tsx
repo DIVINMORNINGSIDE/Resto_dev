@@ -23,7 +23,6 @@ const card = "border border-line bg-s1 p-5 sm:p-6";
 
 async function Account() {
   const profile = await requireRole(allowedRolesFor("/compte"));
-  const isStaff = profile.role !== "etudiant";
 
   return (
     <div className="flex flex-col gap-5 animate-rise">
@@ -39,11 +38,6 @@ async function Account() {
         <Link href={ROLE_HOME[profile.role]} className={primaryButton}>
           Retour à mon espace
         </Link>
-        {isStaff ? (
-          <Link href="/espace/commander" className={ghostButton}>
-            Commander un repas
-          </Link>
-        ) : null}
       </nav>
 
       <section aria-labelledby="photo" className={card}>

@@ -24,7 +24,7 @@ async function ManagerDashboard() {
   const counts = await getDashboardCounts();
   return (
     <>
-      <DashboardHeader title="Vue d'ensemble" firstName={profile.fullName.split(" ")[0]} />
+      <DashboardHeader title="Tableau de bord" firstName={profile.fullName.split(" ")[0]} />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Commandes en attente" value={counts.pendingOrders} tone="warn" />
         <StatCard label="En cuisine ou prêtes" value={counts.ordersInKitchen} tone="info" />

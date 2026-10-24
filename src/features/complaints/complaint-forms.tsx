@@ -5,7 +5,7 @@ import { BoField, BoNotice, BoTextarea } from "@/components/backoffice/bo-form";
 import { BoSubmit } from "@/components/backoffice/bo-submit";
 import { decideComplaint, respondComplaint, type ComplaintFormState } from "./actions";
 
-export function RespondForm({ id, isManager }: { id: string; isManager: boolean }) {
+export function RespondForm({ id }: { id: string }) {
   const [state, action] = useActionState<ComplaintFormState, FormData>(respondComplaint, {});
   return (
     <form action={action} className="flex flex-col gap-3">
@@ -16,11 +16,11 @@ export function RespondForm({ id, isManager }: { id: string; isManager: boolean 
         id={`response-${id}`}
         defaultValue={state.values?.response}
         error={state.errors?.response}
-        hint={isManager ? "Ta réponse est envoyée directement au client." : "Le gérant la valide avant qu'elle parte au client."}
+        hint="Ta réponse est envoyée directement au client."
       />
       <BoNotice message={state.message} success={state.success} />
       <BoSubmit pendingLabel="Envoi…" className="self-start">
-        {isManager ? "Répondre et clore" : "Proposer cette réponse"}
+        Répondre et clore
       </BoSubmit>
     </form>
   );

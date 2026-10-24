@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { BoPageHeader } from "@/components/backoffice/bo-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/dal";
-import { allowedRolesFor } from "@/lib/auth/roles";
+import { allowedRolesFor, can } from "@/lib/auth/roles";
 import { formatFcfa } from "@/lib/format";
 import { ORDER_STATUS_LABELS, ORDER_TYPE_LABELS, type OrderStatus } from "@/lib/orders/status";
 import { formatTime, periodRange } from "@/lib/orders/time";
@@ -11,13 +11,14 @@ import { OrderActions } from "./order-actions";
 import { getKitchenOrders, type Order } from "./queries";
 
 const COLUMNS: { status: OrderStatus; title: string; tone: string }[] = [
-  { status: "en_attente", title: "À lancer", tone: "bg-bo-warnbg text-bo-warn" },
+  { status: "en_attente", title: "À valider", tone: "bg-bo-warnbg text-bo-warn" },
   { status: "en_preparation", title: "En préparation", tone: "bg-bo-infobg text-bo-info" },
   { status: "prete", title: "Prêtes", tone: "bg-bo-okbg text-bo-ok" },
   { status: "en_livraison", title: "En livraison", tone: "bg-bo-infobg text-bo-info" },
 ];
 
 // Écran des commandes en temps réel, partagé par l'employé, le gérant et l'admin.
+// Seuls le gérant et l'admin valident (lancent en cuisine) ou annulent une commande.
 export function KitchenPage({ area, title }: { area: "/employe" | "/gerant" | "/admin"; title: string }) {
   return (
     <>
@@ -32,7 +33,8 @@ export function KitchenPage({ area, title }: { area: "/employe" | "/gerant" | "/
 }
 
 async function KitchenBoard({ area }: { area: "/employe" | "/gerant" | "/admin" }) {
-  await requireRole(allowedRolesFor(area));
+  const viewer = await requireRole(allowedRolesFor(area));
+  const canValidate = can(viewer.role, "validerCommande");
   const { active, done } = await getKitchenOrders(periodRange("jour").from);
   return (
     <div className="flex flex-col gap-8">
@@ -46,7 +48,7 @@ async function KitchenBoard({ area }: { area: "/employe" | "/gerant" | "/admin" 
                 <span className={`deco rounded-full px-2.5 py-0.5 ${column.tone}`}>{orders.length}</span>
               </h2>
               {orders.length ? (
-                orders.map((order) => <Ticket key={order.id} order={order} />)
+                orders.map((order) => <Ticket key={order.id} order={order} canValidate={canValidate} />)
               ) : (
                 <p className="border border-dashed border-bo-line p-4 text-sm text-bo-text2">Rien pour l&apos;instant.</p>
               )}
@@ -87,7 +89,7 @@ async function KitchenBoard({ area }: { area: "/employe" | "/gerant" | "/admin" 
   );
 }
 
-function Ticket({ order }: { order: Order }) {
+function Ticket({ order, canValidate }: { order: Order; canValidate: boolean }) {
   return (
     <article
       aria-label={`Commande ${order.number}`}
@@ -123,7 +125,7 @@ function Ticket({ order }: { order: Order }) {
         <span className="text-bo-text2">{order.discountFcfa > 0 ? `dont −${formatFcfa(order.discountFcfa)} en points` : "À encaisser"}</span>
         <b className="tabular-nums">{formatFcfa(order.totalFcfa)}</b>
       </p>
-      <OrderActions id={order.id} number={order.number} type={order.type} status={order.status} />
+      <OrderActions id={order.id} number={order.number} type={order.type} status={order.status} canValidate={canValidate} />
     </article>
   );
 }

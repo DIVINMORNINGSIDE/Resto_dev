@@ -2,25 +2,25 @@ import { Suspense } from "react";
 import { BoCard, BoPageHeader } from "@/components/backoffice/bo-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/dal";
-import { allowedRolesFor } from "@/lib/auth/roles";
+import { PERMISSIONS } from "@/lib/auth/roles";
 import { assignableRoles, canManage } from "@/lib/backoffice/validation";
 import { getStaff } from "./queries";
 import { AddStaffForm, StaffRow } from "./staff-forms";
 
-// Gestion du personnel : l'admin gère tous les rôles, le gérant les employés.
-export function StaffPage({ area }: { area: "/admin" | "/gerant" }) {
+// Gestion du personnel : réservée à l'administrateur, qui gère tous les rôles.
+export function StaffPage() {
   return (
     <>
-      <BoPageHeader kicker="Équipe" title={area === "/admin" ? "Personnel" : "Employés"} />
+      <BoPageHeader kicker="Équipe" title="Personnel" />
       <Suspense fallback={<StaffSkeleton />}>
-        <StaffManager area={area} />
+        <StaffManager />
       </Suspense>
     </>
   );
 }
 
-async function StaffManager({ area }: { area: "/admin" | "/gerant" }) {
-  const viewer = await requireRole(allowedRolesFor(area));
+async function StaffManager() {
+  const viewer = await requireRole(PERMISSIONS.personnel);
   const staff = await getStaff();
   const roles = assignableRoles(viewer.role);
   return (
