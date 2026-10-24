@@ -37,7 +37,7 @@ export function OrderMenu({ sections }: { sections: MenuSection[] }) {
             <h2 id={`cat-${section.id}`} className="deco mb-3 text-accent">
               {section.name}
             </h2>
-            <ul className="flex flex-col gap-3">
+            <ul className="grid gap-3 lg:grid-cols-2">
               {section.items.map((item, i) => {
                 const line = lines.find((l) => l.id === item.id);
                 return (
@@ -109,7 +109,7 @@ export function OrderMenu({ sections }: { sections: MenuSection[] }) {
       </div>
 
       {count > 0 ? (
-        <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-10 px-4 pb-3 animate-rise">
+        <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-10 flex justify-center px-4 pb-3 animate-rise lg:bottom-4">
           <Link href="/espace/panier" className={`${primaryButton} mx-auto w-full max-w-lg justify-between shadow-2xl shadow-ink/60`}>
             <span>
               Voir le panier · {count} article{count > 1 ? "s" : ""}

@@ -48,10 +48,7 @@ export function Welcome() {
   return (
     <section id="maison" className="scroll-mt-24 bg-paper text-ink">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-20 md:grid-cols-[1fr_2fr] md:py-28">
-        <p className="deco text-ink/70">
-          Bienvenue au <RestaurantName />
-        </p>
-        <div className="animate-rise">
+        <div className="animate-rise md:col-start-2">
           <h2 className="font-display text-[clamp(2.25rem,4.6vw,3.6rem)]">
             Des plats du jour cuisinés avec passion et des produits frais.
           </h2>
@@ -201,13 +198,19 @@ export function SiteFooter() {
         <nav aria-label="Liens du pied de page">
           <ul className="flex flex-wrap gap-x-6 gap-y-2">
             <li>
-              <a href="#menu" className="deco text-cream/80 hover:text-accent">Menu</a>
+              <Link href="/#menu" className="deco text-cream/80 hover:text-accent">Menu</Link>
             </li>
             <li>
               <Link href="/connexion" className="deco text-cream/80 hover:text-accent">Connexion</Link>
             </li>
             <li>
               <Link href="/inscription" className="deco text-cream/80 hover:text-accent">Créer un compte</Link>
+            </li>
+            <li>
+              <Link href="/mentions-legales" className="deco text-cream/80 hover:text-accent">Mentions légales</Link>
+            </li>
+            <li>
+              <Link href="/confidentialite" className="deco text-cream/80 hover:text-accent">Confidentialité</Link>
             </li>
           </ul>
         </nav>

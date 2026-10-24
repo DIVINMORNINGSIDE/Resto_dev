@@ -42,8 +42,8 @@ async function Orders() {
   return (
     <div className="flex flex-col gap-8">
       {active.length ? (
-        <section aria-labelledby="en-cours" className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
+        <section aria-labelledby="en-cours" className="grid gap-3 lg:grid-cols-2">
+          <div className="flex items-center justify-between lg:col-span-2">
             <h2 id="en-cours" className="deco text-accent">
               En cours
             </h2>
@@ -55,8 +55,8 @@ async function Orders() {
         </section>
       ) : null}
       {past.length ? (
-        <section aria-labelledby="historique" className="flex flex-col gap-3">
-          <h2 id="historique" className="deco text-accent">
+        <section aria-labelledby="historique" className="grid gap-3 lg:grid-cols-2">
+          <h2 id="historique" className="deco text-accent lg:col-span-2">
             Historique
           </h2>
           {past.map((order) => (

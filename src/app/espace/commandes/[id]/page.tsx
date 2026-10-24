@@ -51,63 +51,65 @@ async function OrderDetail({ params, searchParams }: Pick<PageProps<"/espace/com
         <Notice success="Commande envoyée en cuisine. Tu suis son avancement ici, en direct." />
       ) : null}
 
-      <section className="flex flex-col gap-4 border border-cream/15 bg-s1 p-5" aria-labelledby="suivi">
-        <div className="flex items-center justify-between">
-          <h2 id="suivi" className="deco text-accent">
-            Suivi
-          </h2>
-          {order.status !== "livree" && order.status !== "annulee" ? (
-            <LiveRefresh table="orders" filter={`id=eq.${order.id}`} />
-          ) : null}
-        </div>
-        <OrderTracking type={order.type} status={order.status} />
-        <p className="text-sm text-mute">
-          {order.type === "sur_place" && order.arrivalTime
-            ? `Arrivée prévue à ${formatTime(order.arrivalTime)}`
-            : order.deliveryAddress
-              ? `Livraison : ${order.deliveryAddress}`
-              : null}
-        </p>
-        {order.status === "en_attente" ? <CancelOrderButton orderId={order.id} /> : null}
-      </section>
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <section className="flex flex-col gap-4 border border-cream/15 bg-s1 p-5" aria-labelledby="suivi">
+          <div className="flex items-center justify-between">
+            <h2 id="suivi" className="deco text-accent">
+              Suivi
+            </h2>
+            {order.status !== "livree" && order.status !== "annulee" ? (
+              <LiveRefresh table="orders" filter={`id=eq.${order.id}`} />
+            ) : null}
+          </div>
+          <OrderTracking type={order.type} status={order.status} />
+          <p className="text-sm text-mute">
+            {order.type === "sur_place" && order.arrivalTime
+              ? `Arrivée prévue à ${formatTime(order.arrivalTime)}`
+              : order.deliveryAddress
+                ? `Livraison : ${order.deliveryAddress}`
+                : null}
+          </p>
+          {order.status === "en_attente" ? <CancelOrderButton orderId={order.id} /> : null}
+        </section>
 
-      <section aria-labelledby="detail" className="flex flex-col gap-2">
-        <h2 id="detail" className="deco text-accent">
-          Détail
-        </h2>
-        <ul className="divide-y divide-line border-y border-line">
-          {order.lines.map((line) => (
-            <li key={line.name} className="flex justify-between gap-3 py-2 text-sm">
-              <span>
-                {line.quantity} × {line.name}
-              </span>
-              <span className="tabular-nums">{formatFcfa(line.quantity * line.unitPriceFcfa)}</span>
-            </li>
-          ))}
-        </ul>
-        <dl className="flex flex-col gap-1 text-sm">
-          {order.discountFcfa > 0 ? (
-            <div className="flex justify-between text-ok">
-              <dt>Réduction ({order.pointsUsed} points)</dt>
-              <dd className="tabular-nums">−{formatFcfa(order.discountFcfa)}</dd>
+        <section aria-labelledby="detail" className="flex flex-col gap-2">
+          <h2 id="detail" className="deco text-accent">
+            Détail
+          </h2>
+          <ul className="divide-y divide-line border-y border-line">
+            {order.lines.map((line) => (
+              <li key={line.name} className="flex justify-between gap-3 py-2 text-sm">
+                <span>
+                  {line.quantity} × {line.name}
+                </span>
+                <span className="tabular-nums">{formatFcfa(line.quantity * line.unitPriceFcfa)}</span>
+              </li>
+            ))}
+          </ul>
+          <dl className="flex flex-col gap-1 text-sm">
+            {order.discountFcfa > 0 ? (
+              <div className="flex justify-between text-ok">
+                <dt>Réduction ({order.pointsUsed} points)</dt>
+                <dd className="tabular-nums">−{formatFcfa(order.discountFcfa)}</dd>
+              </div>
+            ) : null}
+            <div className="flex items-baseline justify-between">
+              <dt className="deco">Total</dt>
+              <dd className="font-display text-3xl tabular-nums">{formatFcfa(order.totalFcfa)}</dd>
             </div>
-          ) : null}
-          <div className="flex items-baseline justify-between">
-            <dt className="deco">Total</dt>
-            <dd className="font-display text-3xl tabular-nums">{formatFcfa(order.totalFcfa)}</dd>
-          </div>
-          <div className="flex justify-between text-mute">
-            <dt>Points de fidélité</dt>
-            <dd>
-              {order.status === "livree"
-                ? `+${order.pointsEarned} crédités`
-                : order.status === "annulee"
-                  ? "aucun"
-                  : `+${order.pointsEarned} à la livraison`}
-            </dd>
-          </div>
-        </dl>
-      </section>
+            <div className="flex justify-between text-mute">
+              <dt>Points de fidélité</dt>
+              <dd>
+                {order.status === "livree"
+                  ? `+${order.pointsEarned} crédités`
+                  : order.status === "annulee"
+                    ? "aucun"
+                    : `+${order.pointsEarned} à la livraison`}
+              </dd>
+            </div>
+          </dl>
+        </section>
+      </div>
 
       {order.status !== "annulee" ? (
         <details className="group border border-cream/15 p-4">
