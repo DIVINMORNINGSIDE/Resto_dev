@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { passwordSchema, signupSchema } from "../validation";
+import { passwordSchema, profileSchema, signupSchema } from "../validation";
 
 const valid = {
   fullName: "Awa Ngono",
@@ -34,5 +34,17 @@ describe("inscription", () => {
     const result = signupSchema.safeParse({ ...valid, confirmPassword: "Autre2026" });
     expect(result.success).toBe(false);
     expect(result.error?.issues[0].path).toEqual(["confirmPassword"]);
+  });
+});
+
+describe("mon compte", () => {
+  it("accepte un téléphone vide mais refuse un numéro invalide", () => {
+    expect(profileSchema.parse({ fullName: " Paul ", phone: "  ", deliveryAddress: "" })).toEqual({
+      fullName: "Paul",
+      phone: "",
+      deliveryAddress: "",
+    });
+    expect(profileSchema.safeParse({ fullName: "Paul", phone: "12", deliveryAddress: "" }).success).toBe(false);
+    expect(profileSchema.safeParse({ fullName: "P", phone: "", deliveryAddress: "" }).success).toBe(false);
   });
 });

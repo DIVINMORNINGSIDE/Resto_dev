@@ -52,7 +52,7 @@ export function SiteNav() {
                 {/* Tant que ce menu existe, le lien du compte y est rangé. */}
                 <li className="mt-1 border-t border-cream/10 pt-2">
                   <Suspense fallback={<AccountLinkSkeleton />}>
-                    <AccountLink className="w-full" />
+                    <AccountLink variant="menu" />
                   </Suspense>
                 </li>
               </ul>

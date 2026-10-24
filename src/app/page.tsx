@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import { AuthSwitch } from "@/components/account/auth-switch";
 import {
   DishOfDayPanel,
   DishOfDaySkeleton,
@@ -80,9 +81,14 @@ export default function HomePage() {
                 <Link href="/espace/fidelite" className="deco inline-flex min-h-11 items-center bg-ink px-5 text-cream transition hover:bg-ink/85">
                   Voir mes points
                 </Link>
-                <Link href="/inscription" className={outlineDark}>
-                  Créer mon compte
-                </Link>
+                <AuthSwitch
+                  guest={
+                    <Link href="/inscription" className={outlineDark}>
+                      Créer mon compte
+                    </Link>
+                  }
+                  member={() => null}
+                />
               </div>
             </div>
             <Suspense fallback={<LoyaltyRulesSkeleton />}>

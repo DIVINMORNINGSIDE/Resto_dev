@@ -5,7 +5,7 @@ import { getLoyaltyRules, getMyOrders } from "@/features/orders/queries";
 import { getCurrentPromotions } from "@/features/promotions/queries";
 import { OrderCard } from "@/features/student/order-card";
 import { PromoPosters } from "@/features/student/promo-posters";
-import { primaryButton } from "@/features/student/ui";
+import { ghostButton, primaryButton } from "@/features/student/ui";
 import { ACTIVE_STATUSES } from "@/lib/orders/status";
 import { SignOutButton } from "@/components/account/sign-out-button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -81,7 +81,12 @@ async function StudentHome() {
         </Link>
       </div>
 
-      <SignOutButton className="deco self-start border border-cream/30 px-4 py-3 text-cream/85 hover:border-cream hover:text-cream" />
+      <div className="flex flex-wrap gap-2">
+        <Link href="/compte" className={ghostButton}>
+          Mon compte
+        </Link>
+        <SignOutButton className={ghostButton} />
+      </div>
     </div>
   );
 }

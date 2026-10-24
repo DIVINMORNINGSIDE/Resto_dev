@@ -148,6 +148,8 @@ test("statistiques : le gérant change de période, l'employé voit la semaine",
   await expect(page.getByRole("heading", { name: "Plats les plus commandés" })).toBeVisible();
   await expect(page.getByText("Poulet DG").first()).toBeVisible();
 
+  // Connecté, /connexion renvoie vers son espace : on change de compte avec une session vide.
+  await page.context().clearCookies();
   await loginAs(page, "employe@miammiam.test", /\/employe$/);
   await page.getByRole("link", { name: "Stats de la semaine" }).click();
   await expect(page.getByRole("heading", { name: "Stats de la semaine" })).toBeVisible();

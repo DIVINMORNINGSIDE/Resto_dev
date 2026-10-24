@@ -1,11 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isProtectedPath, LOGIN_PATH } from "@/lib/auth/roles";
+import { GUEST_ONLY_PATHS, isProtectedPath, LOGIN_PATH, redirectAfterLogin } from "@/lib/auth/roles";
+import type { Database } from "./database.types";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
@@ -30,7 +31,8 @@ export async function updateSession(request: NextRequest) {
   // Ne rien exécuter entre createServerClient et getClaims : getClaims vérifie
   // le jeton et rafraîchit la session si elle arrive à expiration.
   const { data } = await supabase.auth.getClaims();
-  const isSignedIn = Boolean(data?.claims?.sub);
+  const userId = data?.claims?.sub;
+  const isSignedIn = Boolean(userId);
 
   const { pathname, search } = request.nextUrl;
   if (!isSignedIn && isProtectedPath(pathname)) {
@@ -39,6 +41,25 @@ export async function updateSession(request: NextRequest) {
     url.search = "";
     url.searchParams.set("suivant", pathname + search);
     return NextResponse.redirect(url);
+  }
+
+  // Déjà connecté : la connexion et l'inscription renvoient vers son espace
+  // (ou la page demandée). Un compte désactivé peut encore voir ces pages.
+  if (userId && GUEST_ONLY_PATHS.includes(pathname)) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, is_active")
+      .eq("id", userId)
+      .single();
+    if (profile?.is_active) {
+      const url = request.nextUrl.clone();
+      const target = new URL(redirectAfterLogin(profile.role, request.nextUrl.searchParams.get("suivant")), url);
+      url.pathname = target.pathname;
+      url.search = target.search;
+      const redirect = NextResponse.redirect(url);
+      supabaseResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+      return redirect;
+    }
   }
 
   return supabaseResponse;

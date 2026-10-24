@@ -187,14 +187,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"delivery_address": string | null,"email": string,"full_name": string,"id": string,"is_active": boolean,"phone": string | null,"points_balance": number,"referral_code": string,"referred_by": string | null,"restaurant_id": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
+                    "avatar_path": string | null,"created_at": string,"delivery_address": string | null,"email": string,"full_name": string,"id": string,"is_active": boolean,"phone": string | null,"points_balance": number,"referral_code": string,"referred_by": string | null,"restaurant_id": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"delivery_address"?: string | null,"email": string,"full_name": string,"id": string,"is_active"?: boolean,"phone"?: string | null,"points_balance"?: number,"referral_code": string,"referred_by"?: string | null,"restaurant_id"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"delivery_address"?: string | null,"email": string,"full_name": string,"id": string,"is_active"?: boolean,"phone"?: string | null,"points_balance"?: number,"referral_code": string,"referred_by"?: string | null,"restaurant_id"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"delivery_address"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"is_active"?: boolean,"phone"?: string | null,"points_balance"?: number,"referral_code"?: string,"referred_by"?: string | null,"restaurant_id"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"delivery_address"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"is_active"?: boolean,"phone"?: string | null,"points_balance"?: number,"referral_code"?: string,"referred_by"?: string | null,"restaurant_id"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Relationships: [
                     {

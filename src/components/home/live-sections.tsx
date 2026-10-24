@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AuthSwitch } from "@/components/account/auth-switch";
 import { MenuPhoto } from "@/components/menu/menu-photo";
 import { ArrowIcon } from "@/components/ui/arrow-icon";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,9 +32,19 @@ export async function PromoPanel() {
           Matchs sur grand écran, menus spéciaux et réductions : tout est annoncé ici.
         </p>
       )}
-      <Link href="/inscription" className={`${outlineDark} mt-6`}>
-        Ne rien rater
-      </Link>
+      <AuthSwitch
+        fallback={<span className="mt-6 block h-11" />}
+        guest={
+          <Link href="/inscription" className={`${outlineDark} mt-6`}>
+            Ne rien rater
+          </Link>
+        }
+        member={() => (
+          <Link href="/espace" className={`${outlineDark} mt-6`}>
+            Voir les promos
+          </Link>
+        )}
+      />
     </div>
   );
 }
