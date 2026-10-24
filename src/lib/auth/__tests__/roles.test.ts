@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canAccess, isProtectedPath, redirectAfterLogin } from "../roles";
+import { can, canAccess, isProtectedPath, redirectAfterLogin } from "../roles";
 
 describe("accès aux espaces", () => {
   it("protège les quatre espaces et laisse l'accueil public", () => {
@@ -14,14 +14,47 @@ describe("accès aux espaces", () => {
     expect(canAccess("/gerant", "admin")).toBe(true);
     expect(canAccess("/employe", "etudiant")).toBe(false);
     expect(canAccess("/employe/commandes", "employe")).toBe(true);
-    expect(canAccess("/espace", "employe")).toBe(true);
+    expect(canAccess("/espace", "employe")).toBe(false);
+    expect(canAccess("/espace/commander", "admin")).toBe(false);
+    expect(canAccess("/espace", "etudiant")).toBe(true);
+  });
+});
+
+describe("matrice des droits", () => {
+  it("seul l'étudiant commande", () => {
+    expect(can("etudiant", "commander")).toBe(true);
+    for (const role of ["employe", "gerant", "admin"] as const) expect(can(role, "commander")).toBe(false);
+  });
+
+  it("le personnel voit commandes et menu, l'étudiant non", () => {
+    for (const role of ["employe", "gerant", "admin"] as const) {
+      expect(can(role, "voirCommandes")).toBe(true);
+      expect(can(role, "voirMenu")).toBe(true);
+    }
+    expect(can("etudiant", "voirCommandes")).toBe(false);
+  });
+
+  it("gérant et admin seulement pour valider, réclamations, stats, paramètres, promotions, tableau de bord", () => {
+    for (const permission of [
+      "validerCommande", "modifierMenu", "tableauDeBord", "reclamations", "statistiques", "parametres", "promotions",
+    ] as const) {
+      expect(can("gerant", permission)).toBe(true);
+      expect(can("admin", permission)).toBe(true);
+      expect(can("employe", permission)).toBe(false);
+      expect(can("etudiant", permission)).toBe(false);
+    }
+  });
+
+  it("seul l'admin gère le personnel", () => {
+    expect(can("admin", "personnel")).toBe(true);
+    expect(can("gerant", "personnel")).toBe(false);
   });
 });
 
 describe("redirection après connexion", () => {
   it("envoie chaque rôle vers son espace par défaut", () => {
     expect(redirectAfterLogin("etudiant")).toBe("/espace");
-    expect(redirectAfterLogin("employe")).toBe("/employe");
+    expect(redirectAfterLogin("employe")).toBe("/employe/commandes");
     expect(redirectAfterLogin("gerant")).toBe("/gerant");
     expect(redirectAfterLogin("admin")).toBe("/admin");
   });

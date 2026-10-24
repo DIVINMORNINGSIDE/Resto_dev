@@ -85,16 +85,12 @@ export type MenuToggle = (typeof MENU_TOGGLES)[number];
 
 // Rôles qu'un compte peut attribuer depuis la gestion du personnel.
 export function assignableRoles(viewer: AppRole): AppRole[] {
-  if (viewer === "admin") return ["etudiant", "employe", "gerant", "admin"];
-  if (viewer === "gerant") return ["etudiant", "employe"];
-  return [];
+  return viewer === "admin" ? ["etudiant", "employe", "gerant", "admin"] : [];
 }
 
 // Un compte du personnel que l'utilisateur connecté peut modifier.
 export function canManage(viewer: AppRole, viewerId: string, target: { id: string; role: AppRole }): boolean {
-  if (target.id === viewerId) return false;
-  if (viewer === "admin") return true;
-  return viewer === "gerant" && (target.role === "employe" || target.role === "etudiant");
+  return viewer === "admin" && target.id !== viewerId;
 }
 
 export const staffInviteSchema = z.object({

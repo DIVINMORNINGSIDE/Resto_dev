@@ -2,14 +2,14 @@ import { Suspense } from "react";
 import { BoPageHeader } from "@/components/backoffice/bo-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/dal";
-import { allowedRolesFor } from "@/lib/auth/roles";
+import { PERMISSIONS } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { SettingsForm } from "./settings-form";
 
 export function SettingsPage() {
   return (
     <>
-      <BoPageHeader kicker="Administration" title="Paramètres" />
+      <BoPageHeader kicker="Restaurant" title="Paramètres" />
       <Suspense fallback={<SettingsSkeleton />}>
         <SettingsLoader />
       </Suspense>
@@ -18,7 +18,7 @@ export function SettingsPage() {
 }
 
 async function SettingsLoader() {
-  await requireRole(allowedRolesFor("/admin"));
+  await requireRole(PERMISSIONS.parametres);
   const supabase = await createClient();
   const { data: r } = await supabase
     .from("restaurants")

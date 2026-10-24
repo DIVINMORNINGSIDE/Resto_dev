@@ -71,7 +71,7 @@ test.describe("menu du gérant", () => {
 
 test.describe("menu du jour de l'employé", () => {
   test("change le plat du jour en un clic, sans accès aux prix", async ({ page }) => {
-    await loginAs(page, "employe@miammiam.test", /\/employe$/);
+    await loginAs(page, "employe@miammiam.test", /\/employe\/commandes$/);
     await page.getByRole("link", { name: "Menu du jour" }).click();
     await expect(page).toHaveURL(/\/employe\/menu$/);
     await expect(page.getByRole("link", { name: /^Modifier/ })).toHaveCount(0);
@@ -89,20 +89,22 @@ test.describe("menu du jour de l'employé", () => {
     await expect(dishOfDay).not.toHaveAttribute("aria-busy", "true");
 
     await page.goto("/gerant/menu");
-    await expect(page).toHaveURL(/\/employe$/);
+    await expect(page).toHaveURL(/\/employe\/commandes$/);
   });
 });
 
 test.describe("gestion du personnel", () => {
-  test("le gérant crée un compte employé puis le désactive", async ({ page, browser }, testInfo) => {
-    const email = `staff-${testInfo.project.name}-${Date.now()}@miammiam.test`;
+  test("le gérant n'a pas accès au personnel", async ({ page }) => {
     await loginAs(page, GERANT, /\/gerant$/);
-    await page.goto("/gerant/employes");
+    await expect(page.getByRole("link", { name: "Personnel" })).toHaveCount(0);
+    await page.goto("/admin/employes");
+    await expect(page).toHaveURL(/\/gerant$/);
+  });
 
-    // Un gérant ne peut nommer que des employés.
-    await expect(page.locator("#staff-role option")).toHaveText(["Employé"]);
-    // Il ne peut pas modifier l'administrateur.
-    await expect(page.getByRole("button", { name: "Mr Miam Miam : Désactiver" })).toHaveCount(0);
+  test("l'admin crée un compte employé puis le désactive", async ({ page, browser }, testInfo) => {
+    const email = `staff-${testInfo.project.name}-${Date.now()}@miammiam.test`;
+    await loginAs(page, "admin@miammiam.test", /\/admin$/);
+    await page.goto("/admin/employes");
 
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Nom complet").fill("Léa Nouvelle");
@@ -116,7 +118,7 @@ test.describe("gestion du personnel", () => {
     // Le nouveau compte ouvre l'espace employé.
     const other = await browser.newPage();
     await login(other, email, tempPassword!);
-    await expect(other).toHaveURL(/\/employe$/);
+    await expect(other).toHaveURL(/\/employe\/commandes$/);
     await other.close();
 
     await row.getByRole("button", { name: "Léa Nouvelle : Désactiver" }).click();
@@ -143,6 +145,13 @@ test.describe("gestion du personnel", () => {
     await row.getByRole("button", { name: "Appliquer" }).click();
     await expect(page.getByRole("listitem").filter({ hasText: "etudiant@miammiam.test" })).toHaveCount(0);
   });
+});
+
+test("le gérant ouvre les paramètres du restaurant", async ({ page }) => {
+  await loginAs(page, GERANT, /\/gerant$/);
+  await page.getByRole("link", { name: "Paramètres" }).click();
+  await expect(page).toHaveURL(/\/gerant\/parametres$/);
+  await expect(page.getByLabel("Bonus de parrainage (points)")).toBeVisible();
 });
 
 test("l'admin modifie les paramètres du restaurant", async ({ page }) => {

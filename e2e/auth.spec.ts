@@ -34,7 +34,7 @@ test("un espace protégé renvoie vers la connexion", async ({ page }) => {
 
 for (const { email, url, heading } of [
   { email: "etudiant@miammiam.test", url: /\/espace$/, heading: "Awa" },
-  { email: "employe@miammiam.test", url: /\/employe$/, heading: "Bonjour Paul" },
+  { email: "employe@miammiam.test", url: /\/employe\/commandes$/, heading: "Commandes" },
   { email: "gerant@miammiam.test", url: /\/gerant$/, heading: "Bonjour Marie" },
   { email: "admin@miammiam.test", url: /\/admin$/, heading: "Bonjour Mr" },
 ]) {
@@ -58,6 +58,36 @@ test("un étudiant ne peut pas ouvrir l'administration", async ({ page }) => {
   await expect(page).toHaveURL(/\/espace$/);
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/espace$/);
+});
+
+test("le personnel voit le menu mais ne peut pas commander", async ({ page }) => {
+  await login(page, "gerant@miammiam.test");
+  await expect(page).toHaveURL(/\/gerant$/);
+  await page.goto("/espace/commander");
+  await expect(page).toHaveURL(/\/gerant$/);
+  await page.goto("/");
+  await expect(page.locator("#menu li").filter({ hasText: "Poulet DG" })).toBeVisible();
+  await expect(page.locator("#menu").getByRole("link", { name: /^Commander / })).toHaveCount(0);
+});
+
+test("chaque rôle ne voit que ses rubriques", async ({ page }) => {
+  const nav = () => page.getByRole("navigation", { name: /^Navigation/ }).filter({ visible: true });
+  await login(page, "employe@miammiam.test");
+  await expect(page).toHaveURL(/\/employe\/commandes$/);
+  await expect(nav().getByRole("link")).toHaveText(["Commandes", "Menu du jour"]);
+  for (const path of ["/gerant", "/gerant/reclamations", "/gerant/statistiques", "/admin/employes"]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/employe\/commandes$/);
+  }
+
+  await page.context().clearCookies();
+  await login(page, "gerant@miammiam.test");
+  await expect(page).toHaveURL(/\/gerant$/);
+  await expect(nav().getByRole("link")).toHaveText([
+    "Tableau de bord", "Commandes", "Menu", "Réclamations", "Statistiques", "Paramètres", "Promotions",
+  ]);
+  await page.goto("/admin/employes");
+  await expect(page).toHaveURL(/\/gerant$/);
 });
 
 test("mauvais mot de passe : message clair", async ({ page }) => {
@@ -98,12 +128,12 @@ test("inscription d'un étudiant puis déconnexion", async ({ page, isMobile }, 
 
 test("une fois connecté, l'accueil et la connexion ne proposent plus de se connecter", async ({ page, isMobile }) => {
   await login(page, "employe@miammiam.test");
-  await expect(page).toHaveURL(/\/employe$/);
+  await expect(page).toHaveURL(/\/employe\/commandes$/);
 
   await page.goto("/connexion");
-  await expect(page).toHaveURL(/\/employe$/);
+  await expect(page).toHaveURL(/\/employe\/commandes$/);
   await page.goto("/inscription");
-  await expect(page).toHaveURL(/\/employe$/);
+  await expect(page).toHaveURL(/\/employe\/commandes$/);
 
   await page.goto("/");
   await expect(page.getByRole("link", { name: "Ouvrir mon espace" }).first()).toBeVisible();
@@ -116,7 +146,7 @@ test("une fois connecté, l'accueil et la connexion ne proposent plus de se conn
 
 test("un employé modifie son compte puis se déconnecte", async ({ page }) => {
   await login(page, "employe@miammiam.test");
-  await expect(page).toHaveURL(/\/employe$/);
+  await expect(page).toHaveURL(/\/employe\/commandes$/);
 
   // Le menu du compte est en haut sur téléphone, dans la barre latérale sur ordinateur.
   // Le menu arrive en streaming : on attend qu'il soit là avant de tester sa visibilité.

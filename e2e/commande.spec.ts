@@ -53,19 +53,31 @@ test("une commande va de l'étudiant à la cuisine, en direct, et crédite les p
   const number = heading!.replace("Commande ", "").trim();
   await expect(page.locator("[data-live=on]")).toBeVisible();
 
-  // L'employé voit arriver la commande et la fait avancer.
+  // L'employé voit arriver la commande mais ne peut ni la valider ni l'annuler.
   const kitchen = await browser.newPage();
-  await loginAs(kitchen, "employe@miammiam.test", /\/employe$/);
-  await kitchen.goto("/employe/commandes");
+  await loginAs(kitchen, "employe@miammiam.test", /\/employe\/commandes$/);
   const ticket = kitchen.getByRole("article", { name: `Commande ${number}` });
   await expect(ticket).toContainText("Livrer à : Résidence La Terrasse, chambre 12");
   await expect(ticket).toContainText(/2×\s*Poulet DG/);
-  await ticket.getByRole("button", { name: `Lancer en cuisine : commande ${number}` }).click();
+  await expect(ticket).toContainText("En attente de validation par le gérant.");
+  await expect(ticket.getByRole("button")).toHaveCount(0);
 
-  // Le suivi de l'étudiant change sans recharger la page.
+  // Le gérant la valide.
+  const manager = await browser.newPage();
+  await loginAs(manager, "gerant@miammiam.test", /\/gerant$/);
+  await manager.goto("/gerant/commandes");
+  await manager
+    .getByRole("article", { name: `Commande ${number}` })
+    .getByRole("button", { name: `Valider et lancer en cuisine : commande ${number}` })
+    .click();
+  await manager.close();
+
+  // Le suivi de l'étudiant change sans recharger la page, et l'employé prend le relais.
   await expect(page.locator("ol[aria-label='Suivi de la commande'] [aria-current=step]")).toHaveText("En préparation", {
     timeout: 20_000,
   });
+  await expect(ticket.getByRole("button", { name: `Marquer prête : commande ${number}` })).toBeVisible({ timeout: 20_000 });
+  await expect(ticket.getByRole("button", { name: `Annuler : commande ${number}` })).toHaveCount(0);
 
   await ticket.getByRole("button", { name: `Marquer prête : commande ${number}` }).click();
   await ticket.getByRole("button", { name: `Partie en livraison : commande ${number}` }).click();
@@ -99,7 +111,7 @@ test("l'étudiant utilise ses points puis annule : les points reviennent", async
   expect(await points(page)).toBe(before);
 });
 
-test("réclamation : l'étudiant écrit, l'employé propose, le gérant valide", async ({ page, browser }, testInfo) => {
+test("réclamation : l'étudiant écrit, le gérant répond et clôt", async ({ page, browser }, testInfo) => {
   const subject = `Jus trop sucré ${testInfo.project.name}-${Date.now().toString(36)}`;
   await loginAs(page, STUDENT, /\/espace$/);
   await page.goto("/espace/reclamations");
@@ -110,26 +122,12 @@ test("réclamation : l'étudiant écrit, l'employé propose, le gérant valide",
   const mine = page.getByRole("article").filter({ hasText: subject });
   await expect(mine).toContainText("Envoyée");
 
-  const staff = await browser.newPage();
-  await loginAs(staff, "employe@miammiam.test", /\/employe$/);
-  await staff.goto("/employe/reclamations");
-  const card = staff.locator("section").filter({ has: staff.getByRole("heading", { name: subject }) }).last();
-  await card.getByLabel("Réponse au client").fill("Merci, nous avons ajusté la recette.");
-  await card.getByRole("button", { name: "Proposer cette réponse" }).click();
-  await expect(staff.getByRole("region", { name: "En attente du gérant" })).toContainText(subject);
-  await staff.close();
-
-  // Le client ne voit pas encore la réponse non validée.
-  await page.reload();
-  await expect(mine).toContainText("Réponse en validation");
-  await expect(mine).not.toContainText("ajusté la recette");
-
   const manager = await browser.newPage();
   await loginAs(manager, "gerant@miammiam.test", /\/gerant$/);
   await manager.goto("/gerant/reclamations");
-  const toValidate = manager.locator("section").filter({ has: manager.getByRole("heading", { name: subject }) }).last();
-  await toValidate.getByLabel("Geste commercial (points)").fill("2");
-  await toValidate.getByRole("button", { name: "Valider la réponse" }).click();
+  const card = manager.locator("section").filter({ has: manager.getByRole("heading", { name: subject }) }).last();
+  await card.getByLabel("Réponse au client").fill("Merci, nous avons ajusté la recette.");
+  await card.getByRole("button", { name: "Répondre et clore" }).click();
   await expect(manager.getByRole("region", { name: "Closes" })).toContainText(subject);
   await manager.close();
 
@@ -137,7 +135,7 @@ test("réclamation : l'étudiant écrit, l'employé propose, le gérant valide",
   await expect(mine).toContainText("ajusté la recette");
 });
 
-test("statistiques : le gérant change de période, l'employé voit la semaine", async ({ page }) => {
+test("statistiques : le gérant change de période, l'employé n'y a pas accès", async ({ page }) => {
   await loginAs(page, "gerant@miammiam.test", /\/gerant$/);
   await page.getByRole("link", { name: "Statistiques" }).click();
   await expect(page.getByRole("heading", { name: "Ventes par jour" })).toBeVisible();
@@ -150,9 +148,8 @@ test("statistiques : le gérant change de période, l'employé voit la semaine",
 
   // Connecté, /connexion renvoie vers son espace : on change de compte avec une session vide.
   await page.context().clearCookies();
-  await loginAs(page, "employe@miammiam.test", /\/employe$/);
-  await page.getByRole("link", { name: "Stats de la semaine" }).click();
-  await expect(page.getByRole("heading", { name: "Stats de la semaine" })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Période" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Fidélité et parrainage" })).toHaveCount(0);
+  await loginAs(page, "employe@miammiam.test", /\/employe\/commandes$/);
+  await expect(page.getByRole("link", { name: "Statistiques" })).toHaveCount(0);
+  await page.goto("/gerant/statistiques");
+  await expect(page).toHaveURL(/\/employe\/commandes$/);
 });

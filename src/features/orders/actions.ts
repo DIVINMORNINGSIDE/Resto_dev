@@ -2,10 +2,10 @@
 
 import { refresh } from "next/cache";
 import { requireRole } from "@/lib/auth/dal";
-import { allowedRolesFor } from "@/lib/auth/roles";
+import { can, PERMISSIONS } from "@/lib/auth/roles";
 import { fieldErrors, type FieldErrors } from "@/lib/auth/validation";
 import { arrivalFromClock } from "@/lib/orders/time";
-import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/orders/status";
+import { needsValidation, ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/orders/status";
 import { checkoutSchema } from "@/lib/orders/validation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -24,7 +24,7 @@ function sqlMessage(error: { code?: string; message: string }): string {
 }
 
 export async function placeOrder(_prev: CheckoutState, formData: FormData): Promise<CheckoutState> {
-  await requireRole(allowedRolesFor("/espace"));
+  await requireRole(PERMISSIONS.commander);
   let items: unknown;
   try {
     items = JSON.parse(text(formData, "items"));
@@ -58,7 +58,7 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
 }
 
 export async function cancelMyOrder(orderId: string): Promise<{ error?: string }> {
-  await requireRole(allowedRolesFor("/espace"));
+  await requireRole(PERMISSIONS.commander);
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancel_my_order", { p_order_id: orderId });
   if (error) return { error: sqlMessage(error) };
@@ -67,8 +67,11 @@ export async function cancelMyOrder(orderId: string): Promise<{ error?: string }
 }
 
 export async function advanceOrder(orderId: string, status: OrderStatus): Promise<{ error?: string }> {
-  await requireRole(allowedRolesFor("/employe"));
+  const viewer = await requireRole(PERMISSIONS.voirCommandes);
   if (!(status in ORDER_STATUS_LABELS)) return { error: UNEXPECTED };
+  if (needsValidation(status) && !can(viewer.role, "validerCommande")) {
+    return { error: "Seuls le gérant et l'administrateur valident ou annulent une commande." };
+  }
   const supabase = await createClient();
   const { error } = await supabase.rpc("advance_order", { p_order_id: orderId, p_status: status });
   if (error) return { error: sqlMessage(error) };
@@ -79,7 +82,7 @@ export async function advanceOrder(orderId: string, status: OrderStatus): Promis
 export type CommentState = { error?: string; success?: string; value?: string };
 
 export async function commentMyOrder(_prev: CommentState, formData: FormData): Promise<CommentState> {
-  await requireRole(allowedRolesFor("/espace"));
+  await requireRole(PERMISSIONS.commander);
   const value = text(formData, "comment").trim();
   if (value.length < 3 || value.length > 500) {
     return { error: "Ton commentaire doit faire entre 3 et 500 caractères.", value };

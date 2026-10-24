@@ -4,7 +4,7 @@ import { BoCard, BoPageHeader } from "@/components/backoffice/bo-form";
 import { StatCard } from "@/components/backoffice/backoffice-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/dal";
-import { allowedRolesFor } from "@/lib/auth/roles";
+import { PERMISSIONS } from "@/lib/auth/roles";
 import { formatFcfa } from "@/lib/format";
 import { getRecentComments, getTopCustomers, type OrderComment, type TopCustomer } from "@/features/orders/queries";
 import { formatDateTime, formatDay, periodRange, type Period } from "@/lib/orders/time";
@@ -16,51 +16,46 @@ const PERIODS: { value: Period; label: string }[] = [
   { value: "mois", label: "Ce mois" },
 ];
 
-type Area = "/employe" | "/gerant" | "/admin";
-
-// Statistiques : l'employé voit la semaine, le gérant et l'admin choisissent la période.
-export function StatsPage({ area, basePath, searchParams }: { area: Area; basePath: string; searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+// Statistiques : réservées au gérant et à l'admin, qui choisissent la période.
+export function StatsPage({ basePath, searchParams }: { basePath: string; searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   return (
     <>
-      <BoPageHeader kicker="Activité" title={area === "/employe" ? "Stats de la semaine" : "Statistiques"} />
+      <BoPageHeader kicker="Activité" title="Statistiques" />
       <Suspense fallback={<StatsSkeleton />}>
-        <StatsLoader area={area} basePath={basePath} searchParams={searchParams} />
+        <StatsLoader basePath={basePath} searchParams={searchParams} />
       </Suspense>
     </>
   );
 }
 
-async function StatsLoader({ area, basePath, searchParams }: { area: Area; basePath: string; searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
-  const viewer = await requireRole(allowedRolesFor(area));
+async function StatsLoader({ basePath, searchParams }: { basePath: string; searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  await requireRole(PERMISSIONS.statistiques);
   const query = (await searchParams) ?? {};
   const requested = typeof query.periode === "string" ? query.periode : "semaine";
-  const period: Period = area === "/employe" ? "semaine" : PERIODS.some((p) => p.value === requested) ? (requested as Period) : "semaine";
+  const period: Period = PERIODS.some((p) => p.value === requested) ? (requested as Period) : "semaine";
   const { from, to } = periodRange(period);
-  const full = viewer.role !== "employe" && area !== "/employe";
   const [stats, top, comments] = await Promise.all([
     getStats(from, to),
-    full ? getTopCustomers(period) : Promise.resolve([]),
+    getTopCustomers(period),
     getRecentComments(),
   ]);
 
   return (
     <div className="flex flex-col gap-6">
-      {area !== "/employe" ? (
-        <nav aria-label="Période" className="flex flex-wrap gap-2">
-          {PERIODS.map((p) => (
-            <Link
-              key={p.value}
-              href={`${basePath}?periode=${p.value}`}
-              aria-current={p.value === period ? "page" : undefined}
-              className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-semibold transition ${
-                p.value === period ? "bg-bo-text text-bo-bg" : "border border-bo-line bg-bo-card hover:border-bo-accent"
-              }`}
-            >
-              {p.label}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
+      <nav aria-label="Période" className="flex flex-wrap gap-2">
+        {PERIODS.map((p) => (
+          <Link
+            key={p.value}
+            href={`${basePath}?periode=${p.value}`}
+            aria-current={p.value === period ? "page" : undefined}
+            className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-semibold transition ${
+              p.value === period ? "bg-bo-text text-bo-bg" : "border border-bo-line bg-bo-card hover:border-bo-accent"
+            }`}
+          >
+            {p.label}
+          </Link>
+        ))}
+      </nav>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Chiffre d'affaires" value={formatFcfa(stats.revenue)} tone="ok" />
@@ -95,26 +90,22 @@ async function StatsLoader({ area, basePath, searchParams }: { area: Area; baseP
         <MiniStat label="Réductions accordées" value={formatFcfa(stats.discounts)} />
       </div>
 
-      {full ? (
-        <BoCard>
-          <h2 className="mb-4 font-display text-2xl">Fidélité et parrainage</h2>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            <MiniStat label="Points gagnés" value={stats.pointsEarned} />
-            <MiniStat label="Points utilisés" value={stats.pointsUsed} />
-            <MiniStat label="Points de parrainage" value={stats.referralPoints} />
-            <MiniStat label="Parrainages récompensés" value={stats.referralsRewarded} />
-            <MiniStat label="Nouveaux étudiants" value={stats.newStudents} />
-          </div>
-        </BoCard>
-      ) : null}
+      <BoCard>
+        <h2 className="mb-4 font-display text-2xl">Fidélité et parrainage</h2>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <MiniStat label="Points gagnés" value={stats.pointsEarned} />
+          <MiniStat label="Points utilisés" value={stats.pointsUsed} />
+          <MiniStat label="Points de parrainage" value={stats.referralPoints} />
+          <MiniStat label="Parrainages récompensés" value={stats.referralsRewarded} />
+          <MiniStat label="Nouveaux étudiants" value={stats.newStudents} />
+        </div>
+      </BoCard>
 
-      <div className={`grid gap-6 ${full ? "xl:grid-cols-2" : ""}`}>
-        {full ? (
-          <BoCard>
-            <h2 className="mb-4 font-display text-2xl">Top 10 des clients</h2>
-            <TopCustomers customers={top} />
-          </BoCard>
-        ) : null}
+      <div className="grid gap-6 xl:grid-cols-2">
+        <BoCard>
+          <h2 className="mb-4 font-display text-2xl">Top 10 des clients</h2>
+          <TopCustomers customers={top} />
+        </BoCard>
         <BoCard>
           <h2 className="mb-4 font-display text-2xl">Derniers avis</h2>
           <RecentComments comments={comments} />

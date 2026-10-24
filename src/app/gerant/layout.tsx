@@ -2,13 +2,13 @@ import { BackofficeShell } from "@/components/backoffice/backoffice-shell";
 import type { NavItem } from "@/components/backoffice/backoffice-nav";
 
 const NAV: NavItem[] = [
-  { label: "Vue d'ensemble", href: "/gerant" },
-  { label: "Supervision des commandes", href: "/gerant/commandes" },
+  { label: "Tableau de bord", href: "/gerant" },
+  { label: "Commandes", href: "/gerant/commandes" },
   { label: "Menu", href: "/gerant/menu" },
   { label: "Réclamations", href: "/gerant/reclamations" },
-  { label: "Promotions", href: "/gerant/promotions" },
   { label: "Statistiques", href: "/gerant/statistiques" },
-  { label: "Employés", href: "/gerant/employes" },
+  { label: "Paramètres", href: "/gerant/parametres" },
+  { label: "Promotions", href: "/gerant/promotions" },
 ];
 
 export default function Layout({ children }: LayoutProps<"/gerant">) {

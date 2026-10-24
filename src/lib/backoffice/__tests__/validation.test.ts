@@ -60,15 +60,15 @@ describe("formulaire de plat", () => {
 
 describe("gestion du personnel", () => {
   it("le gérant n'attribue que employé ou étudiant", () => {
-    expect(assignableRoles("gerant")).toEqual(["etudiant", "employe"]);
+    expect(assignableRoles("gerant")).toEqual([]);
     expect(assignableRoles("admin")).toContain("admin");
     expect(assignableRoles("employe")).toEqual([]);
   });
 
-  it("personne ne modifie son propre compte, le gérant ne touche pas l'admin", () => {
+  it("seul l'admin gère le personnel, et jamais son propre compte", () => {
     expect(canManage("admin", "a", { id: "a", role: "admin" })).toBe(false);
     expect(canManage("admin", "a", { id: "b", role: "gerant" })).toBe(true);
-    expect(canManage("gerant", "g", { id: "b", role: "employe" })).toBe(true);
+    expect(canManage("gerant", "g", { id: "b", role: "employe" })).toBe(false);
     expect(canManage("gerant", "g", { id: "b", role: "admin" })).toBe(false);
   });
 

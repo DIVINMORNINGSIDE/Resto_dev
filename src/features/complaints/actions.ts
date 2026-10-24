@@ -2,7 +2,7 @@
 
 import { refresh } from "next/cache";
 import { requireRole } from "@/lib/auth/dal";
-import { allowedRolesFor } from "@/lib/auth/roles";
+import { PERMISSIONS } from "@/lib/auth/roles";
 import { fieldErrors, type FieldErrors } from "@/lib/auth/validation";
 import { complaintSchema, responseSchema } from "@/lib/orders/validation";
 import { createClient } from "@/lib/supabase/server";
@@ -21,7 +21,7 @@ function sqlMessage(error: { code?: string; message: string }): string {
 }
 
 export async function createComplaint(_prev: ComplaintFormState, formData: FormData): Promise<ComplaintFormState> {
-  const profile = await requireRole(allowedRolesFor("/espace"));
+  const profile = await requireRole(PERMISSIONS.commander);
   const values = { orderId: text(formData, "orderId"), subject: text(formData, "subject"), message: text(formData, "message") };
   const parsed = complaintSchema.safeParse(values);
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -39,7 +39,7 @@ export async function createComplaint(_prev: ComplaintFormState, formData: FormD
 }
 
 export async function respondComplaint(_prev: ComplaintFormState, formData: FormData): Promise<ComplaintFormState> {
-  const viewer = await requireRole(allowedRolesFor("/employe"));
+  await requireRole(PERMISSIONS.reclamations);
   const values = { response: text(formData, "response") };
   const parsed = responseSchema.safeParse(values);
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -51,13 +51,11 @@ export async function respondComplaint(_prev: ComplaintFormState, formData: Form
   });
   if (error) return { message: sqlMessage(error), values };
   refresh();
-  return {
-    success: viewer.role === "employe" ? "Réponse envoyée au gérant pour validation." : "Réponse envoyée au client.",
-  };
+  return { success: "Réponse envoyée au client." };
 }
 
 export async function decideComplaint(_prev: ComplaintFormState, formData: FormData): Promise<ComplaintFormState> {
-  await requireRole(allowedRolesFor("/gerant"));
+  await requireRole(PERMISSIONS.reclamations);
   const decision = text(formData, "decision");
   const points = Number(text(formData, "bonusPoints") || "0");
   if (!["valider", "renvoyer", "rejeter"].includes(decision)) return { message: UNEXPECTED };
@@ -78,7 +76,7 @@ export async function decideComplaint(_prev: ComplaintFormState, formData: FormD
       decision === "valider"
         ? "Réponse validée et envoyée au client."
         : decision === "renvoyer"
-          ? "Réponse renvoyée à l'équipe."
+          ? "Réponse renvoyée : elle repasse à traiter."
           : "Réclamation rejetée.",
   };
 }

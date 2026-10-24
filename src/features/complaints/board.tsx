@@ -3,7 +3,7 @@ import { BoCard, BoPageHeader } from "@/components/backoffice/bo-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LiveRefresh } from "@/features/orders/live-refresh";
 import { requireRole } from "@/lib/auth/dal";
-import { allowedRolesFor } from "@/lib/auth/roles";
+import { PERMISSIONS } from "@/lib/auth/roles";
 import { COMPLAINT_STATUS_LABELS, type ComplaintStatus } from "@/lib/orders/status";
 import { formatDateTime } from "@/lib/orders/time";
 import { DecideForm, RejectForm, RespondForm } from "./complaint-forms";
@@ -17,26 +17,27 @@ const TONE: Record<ComplaintStatus, string> = {
   rejetee: "bg-bo-badbg text-bo-bad",
 };
 
-export function ComplaintsPage({ area }: { area: "/employe" | "/gerant" | "/admin" }) {
+// Réclamations : réservées au gérant et à l'admin, qui répondent directement au client.
+export function ComplaintsPage() {
   return (
     <>
       <BoPageHeader kicker="Service client" title="Réclamations">
         <LiveRefresh table="complaints" insertMessage="Nouvelle réclamation" tone="light" />
       </BoPageHeader>
       <Suspense fallback={<ComplaintsSkeleton />}>
-        <ComplaintsBoard area={area} />
+        <ComplaintsBoard />
       </Suspense>
     </>
   );
 }
 
-async function ComplaintsBoard({ area }: { area: "/employe" | "/gerant" | "/admin" }) {
-  const viewer = await requireRole(allowedRolesFor(area));
-  const isManager = viewer.role === "gerant" || viewer.role === "admin";
+async function ComplaintsBoard() {
+  await requireRole(PERMISSIONS.reclamations);
   const complaints = await getComplaints();
   const groups: { title: string; items: Complaint[] }[] = [
     { title: "À traiter", items: complaints.filter((c) => c.status === "ouverte" || c.status === "en_cours") },
-    { title: isManager ? "Réponses à valider" : "En attente du gérant", items: complaints.filter((c) => c.status === "reponse_proposee") },
+    // Réponses proposées par un employé avant le changement de droits.
+    { title: "Réponses à valider", items: complaints.filter((c) => c.status === "reponse_proposee") },
     { title: "Closes", items: complaints.filter((c) => c.status === "resolue" || c.status === "rejetee") },
   ];
 
@@ -48,7 +49,7 @@ async function ComplaintsBoard({ area }: { area: "/employe" | "/gerant" | "/admi
             {group.title} ({group.items.length})
           </h2>
           {group.items.length ? (
-            group.items.map((c) => <ComplaintCard key={c.id} complaint={c} isManager={isManager} />)
+            group.items.map((c) => <ComplaintCard key={c.id} complaint={c} />)
           ) : (
             <p className="text-sm text-bo-text2">Rien ici.</p>
           )}
@@ -58,7 +59,7 @@ async function ComplaintsBoard({ area }: { area: "/employe" | "/gerant" | "/admi
   );
 }
 
-function ComplaintCard({ complaint: c, isManager }: { complaint: Complaint; isManager: boolean }) {
+function ComplaintCard({ complaint: c }: { complaint: Complaint }) {
   const open = c.status === "ouverte" || c.status === "en_cours";
   return (
     <BoCard className="flex flex-col gap-3">
@@ -79,9 +80,9 @@ function ComplaintCard({ complaint: c, isManager }: { complaint: Complaint; isMa
           {c.staffResponse}
         </p>
       ) : null}
-      {open ? <RespondForm id={c.id} isManager={isManager} /> : null}
-      {open && isManager ? <RejectForm id={c.id} /> : null}
-      {c.status === "reponse_proposee" && isManager ? <DecideForm id={c.id} /> : null}
+      {open ? <RespondForm id={c.id} /> : null}
+      {open ? <RejectForm id={c.id} /> : null}
+      {c.status === "reponse_proposee" ? <DecideForm id={c.id} /> : null}
     </BoCard>
   );
 }

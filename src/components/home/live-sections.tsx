@@ -6,6 +6,7 @@ import { ArrowIcon } from "@/components/ui/arrow-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentPromotion, getPublicMenu } from "@/features/home/queries";
 import { getLoyaltyRules } from "@/features/orders/queries";
+import { ROLE_HOME } from "@/lib/auth/roles";
 import { formatFcfa } from "@/lib/format";
 import { outlineDark } from "./sections";
 
@@ -39,8 +40,8 @@ export async function PromoPanel() {
             Ne rien rater
           </Link>
         }
-        member={() => (
-          <Link href="/espace" className={`${outlineDark} mt-6`}>
+        member={(profile) => (
+          <Link href={profile.role === "etudiant" ? "/espace" : ROLE_HOME[profile.role]} className={`${outlineDark} mt-6`}>
             Voir les promos
           </Link>
         )}

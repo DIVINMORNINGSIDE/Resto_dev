@@ -73,6 +73,7 @@ async function UserChip() {
 }
 
 // Menu du compte au téléphone : photo, mon compte et déconnexion en un geste.
+// Pas de lien « Commander » : seul un compte étudiant passe commande.
 async function MobileAccountMenu() {
   const profile = await getCurrentProfile();
   if (!profile) return null;
@@ -92,9 +93,6 @@ async function MobileAccountMenu() {
         </p>
         <Link href="/compte" className={item}>
           Mon compte
-        </Link>
-        <Link href="/espace/commander" className={item}>
-          Commander un repas
         </Link>
         <SignOutButton className={item} />
       </div>

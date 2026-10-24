@@ -2,7 +2,7 @@
 
 import { refresh } from "next/cache";
 import { requireRole } from "@/lib/auth/dal";
-import { allowedRolesFor } from "@/lib/auth/roles";
+import { PERMISSIONS } from "@/lib/auth/roles";
 import { fieldErrors } from "@/lib/auth/validation";
 import { DAYS, settingsSchema, type BoFormState } from "@/lib/backoffice/validation";
 import { createClient } from "@/lib/supabase/server";
@@ -28,7 +28,7 @@ export async function updateSettings(_prev: BoFormState, formData: FormData): Pr
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
   const s = parsed.data;
 
-  await requireRole(allowedRolesFor("/admin"));
+  await requireRole(PERMISSIONS.parametres);
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("restaurants")
