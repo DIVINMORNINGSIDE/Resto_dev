@@ -37,6 +37,13 @@ export const getPublicMenu = cache(async (): Promise<PublicDish[] | null> => {
   }));
 });
 
+// Nom du restaurant réglé par l'admin dans Paramètres (lisible sans connexion).
+export const getRestaurantName = cache(async (): Promise<string> => {
+  const supabase = await createClient();
+  const { data } = await supabase.from("restaurants").select("name").order("created_at").limit(1).maybeSingle();
+  return data?.name?.trim() || "ZeDuc@Space";
+});
+
 // Dernière promotion ou soirée encore en cours, s'il y en a une.
 export async function getCurrentPromotion(): Promise<PublicPromotion | null> {
   const supabase = await createClient();

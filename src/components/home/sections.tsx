@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowIcon } from "@/components/ui/arrow-icon";
 import { Logo } from "@/components/ui/logo";
+import { RestaurantName } from "@/components/ui/restaurant-name";
 
 // Sections fixes de l'accueil, dans l'ordre de la maquette Kado.
 
@@ -47,7 +48,9 @@ export function Welcome() {
   return (
     <section id="maison" className="scroll-mt-24 bg-paper text-ink">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-20 md:grid-cols-[1fr_2fr] md:py-28">
-        <p className="deco text-ink/70">Bienvenue au ZeDuc@Space</p>
+        <p className="deco text-ink/70">
+          Bienvenue au <RestaurantName />
+        </p>
         <div className="animate-rise">
           <h2 className="font-display text-[clamp(2.25rem,4.6vw,3.6rem)]">
             Des plats du jour cuisinés avec passion et des produits frais.
@@ -147,7 +150,9 @@ export function HowItWorks() {
                   <Image src="/brand/emblem.png" alt="" width={28} height={28} className="rounded-full" />
                   <span className="leading-tight">
                     <b className="block text-xs">Mon Miam Miam</b>
-                    <span className="text-[10px] text-ink/70">ZeDuc@Space</span>
+                    <span className="text-[10px] text-ink/70">
+                      <RestaurantName />
+                    </span>
                   </span>
                 </span>
                 <span className="font-display text-4xl leading-none text-ink/25" aria-hidden="true">
@@ -208,7 +213,9 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="flex flex-col items-center gap-1 border-t border-line py-5 text-center">
-        <p className="deco text-[10px] text-mute">ZeDuc@Space · Mon Miam Miam</p>
+        <p className="deco text-[10px] text-mute">
+          <RestaurantName /> · Mon Miam Miam
+        </p>
         <p className="text-[11px] text-mute/80">
           Photos d&apos;ambiance :{" "}
           <a href="https://unsplash.com/@alonady" className="underline hover:text-cream">Alona D</a> et{" "}

@@ -3,9 +3,9 @@ import { getCurrentProfile } from "@/lib/auth/dal";
 import { ROLE_HOME } from "@/lib/auth/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export async function AccountLink() {
+export async function AccountLink({ className = "" }: { className?: string }) {
   const profile = await getCurrentProfile();
-  const base = "deco inline-flex min-h-10 items-center whitespace-nowrap rounded-sm px-3 transition sm:px-4";
+  const base = `deco inline-flex min-h-10 items-center whitespace-nowrap rounded-sm px-3 transition sm:px-4 ${className}`;
   if (!profile) {
     return (
       <Link href="/connexion" className={`${base} border border-cream/30 text-cream hover:border-cream`}>
