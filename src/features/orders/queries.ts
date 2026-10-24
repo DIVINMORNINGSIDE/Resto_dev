@@ -19,12 +19,14 @@ export type Order = {
   pointsUsed: number;
   createdAt: string;
   updatedAt: string;
+  comment: string | null;
+  commentedAt: string | null;
   lines: OrderLine[];
   customer?: { name: string; phone: string | null };
 };
 
 const ORDER_COLUMNS =
-  "id, order_type, status, arrival_time, delivery_address, subtotal_fcfa, discount_fcfa, total_fcfa, points_earned, points_used, created_at, updated_at, order_items(item_name, quantity, unit_price_fcfa)";
+  "id, order_type, status, arrival_time, delivery_address, subtotal_fcfa, discount_fcfa, total_fcfa, points_earned, points_used, created_at, updated_at, customer_comment, commented_at, order_items(item_name, quantity, unit_price_fcfa)";
 
 type OrderRow = {
   id: string;
@@ -39,6 +41,8 @@ type OrderRow = {
   points_used: number;
   created_at: string;
   updated_at: string;
+  customer_comment: string | null;
+  commented_at: string | null;
   order_items: { item_name: string; quantity: number; unit_price_fcfa: number }[];
   profiles?: { full_name: string; phone: string | null } | null;
 };
@@ -63,6 +67,8 @@ function toOrder(row: OrderRow): Order {
     pointsUsed: row.points_used,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    comment: row.customer_comment,
+    commentedAt: row.commented_at,
     lines: row.order_items.map((l) => ({ name: l.item_name, quantity: l.quantity, unitPriceFcfa: l.unit_price_fcfa })),
     customer: row.profiles ? { name: row.profiles.full_name, phone: row.profiles.phone } : undefined,
   };
@@ -130,7 +136,7 @@ export type LoyaltyEntry = { id: string; kind: string; points: number; note: str
 
 export async function getMyLoyalty(userId: string) {
   const supabase = await createClient();
-  const [transactions, referrals] = await Promise.all([
+  const [transactions, referrals, expiry] = await Promise.all([
     supabase
       .from("loyalty_transactions")
       .select("id, kind, points, note, created_at, expires_at")
@@ -138,6 +144,7 @@ export async function getMyLoyalty(userId: string) {
       .order("created_at", { ascending: false })
       .limit(50),
     supabase.rpc("my_referrals"),
+    supabase.rpc("my_next_points_expiry"),
   ]);
   if (transactions.error || referrals.error) throw new Error("Tes points n'ont pas pu être chargés.");
   return {
@@ -150,5 +157,44 @@ export async function getMyLoyalty(userId: string) {
       rewardPoints: r.reward_points,
       rewarded: Boolean(r.rewarded_at),
     })),
+    // Prochains points à expirer (aucun si l'appel échoue : simple information).
+    nextExpiry: expiry.data?.[0] ? { date: expiry.data[0].expires_at, points: expiry.data[0].points } : null,
   };
+}
+
+export type TopPeriod = "jour" | "semaine" | "mois";
+export const TOP_PERIODS: { value: TopPeriod; label: string }[] = [
+  { value: "jour", label: "Aujourd'hui" },
+  { value: "semaine", label: "Cette semaine" },
+  { value: "mois", label: "Ce mois" },
+];
+export type TopCustomer = { rank: number; name: string; orders: number; isMe: boolean };
+
+// Top 10 des clients ayant le plus de commandes servies sur la période.
+export async function getTopCustomers(period: TopPeriod): Promise<TopCustomer[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("top_customers", { p_period: period });
+  if (error) throw new Error("Le classement n'a pas pu être chargé.");
+  return data.map((r) => ({ rank: r.rank, name: r.name, orders: r.orders, isMe: r.is_me }));
+}
+
+export type OrderComment = { id: string; number: string; comment: string; commentedAt: string; customer: string };
+
+// Derniers avis laissés par les clients (personnel uniquement, via la RLS).
+export async function getRecentComments(limit = 6): Promise<OrderComment[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select("id, customer_comment, commented_at, profiles!orders_customer_id_fkey(full_name)")
+    .not("commented_at", "is", null)
+    .order("commented_at", { ascending: false })
+    .limit(limit);
+  if (error) throw new Error("Les avis n'ont pas pu être chargés.");
+  return data.map((r) => ({
+    id: r.id,
+    number: orderNumber(r.id),
+    comment: r.customer_comment ?? "",
+    commentedAt: r.commented_at!,
+    customer: r.profiles?.full_name ?? "Client",
+  }));
 }

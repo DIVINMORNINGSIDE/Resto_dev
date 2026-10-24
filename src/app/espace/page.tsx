@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { getLoyaltyRules, getMyOrders } from "@/features/orders/queries";
+import { getCurrentPromotions } from "@/features/promotions/queries";
 import { OrderCard } from "@/features/student/order-card";
+import { PromoPosters } from "@/features/student/promo-posters";
 import { primaryButton } from "@/features/student/ui";
 import { ACTIVE_STATUSES } from "@/lib/orders/status";
 import { SignOutButton } from "@/components/account/sign-out-button";
@@ -24,7 +26,7 @@ export default function StudentHomePage() {
 async function StudentHome() {
   const profile = await requireRole(allowedRolesFor("/espace"));
   const firstName = profile.fullName.split(" ")[0];
-  const [orders, rules] = await Promise.all([getMyOrders(profile.id), getLoyaltyRules()]);
+  const [orders, rules, promotions] = await Promise.all([getMyOrders(profile.id), getLoyaltyRules(), getCurrentPromotions()]);
   const current = orders.filter((o) => ACTIVE_STATUSES.includes(o.status));
 
   return (
@@ -68,9 +70,16 @@ async function StudentHome() {
         </Link>
       )}
 
-      <Link href="/espace/reclamations" className="deco self-start text-cream/80 underline hover:text-accent">
-        Mes réclamations
-      </Link>
+      <PromoPosters promotions={promotions} />
+
+      <div className="flex flex-wrap gap-x-6 gap-y-3">
+        <Link href="/espace/classement" className="deco text-cream/80 underline hover:text-accent">
+          Top 10 des clients
+        </Link>
+        <Link href="/espace/reclamations" className="deco text-cream/80 underline hover:text-accent">
+          Mes réclamations
+        </Link>
+      </div>
 
       <SignOutButton className="deco self-start border border-cream/30 px-4 py-3 text-cream/85 hover:border-cream hover:text-cream" />
     </div>

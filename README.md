@@ -188,7 +188,10 @@ e2e/                      tests Playwright
   - `advance_order` (personnel) suit l'ordre en attente → en préparation → prête → (en livraison) → livrée ; à la livraison il crédite les points, et le bonus du parrain à la première commande du filleul ;
   - `cancel_my_order` (client, tant que la commande est en attente) et l'annulation côté cuisine rendent les points utilisés ;
   - `respond_complaint` et `decide_complaint` : l'employé propose une réponse, le gérant la valide (avec un geste en points s'il le souhaite), la renvoie ou rejette la réclamation ;
-  - `get_stats` réserve les statistiques au personnel.
+  - `get_stats` réserve les statistiques au personnel ;
+  - `comment_my_order` laisse le client donner son avis sur sa propre commande, une fois servie ;
+  - `top_customers` calcule le top 10 du jour, de la semaine ou du mois (prénom et initiale pour les étudiants, nom complet pour le personnel) ;
+  - les points expirent après la durée réglée dans les paramètres : une tâche `pg_cron` (`expirer-points-fidelite`, chaque heure) retire les points échus, en consommant toujours d'abord ceux qui expirent le plus tôt ; `my_next_points_expiry` annonce la prochaine échéance au client.
 
 ## Mise en ligne
 
@@ -198,6 +201,7 @@ e2e/                      tests Playwright
    npx supabase link --project-ref <ref-du-projet>
    npx supabase db push            # applique les migrations
    ```
+   La migration `20261024180000_deuxieme_version.sql` active l'extension `pg_cron` (disponible sur tous les projets Supabase).
    À refaire après chaque fusion qui ajoute un fichier dans `supabase/migrations/` : Vercel déploie le code mais n'applique pas les migrations.
    Dans Authentication > URL Configuration, renseigner l'URL du site et ajouter `https://<domaine>/**` aux redirections autorisées. Dans Authentication > Providers > Email, exiger 8 caractères avec minuscules, majuscules et chiffres.
 2. **Vercel** : importer le dépôt GitHub, puis définir `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` et `NEXT_PUBLIC_SITE_URL`. Chaque push sur `main` est alors déployé.
@@ -207,6 +211,7 @@ e2e/                      tests Playwright
 - **Étudiant** (`/espace`) : menu et panier, commande sur place (heure d'arrivée) ou en livraison (adresse), réduction avec les points, suivi en direct, historique, annulation tant que la cuisine n'a pas commencé, fidélité (solde, historique, filleuls, partage du code), réclamations.
 - **Employé** (`/employe`) : écran cuisine en temps réel, réclamations (réponse proposée au gérant), statistiques de la semaine.
 - **Gérant et admin** : supervision des commandes, validation des réclamations, statistiques par jour, semaine ou mois.
+- **Deuxième version** : affiches de promotions et d'événements publiées par le gérant ou l'admin (`/gerant/promotions`) et visibles sur l'accueil étudiant, top 10 des clients (`/espace/classement` et statistiques), avis après une commande servie, expiration des points avec rappel de la prochaine échéance.
 - **Tout le monde** : bandeau cookies (seulement des cookies nécessaires), mentions légales et politique de confidentialité. Les coordonnées légales se règlent dans `src/lib/legal.ts`.
 - **Paiement** : sur place ou à la livraison ; aucun paiement en ligne pour l'instant (CinetPay prévu plus tard).
 
@@ -218,3 +223,4 @@ Règles de fidélité (modifiables dans les paramètres) : 1 point par tranche d
 - [x] Étape 2 : back-office (menu, employés, paramètres)
 - [x] Étape 3 : commande, cuisine en temps réel, fidélité, parrainage, réclamations, statistiques
 - [x] Étape 4 : qualité et mise en ligne (cookies, pages légales, espace étudiant sur ordinateur, tests sur Chrome, Firefox et Safari)
+- [x] Étape 5 : deuxième version (affiches de promotions et d'événements, top 10 des clients, expiration des points, avis après commande)

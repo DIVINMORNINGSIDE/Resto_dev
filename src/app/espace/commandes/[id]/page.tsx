@@ -6,6 +6,7 @@ import { getOrder } from "@/features/orders/queries";
 import { LiveRefresh } from "@/features/orders/live-refresh";
 import { CancelOrderButton } from "@/features/student/cancel-order-button";
 import { ComplaintForm } from "@/features/student/complaint-form";
+import { OrderComment } from "@/features/student/order-comment";
 import { StatusBadge } from "@/features/student/order-card";
 import { OrderTracking } from "@/features/student/order-tracking";
 import { ListSkeleton, Notice } from "@/features/student/ui";
@@ -110,6 +111,15 @@ async function OrderDetail({ params, searchParams }: Pick<PageProps<"/espace/com
           </dl>
         </section>
       </div>
+
+      {order.status === "livree" ? (
+        <section aria-labelledby="avis" className="flex flex-col gap-3 border border-cream/15 bg-s1 p-5 animate-rise">
+          <h2 id="avis" className="deco text-accent">
+            Ton avis
+          </h2>
+          <OrderComment orderId={order.id} comment={order.comment} />
+        </section>
+      ) : null}
 
       {order.status !== "annulee" ? (
         <details className="group border border-cream/15 p-4">

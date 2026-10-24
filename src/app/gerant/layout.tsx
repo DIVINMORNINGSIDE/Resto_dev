@@ -6,6 +6,7 @@ const NAV: NavItem[] = [
   { label: "Supervision des commandes", href: "/gerant/commandes" },
   { label: "Menu", href: "/gerant/menu" },
   { label: "Réclamations", href: "/gerant/reclamations" },
+  { label: "Promotions", href: "/gerant/promotions" },
   { label: "Statistiques", href: "/gerant/statistiques" },
   { label: "Employés", href: "/gerant/employes" },
 ];

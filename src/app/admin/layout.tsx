@@ -9,7 +9,7 @@ const NAV: NavItem[] = [
   { label: "Statistiques", href: "/admin/statistiques" },
   { label: "Personnel", href: "/admin/employes" },
   { label: "Paramètres", href: "/admin/parametres" },
-  { label: "Promotions", later: true },
+  { label: "Promotions", href: "/admin/promotions" },
 ];
 
 export default function Layout({ children }: LayoutProps<"/admin">) {

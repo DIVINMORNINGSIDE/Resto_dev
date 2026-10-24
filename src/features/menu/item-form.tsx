@@ -99,9 +99,25 @@ export function ItemForm({ base, categories, item }: ItemFormProps) {
   );
 }
 
+type PhotoInputProps = {
+  initial: string;
+  error?: string;
+  name?: string;
+  title?: string;
+  inputLabel?: string;
+  aspect?: string;
+};
+
 // Envoie la photo directement au stockage Supabase depuis le navigateur ;
 // le formulaire ne transmet que son adresse publique.
-function PhotoInput({ initial, error }: { initial: string; error?: string }) {
+export function PhotoInput({
+  initial,
+  error,
+  name = "imageUrl",
+  title = "Photo",
+  inputLabel = "Photo du plat",
+  aspect = "aspect-[4/3]",
+}: PhotoInputProps) {
   const [url, setUrl] = useState(initial);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string>();
@@ -132,8 +148,8 @@ function PhotoInput({ initial, error }: { initial: string; error?: string }) {
   const shownError = uploadError ?? error;
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-bo-line bg-bo-card p-5 animate-rise">
-      <span className="text-sm font-semibold">Photo</span>
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-bo-bg">
+      <span className="text-sm font-semibold">{title}</span>
+      <div className={`relative ${aspect} overflow-hidden rounded-xl bg-bo-bg`}>
         {url ? <MenuPhoto key={url} src={url} alt="Aperçu de la photo" sizes="320px" className="animate-rise" /> : null}
         {!url && !uploading ? (
           <span className="absolute inset-0 grid place-items-center text-sm text-bo-text2">Aucune photo</span>
@@ -144,7 +160,7 @@ function PhotoInput({ initial, error }: { initial: string; error?: string }) {
           </span>
         ) : null}
       </div>
-      <input type="hidden" name="imageUrl" value={url} />
+      <input type="hidden" name={name} value={url} />
       <label className="deco inline-flex min-h-11 cursor-pointer items-center justify-center rounded-sm border border-bo-line px-5 hover:border-bo-accent has-[:disabled]:cursor-wait has-[:disabled]:opacity-70">
         {url ? "Changer la photo" : "Choisir une photo"}
         <input
@@ -152,7 +168,7 @@ function PhotoInput({ initial, error }: { initial: string; error?: string }) {
           accept={MENU_PHOTO_TYPES.join(",")}
           className="sr-only"
           disabled={uploading}
-          aria-label="Photo du plat"
+          aria-label={inputLabel}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) void upload(file);
