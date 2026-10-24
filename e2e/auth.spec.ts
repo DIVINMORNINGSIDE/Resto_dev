@@ -132,7 +132,7 @@ test("un employé modifie son compte puis se déconnecte", async ({ page }) => {
   await page.getByRole("button", { name: "Enregistrer" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Informations enregistrées." })).toBeVisible();
 
-  await page.getByLabel("Photo de profil").setInputFiles("public/photos/poulet.jpg");
+  await page.getByLabel("Choisir une photo de profil").setInputFiles("public/photos/poulet.jpg");
   await expect(page.getByRole("button", { name: "Retirer" })).toBeVisible();
   await page.getByRole("button", { name: "Retirer" }).click();
   await expect(page.getByText("Ajouter une photo")).toBeVisible();

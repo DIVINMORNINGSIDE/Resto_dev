@@ -69,7 +69,7 @@ export function AvatarEditor({ userId, fullName, url }: AvatarEditorProps) {
               accept={AVATAR_TYPES.join(",")}
               className="sr-only"
               disabled={busy}
-              aria-label="Photo de profil"
+              aria-label="Choisir une photo de profil"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) void upload(file);
