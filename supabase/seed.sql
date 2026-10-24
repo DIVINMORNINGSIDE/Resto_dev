@@ -6,7 +6,7 @@ values (
   '00000000-0000-4000-8000-000000000001',
   'ZeDuc@Space',
   'zeduc-space',
-  '{"lundi_vendredi": "11:00-22:00", "samedi": "12:00-23:00", "dimanche": "fermé"}'
+  '{"lundi": "11:00 – 22:00", "mardi": "11:00 – 22:00", "mercredi": "11:00 – 22:00", "jeudi": "11:00 – 22:00", "vendredi": "11:00 – 23:00", "samedi": "12:00 – 23:00", "dimanche": "Fermé"}'
 );
 
 insert into public.categories (id, name, position) values

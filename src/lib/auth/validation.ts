@@ -8,7 +8,7 @@ export const passwordSchema = z
   .regex(/[A-Z]/, "Au moins une majuscule.")
   .regex(/[0-9]/, "Au moins un chiffre.");
 
-const emailSchema = z.string().trim().toLowerCase().pipe(z.email("Adresse email invalide."));
+export const emailSchema = z.string().trim().toLowerCase().pipe(z.email("Adresse email invalide."));
 
 export const loginSchema = z.object({
   email: emailSchema,

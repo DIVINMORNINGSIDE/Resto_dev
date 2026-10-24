@@ -5,20 +5,20 @@ import { SignOutButton } from "@/components/account/sign-out-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentProfile } from "@/lib/auth/dal";
 import { ROLE_LABELS } from "@/lib/auth/roles";
-
-export type NavItem = { label: string; step: number };
+import { BackofficeNav, type NavItem } from "./backoffice-nav";
 
 type BackofficeShellProps = {
   areaLabel: string;
+  root: string;
   nav: NavItem[];
   children: React.ReactNode;
 };
 
 // Back-office clair avec barre latérale noire (maquette validée).
-export function BackofficeShell({ areaLabel, nav, children }: BackofficeShellProps) {
+export function BackofficeShell({ areaLabel, root, nav, children }: BackofficeShellProps) {
   return (
-    <div className="flex min-h-dvh flex-1 flex-col bg-bo-bg text-bo-text md:flex-row">
-      <aside className="flex flex-col gap-6 bg-ink px-4 py-5 text-cream md:w-64 md:shrink-0 md:py-8">
+    <div className="flex min-h-dvh flex-1 flex-col bg-bo-bg text-bo-text [color-scheme:light] md:flex-row">
+      <aside className="flex flex-col gap-6 bg-ink px-4 py-5 text-cream md:sticky md:top-0 md:h-dvh md:w-64 md:shrink-0 md:py-8">
         <Link href="/" className="flex items-center gap-3">
           <Image src="/brand/emblem.png" alt="" width={36} height={36} className="rounded-full" />
           <span className="leading-tight">
@@ -26,30 +26,14 @@ export function BackofficeShell({ areaLabel, nav, children }: BackofficeShellPro
             <span className="deco text-gold">{areaLabel}</span>
           </span>
         </Link>
-        <nav aria-label={`Navigation ${areaLabel}`} className="flex gap-1 overflow-x-auto md:flex-col">
-          <span
-            aria-current="page"
-            className="shrink-0 rounded-xl bg-gold px-3 py-2 text-sm font-semibold text-ink"
-          >
-            Tableau de bord
-          </span>
-          {nav.map((item) => (
-            <span
-              key={item.label}
-              className="flex shrink-0 items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm text-mute"
-            >
-              {item.label}
-              <span className="rounded-full border border-line px-2 text-[10px]">étape {item.step}</span>
-            </span>
-          ))}
-        </nav>
+        <BackofficeNav label={`Navigation ${areaLabel}`} root={root} items={nav} />
         <div className="mt-auto hidden md:block">
           <Suspense fallback={<Skeleton className="h-10 w-full" />}>
             <UserChip />
           </Suspense>
         </div>
       </aside>
-      <main className="flex flex-1 flex-col px-4 py-6 md:px-10 md:py-10">{children}</main>
+      <main className="flex min-w-0 flex-1 flex-col px-4 py-6 md:px-10 md:py-10">{children}</main>
     </div>
   );
 }

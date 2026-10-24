@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import {
-  BackofficeShell,
   DashboardHeader,
   DashboardSkeleton,
   StatCard,
@@ -12,22 +11,11 @@ import { getDashboardCounts } from "@/lib/dashboard";
 
 export const metadata: Metadata = { title: "Administration" };
 
-const NAV = [
-  { label: "Employés", step: 2 },
-  { label: "Menu", step: 2 },
-  { label: "Paramètres", step: 2 },
-  { label: "Promotions", step: 3 },
-  { label: "Réclamations", step: 3 },
-  { label: "Statistiques", step: 3 },
-];
-
 export default function AdminPage() {
   return (
-    <BackofficeShell areaLabel="Administration" nav={NAV}>
-      <Suspense fallback={<DashboardSkeleton />}>
-        <AdminDashboard />
-      </Suspense>
-    </BackofficeShell>
+    <Suspense fallback={<DashboardSkeleton />}>
+      <AdminDashboard />
+    </Suspense>
   );
 }
 

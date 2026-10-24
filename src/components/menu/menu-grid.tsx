@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { formatFcfa } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MenuPhoto } from "./menu-photo";
 
 export async function MenuGrid() {
   const supabase = await createClient();
@@ -28,12 +28,11 @@ export async function MenuGrid() {
         >
           <div className="relative aspect-[4/3] overflow-hidden bg-s2">
             {item.image_url ? (
-              <Image
+              <MenuPhoto
                 src={item.image_url}
                 alt={item.name}
-                fill
                 sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                className="object-cover transition duration-500 ease-soft group-hover:scale-105"
+                className="transition duration-500 ease-soft group-hover:scale-105"
               />
             ) : null}
             {item.is_dish_of_day ? (
