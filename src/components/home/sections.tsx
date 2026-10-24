@@ -5,21 +5,21 @@ import { Logo } from "@/components/ui/logo";
 
 // Sections fixes de l'accueil, dans l'ordre de la maquette Kado.
 
+// Photos HD libres de droits (licence Unsplash), servies par le CDN d'Unsplash
+// à la largeur voulue : les photos du site ne font que 400 px de large.
+const unsplash = (id: string, width: number) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=80`;
+const HERO_PHOTO = unsplash("photo-1747253255646-3bffa4565a7a", 2400);
+const TABLE_PHOTO = unsplash("photo-1528605248644-14dd04022da1", 2000);
+
 export const outlineDark =
   "deco inline-flex min-h-11 items-center gap-2 border border-ink/70 px-5 text-ink transition duration-300 ease-soft hover:bg-ink hover:text-cream";
 
 export function Hero() {
   return (
     <section className="relative flex min-h-[92svh] items-center justify-center overflow-hidden bg-ink px-4 pb-16 pt-28 text-center">
-      <Image
-        src="/photos/brochette.jpg"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="scale-110 object-cover object-[50%_60%] blur-[2px]"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/45 to-ink/85" />
+      <Image src={HERO_PHOTO} alt="" fill priority unoptimized sizes="100vw" className="object-cover object-[50%_45%]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/35 to-ink/85" />
       <div className="relative flex max-w-5xl flex-col items-center">
         <p className="deco text-accent animate-rise">Restaurant · Résidence La Terrasse</p>
         <h1 className="mt-5 font-display text-[clamp(2.75rem,7.4vw,5.75rem)] animate-rise [animation-delay:80ms]">
@@ -45,7 +45,7 @@ export function Hero() {
 
 export function Welcome() {
   return (
-    <section id="maison" className="scroll-mt-6 bg-paper text-ink">
+    <section id="maison" className="scroll-mt-24 bg-paper text-ink">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-20 md:grid-cols-[1fr_2fr] md:py-28">
         <p className="deco text-ink/70">Bienvenue au ZeDuc@Space</p>
         <div className="animate-rise">
@@ -124,9 +124,9 @@ const STEPS = [
 // Cartes pastel posées sur une photo, comme les avis du site Kado.
 export function HowItWorks() {
   return (
-    <section id="etapes" className="relative scroll-mt-6 overflow-hidden bg-ink">
-      <Image src="/photos/spag.jpg" alt="" fill sizes="100vw" className="scale-110 object-cover blur-[2px]" />
-      <div className="absolute inset-0 bg-ink/55" />
+    <section id="etapes" className="relative scroll-mt-24 overflow-hidden bg-ink">
+      <Image src={TABLE_PHOTO} alt="" fill unoptimized sizes="100vw" className="object-cover" />
+      <div className="absolute inset-0 bg-ink/50" />
       <div className="relative mx-auto max-w-6xl px-4 py-20 lg:min-h-[640px] lg:py-0">
         <div className="lg:absolute lg:left-4 lg:top-14">
           <p className="deco text-accent">Comment ça marche</p>
@@ -207,7 +207,14 @@ export function SiteFooter() {
           </ul>
         </nav>
       </div>
-      <p className="deco border-t border-line py-5 text-center text-[10px] text-mute">ZeDuc@Space · Mon Miam Miam</p>
+      <div className="flex flex-col items-center gap-1 border-t border-line py-5 text-center">
+        <p className="deco text-[10px] text-mute">ZeDuc@Space · Mon Miam Miam</p>
+        <p className="text-[11px] text-mute/80">
+          Photos d&apos;ambiance :{" "}
+          <a href="https://unsplash.com/@alonady" className="underline hover:text-cream">Alona D</a> et{" "}
+          <a href="https://unsplash.com/@priscilladupreez" className="underline hover:text-cream">Priscilla Du Preez</a> sur Unsplash
+        </p>
+      </div>
     </footer>
   );
 }
