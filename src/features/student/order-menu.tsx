@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { MenuPhoto } from "@/components/menu/menu-photo";
 import { useCart } from "@/features/cart/cart-provider";
 import { cartCount, cartSubtotal } from "@/lib/orders/cart";
@@ -18,6 +19,16 @@ export function OrderMenu({ sections }: { sections: MenuSection[] }) {
   const { lines, dispatch, ready } = useCart();
   const count = cartCount(lines);
 
+  // Arrivée depuis une carte de l'accueil : la liste est chargée après la
+  // navigation, donc on défile nous-mêmes jusqu'au plat demandé.
+  useEffect(() => {
+    if (!location.hash.startsWith("#plat-")) return;
+    const dish = document.getElementById(location.hash.slice(1));
+    if (!dish) return;
+    dish.dataset.chosen = "";
+    dish.scrollIntoView({ block: "center" });
+  }, []);
+
   return (
     <>
       <div className="flex flex-col gap-8">
@@ -32,7 +43,9 @@ export function OrderMenu({ sections }: { sections: MenuSection[] }) {
                 return (
                   <li
                     key={item.id}
-                    className={`flex gap-3 border border-cream/15 bg-s1 p-3 animate-rise ${item.isAvailable ? "" : "opacity-55"}`}
+                    id={`plat-${item.id}`}
+                    // Le plat choisi depuis l'accueil est encadré en jaune.
+                    className={`flex scroll-mt-24 gap-3 border border-cream/15 bg-s1 p-3 animate-rise data-chosen:border-accent data-chosen:ring-1 data-chosen:ring-accent ${item.isAvailable ? "" : "opacity-55"}`}
                     style={{ animationDelay: `${i * 40}ms` }}
                   >
                     <div className="relative size-24 shrink-0 overflow-hidden bg-s2">
