@@ -12,12 +12,17 @@ test("l'accueil affiche le menu venant de la base", async ({ page }) => {
   await expect(page.locator("#du-jour").getByRole("heading", { name: "Poulet DG" })).toBeVisible();
 });
 
-test("le lien Fidélité de l'accueil explique le programme et mène à l'espace fidélité", async ({ page }) => {
+test("le lien Fidélité de l'accueil explique le programme et mène à l'espace fidélité", async ({ page, isMobile }) => {
   await page.goto("/");
-  // Sur mobile, les liens sont dans le menu déroulant.
-  const sections = page.getByLabel("Sections de la page");
-  if (await sections.isVisible()) await sections.click();
-  await page.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Fidélité" }).click();
+  const link = page.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Fidélité" });
+  // Sur mobile, les liens sont dans le menu déroulant : on l'ouvre jusqu'à voir le lien.
+  if (isMobile) {
+    await expect(async () => {
+      if (!(await link.isVisible())) await page.getByLabel("Sections de la page").click();
+      await expect(link).toBeVisible({ timeout: 1000 });
+    }).toPass();
+  }
+  await link.click();
   const loyalty = page.locator("#fidelite");
   await expect(loyalty.getByRole("heading", { name: /points/i })).toBeInViewport();
   await expect(loyalty.getByText("15 points")).toBeVisible();
