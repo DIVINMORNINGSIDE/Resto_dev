@@ -88,7 +88,8 @@ export function StaffRow({ member, roles, editable }: { member: StaffMember; rol
           <p className="truncate text-sm text-bo-text2">{member.email}</p>
         </div>
         {editable ? (
-          <>
+          // Les deux actions s'alignent sur la même ligne de base, sous l'étiquette « Rôle ».
+          <div className="flex flex-wrap items-end gap-2">
             <form action={changeRole} className="flex items-end gap-2">
               <input type="hidden" name="id" value={member.id} />
               <div className="w-40">
@@ -105,7 +106,7 @@ export function StaffRow({ member, roles, editable }: { member: StaffMember; rol
                 Appliquer
               </BoSubmit>
             </form>
-            <form action={toggleActive}>
+            <form action={toggleActive} className="sm:ml-3">
               <input type="hidden" name="id" value={member.id} />
               <input type="hidden" name="active" value={String(!member.isActive)} />
               <BoSubmit
@@ -117,7 +118,7 @@ export function StaffRow({ member, roles, editable }: { member: StaffMember; rol
                 {member.isActive ? "Désactiver" : "Réactiver"}
               </BoSubmit>
             </form>
-          </>
+          </div>
         ) : (
           <span className="deco rounded-sm bg-bo-infobg px-3 py-1 text-bo-info">{ROLE_LABELS[member.role]}</span>
         )}

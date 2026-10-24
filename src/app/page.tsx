@@ -1,7 +1,10 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import {
   DishOfDayPanel,
   DishOfDaySkeleton,
+  LoyaltyRulesCards,
+  LoyaltyRulesSkeleton,
   PromoPanel,
   PromoPanelSkeleton,
   SignatureDishes,
@@ -29,7 +32,7 @@ export default function HomePage() {
         <Welcome />
         <PhotoStrip />
 
-        <section id="menu" className="scroll-mt-6 bg-ink px-4 py-20 md:py-28">
+        <section id="menu" className="scroll-mt-24 bg-ink px-4 py-20 md:py-28">
           <SectionTitle kicker="Nos plats">Des plats qui font revenir nos clients</SectionTitle>
           <div className="mx-auto mt-12 max-w-5xl">
             <Suspense fallback={<MenuGridSkeleton />}>
@@ -38,7 +41,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="fidelite" className="grid scroll-mt-6 lg:grid-cols-2">
+        <section id="du-jour" className="grid scroll-mt-24 lg:grid-cols-2">
           <Suspense fallback={<PromoPanelSkeleton />}>
             <PromoPanel />
           </Suspense>
@@ -60,6 +63,30 @@ export default function HomePage() {
             </div>
             <Suspense fallback={<SignatureDishesSkeleton />}>
               <SignatureDishes />
+            </Suspense>
+          </div>
+        </section>
+
+        <section id="fidelite" className="scroll-mt-24 bg-gradient-to-b from-lime to-sky text-ink">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-20 md:py-28 lg:grid-cols-[1.2fr_1fr]">
+            <div>
+              <p className="deco text-ink/70">Programme fidélité</p>
+              <h2 className="mt-4 font-display text-[clamp(2.25rem,4.6vw,3.6rem)]">Chaque commande te rapporte des points</h2>
+              <p className="deco mt-5 max-w-md text-[11px] leading-relaxed text-ink/75">
+                Tes points s&apos;ajoutent tout seuls à chaque commande payée. Dès que tu en as assez, tu les utilises
+                pour payer moins cher. Ton solde et ton historique sont dans ton espace, rubrique Fidélité.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link href="/espace/fidelite" className="deco inline-flex min-h-11 items-center bg-ink px-5 text-cream transition hover:bg-ink/85">
+                  Voir mes points
+                </Link>
+                <Link href="/inscription" className={outlineDark}>
+                  Créer mon compte
+                </Link>
+              </div>
+            </div>
+            <Suspense fallback={<LoyaltyRulesSkeleton />}>
+              <LoyaltyRulesCards />
             </Suspense>
           </div>
         </section>

@@ -4,6 +4,7 @@ import { MenuPhoto } from "@/components/menu/menu-photo";
 import { ArrowIcon } from "@/components/ui/arrow-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentPromotion, getPublicMenu } from "@/features/home/queries";
+import { getLoyaltyRules } from "@/features/orders/queries";
 import { formatFcfa } from "@/lib/format";
 import { outlineDark } from "./sections";
 
@@ -103,6 +104,46 @@ export function SignatureDishesSkeleton() {
         <li key={i}>
           <Skeleton tone="light" className="aspect-[4/3] w-full" />
           <Skeleton tone="light" className="mt-2 h-3 w-2/3" />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// Section « Fidélité » : explique le programme avec les règles réelles du restaurant
+// et mène à l'espace fidélité (la connexion est demandée si besoin).
+export async function LoyaltyRulesCards() {
+  const rules = await getLoyaltyRules();
+  const cards = [
+    { value: "1 point", text: `par tranche de ${formatFcfa(rules.fcfaPerPoint)} dépensée`, tone: "from-cream to-lime" },
+    {
+      value: `${rules.redeemPointsBlock} points`,
+      text: `= ${formatFcfa(rules.redeemValueFcfa)} de réduction sur ta commande`,
+      tone: "from-cream to-sky",
+    },
+    { value: `+${rules.referralBonusPoints} points`, text: "pour chaque ami parrainé qui commande", tone: "from-cream to-peach" },
+  ];
+  return (
+    <ul className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+      {cards.map((card, i) => (
+        <li key={card.value} className={`bg-gradient-to-br ${card.tone} p-5 shadow-sm animate-rise`} style={{ animationDelay: `${i * 80}ms` }}>
+          <p className="font-display text-4xl">{card.value}</p>
+          <p className="deco mt-2 text-[11px] leading-relaxed text-ink/75">{card.text}</p>
+        </li>
+      ))}
+      <li className="deco text-[10px] text-ink/60 sm:col-span-3 lg:col-span-1">
+        Points valables {rules.pointsValidityMonths} mois.
+      </li>
+    </ul>
+  );
+}
+
+export function LoyaltyRulesSkeleton() {
+  return (
+    <ul className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1" aria-busy="true">
+      {Array.from({ length: 3 }, (_, i) => (
+        <li key={i}>
+          <Skeleton tone="light" className="h-28 w-full" />
         </li>
       ))}
     </ul>

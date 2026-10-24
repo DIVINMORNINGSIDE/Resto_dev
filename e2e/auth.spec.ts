@@ -9,7 +9,25 @@ test("l'accueil affiche le menu venant de la base", async ({ page }) => {
   await expect(card("Poulet DG").getByText("Plat du jour")).toBeVisible();
   await expect(card("Riz sauté poulet").getByText("Épuisé")).toBeVisible();
   // Le panneau « plat du jour » reprend le plat marqué en base.
-  await expect(page.locator("#fidelite").getByRole("heading", { name: "Poulet DG" })).toBeVisible();
+  await expect(page.locator("#du-jour").getByRole("heading", { name: "Poulet DG" })).toBeVisible();
+});
+
+test("le lien Fidélité de l'accueil explique le programme et mène à l'espace fidélité", async ({ page, isMobile }) => {
+  await page.goto("/");
+  const link = page.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Fidélité" });
+  // Sur mobile, les liens sont dans le menu déroulant : on l'ouvre jusqu'à voir le lien.
+  if (isMobile) {
+    await expect(async () => {
+      if (!(await link.isVisible())) await page.getByLabel("Sections de la page").click();
+      await expect(link).toBeVisible({ timeout: 1000 });
+    }).toPass();
+  }
+  await link.click();
+  const loyalty = page.locator("#fidelite");
+  await expect(loyalty.getByRole("heading", { name: /points/i })).toBeInViewport();
+  await expect(loyalty.getByText("15 points")).toBeVisible();
+  await loyalty.getByRole("link", { name: "Voir mes points" }).click();
+  await expect(page).toHaveURL(/\/connexion\?suivant=%2Fespace%2Ffidelite/);
 });
 
 test("un espace protégé renvoie vers la connexion", async ({ page }) => {
