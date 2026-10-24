@@ -71,5 +71,50 @@ update public.profiles
 set points_balance = 42, delivery_address = 'Résidence La Terrasse, chambre 12'
 where id = '00000000-0000-4000-8000-00000000a001';
 
-insert into public.loyalty_transactions (user_id, kind, points, expires_at, note)
-values ('00000000-0000-4000-8000-00000000a001', 'ajustement', 42, now() + interval '12 months', 'Points de démonstration');
+insert into public.loyalty_transactions (user_id, kind, points, expires_at, note, created_at)
+values ('00000000-0000-4000-8000-00000000a001', 'ajustement', 24, now() + interval '12 months', 'Points de démonstration', now() - interval '10 days');
+
+-- Trois commandes livrées ces derniers jours, pour l'historique et les statistiques.
+do $$
+declare
+  v_order uuid;
+  v_line record;
+begin
+  for v_line in
+    select * from (values
+      (6, 'sur_place'::public.order_type, 'Poulet DG', 1, 'Jus de bissap', 4),
+      (3, 'livraison'::public.order_type, 'Brochettes de bœuf', 2, 'Jus de bissap', 1),
+      (1, 'sur_place'::public.order_type, 'Poisson braisé', 1, 'Ndolé crevettes', 1)
+    ) as t(days_ago, kind, dish, dish_qty, extra, extra_qty)
+  loop
+    insert into public.orders (
+      customer_id, order_type, status, arrival_time, delivery_address,
+      subtotal_fcfa, total_fcfa, points_earned, created_at, updated_at
+    )
+    select
+      '00000000-0000-4000-8000-00000000a001', v_line.kind, 'livree',
+      case when v_line.kind = 'sur_place' then now() - make_interval(days => v_line.days_ago) + interval '30 minutes' end,
+      case when v_line.kind = 'livraison' then 'Résidence La Terrasse, chambre 12' end,
+      total, total, total / 1000,
+      now() - make_interval(days => v_line.days_ago), now() - make_interval(days => v_line.days_ago)
+    from (
+      select sum(price_fcfa * case when name = v_line.dish then v_line.dish_qty else v_line.extra_qty end)::int as total
+      from public.menu_items where name in (v_line.dish, v_line.extra)
+    ) t
+    returning id into v_order;
+
+    insert into public.order_items (order_id, menu_item_id, item_name, unit_price_fcfa, quantity)
+    select v_order, id, name, price_fcfa, case when name = v_line.dish then v_line.dish_qty else v_line.extra_qty end
+    from public.menu_items where name in (v_line.dish, v_line.extra);
+
+    insert into public.loyalty_transactions (user_id, order_id, kind, points, expires_at, note, created_at)
+    select customer_id, id, 'gain', points_earned, now() + interval '12 months', 'Commande livrée', created_at
+    from public.orders where id = v_order;
+  end loop;
+end;
+$$;
+
+-- Le solde suit le journal des points.
+update public.profiles
+set points_balance = (select sum(points) from public.loyalty_transactions where user_id = profiles.id)
+where id = '00000000-0000-4000-8000-00000000a001';
