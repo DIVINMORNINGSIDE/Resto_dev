@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { avatarUrl } from "@/lib/auth/avatar";
 import { LOGIN_PATH, ROLE_HOME, type AppRole } from "@/lib/auth/roles";
 
 export type CurrentProfile = {
@@ -11,7 +12,10 @@ export type CurrentProfile = {
   role: AppRole;
   pointsBalance: number;
   referralCode: string;
+  phone: string | null;
   deliveryAddress: string | null;
+  avatarPath: string | null;
+  avatarUrl: string | null;
 };
 
 // Couche d'accès aux données : un seul endroit lit la session et le profil.
@@ -23,7 +27,7 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, email, full_name, role, points_balance, referral_code, delivery_address, is_active")
+    .select("id, email, full_name, role, points_balance, referral_code, phone, delivery_address, avatar_path, is_active")
     .eq("id", userId)
     .single();
   if (!profile || !profile.is_active) return null;
@@ -35,7 +39,10 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
     role: profile.role,
     pointsBalance: profile.points_balance,
     referralCode: profile.referral_code,
+    phone: profile.phone,
     deliveryAddress: profile.delivery_address,
+    avatarPath: profile.avatar_path,
+    avatarUrl: avatarUrl(profile.avatar_path, process.env.NEXT_PUBLIC_SUPABASE_URL),
   };
 });
 

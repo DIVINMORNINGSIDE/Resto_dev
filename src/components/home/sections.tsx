@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AuthSwitch, memberCta } from "@/components/account/auth-switch";
 import { ArrowIcon } from "@/components/ui/arrow-icon";
 import { Logo } from "@/components/ui/logo";
 import { RestaurantName } from "@/components/ui/restaurant-name";
+import { ROLE_HOME } from "@/lib/auth/roles";
 
 // Sections fixes de l'accueil, dans l'ordre de la maquette Kado.
 
@@ -15,6 +17,9 @@ const TABLE_PHOTO = unsplash("photo-1528605248644-14dd04022da1", 2000);
 
 export const outlineDark =
   "deco inline-flex min-h-11 items-center gap-2 border border-ink/70 px-5 text-ink transition duration-300 ease-soft hover:bg-ink hover:text-cream";
+
+const heroButton =
+  "deco mt-8 inline-flex min-h-12 items-center bg-cream px-8 text-ink transition duration-300 ease-soft hover:bg-accent animate-rise [animation-delay:240ms]";
 
 export function Hero() {
   return (
@@ -33,12 +38,22 @@ export function Hero() {
           <br />
           Sur place ou livrés, et des points à chaque repas.
         </p>
-        <Link
-          href="/inscription"
-          className="deco mt-8 inline-flex min-h-12 items-center bg-cream px-8 text-ink transition duration-300 ease-soft hover:bg-accent animate-rise [animation-delay:240ms]"
-        >
-          Créer mon compte
-        </Link>
+        <AuthSwitch
+          fallback={<span className="mt-8 block h-12" />}
+          guest={
+            <Link href="/inscription" className={heroButton}>
+              Créer mon compte
+            </Link>
+          }
+          member={(profile) => {
+            const cta = memberCta(profile);
+            return (
+              <Link href={cta.href} className={heroButton}>
+                {cta.label}
+              </Link>
+            );
+          }}
+        />
       </div>
     </section>
   );
@@ -164,6 +179,9 @@ export function HowItWorks() {
   );
 }
 
+const tableButton =
+  "deco inline-flex min-h-12 items-center gap-2 bg-ink px-7 text-cream transition duration-300 ease-soft hover:bg-accent hover:text-ink";
+
 export function TableCta() {
   return (
     <section className="bg-gradient-to-b from-paper to-sky text-ink">
@@ -175,17 +193,30 @@ export function TableCta() {
         <p className="font-display text-[clamp(2.5rem,6vw,4.5rem)]">t&apos;attend</p>
       </div>
       <div className="flex justify-center pb-20">
-        <Link
-          href="/inscription"
-          className="deco inline-flex min-h-12 items-center gap-2 bg-ink px-7 text-cream transition duration-300 ease-soft hover:bg-accent hover:text-ink"
-        >
-          Rejoindre Mon Miam Miam
-          <ArrowIcon className="size-3.5" />
-        </Link>
+        <AuthSwitch
+          fallback={<span className="block h-12" />}
+          guest={
+            <Link href="/inscription" className={tableButton}>
+              Rejoindre Mon Miam Miam
+              <ArrowIcon className="size-3.5" />
+            </Link>
+          }
+          member={(profile) => {
+            const cta = memberCta(profile);
+            return (
+              <Link href={cta.href} className={tableButton}>
+                {cta.label}
+                <ArrowIcon className="size-3.5" />
+              </Link>
+            );
+          }}
+        />
       </div>
     </section>
   );
 }
+
+const footerLink = "deco text-cream/80 hover:text-accent";
 
 export function SiteFooter() {
   return (
@@ -200,12 +231,28 @@ export function SiteFooter() {
             <li>
               <Link href="/#menu" className="deco text-cream/80 hover:text-accent">Menu</Link>
             </li>
-            <li>
-              <Link href="/connexion" className="deco text-cream/80 hover:text-accent">Connexion</Link>
-            </li>
-            <li>
-              <Link href="/inscription" className="deco text-cream/80 hover:text-accent">Créer un compte</Link>
-            </li>
+            <AuthSwitch
+              guest={
+                <>
+                  <li>
+                    <Link href="/connexion" className={footerLink}>Connexion</Link>
+                  </li>
+                  <li>
+                    <Link href="/inscription" className={footerLink}>Créer un compte</Link>
+                  </li>
+                </>
+              }
+              member={(profile) => (
+                <>
+                  <li>
+                    <Link href={ROLE_HOME[profile.role]} className={footerLink}>Mon espace</Link>
+                  </li>
+                  <li>
+                    <Link href="/compte" className={footerLink}>Mon compte</Link>
+                  </li>
+                </>
+              )}
+            />
             <li>
               <Link href="/mentions-legales" className="deco text-cream/80 hover:text-accent">Mentions légales</Link>
             </li>

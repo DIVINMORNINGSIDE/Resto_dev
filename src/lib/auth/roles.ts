@@ -18,9 +18,13 @@ export const ROLE_HOME: Record<AppRole, string> = {
   admin: "/admin",
 };
 
+// Pages réservées aux visiteurs : une fois connecté, on file vers son espace.
+export const GUEST_ONLY_PATHS = ["/connexion", "/inscription"];
+
 // Qui peut ouvrir chaque espace. Le personnel peut aussi commander comme un client.
 const AREA_ACCESS: Record<string, readonly AppRole[]> = {
   "/espace": ROLES,
+  "/compte": ROLES,
   "/employe": ["employe", "gerant", "admin"],
   "/gerant": ["gerant", "admin"],
   "/admin": ["admin"],

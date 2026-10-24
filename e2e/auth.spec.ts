@@ -95,3 +95,48 @@ test("inscription d'un étudiant puis déconnexion", async ({ page, isMobile }, 
   if (isMobile) await openSectionsMenu(page, signIn);
   await expect(signIn).toBeVisible();
 });
+
+test("une fois connecté, l'accueil et la connexion ne proposent plus de se connecter", async ({ page, isMobile }) => {
+  await login(page, "employe@miammiam.test");
+  await expect(page).toHaveURL(/\/employe$/);
+
+  await page.goto("/connexion");
+  await expect(page).toHaveURL(/\/employe$/);
+  await page.goto("/inscription");
+  await expect(page).toHaveURL(/\/employe$/);
+
+  await page.goto("/");
+  await expect(page.getByRole("link", { name: "Ouvrir mon espace" }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Se connecter|Créer mon compte|Créer un compte|Rejoindre/ })).toHaveCount(0);
+  const account = page.getByRole("link", { name: "Mon compte" }).first();
+  if (isMobile) await openSectionsMenu(page, account);
+  else await page.locator("header summary[aria-label^='Mon compte']").click();
+  await expect(account).toBeVisible();
+});
+
+test("un employé modifie son compte puis se déconnecte", async ({ page }) => {
+  await login(page, "employe@miammiam.test");
+  await expect(page).toHaveURL(/\/employe$/);
+
+  // Le menu du compte est en haut sur téléphone, dans la barre latérale sur ordinateur.
+  const menu = page.locator("summary[aria-label^='Mon compte']");
+  if (await menu.isVisible()) await menu.click();
+  await page.getByRole("link", { name: "Mon compte" }).filter({ visible: true }).first().click();
+  await expect(page).toHaveURL(/\/compte$/);
+  await expect(page.getByRole("heading", { name: "Paul" })).toBeVisible();
+
+  await page.getByLabel("Téléphone").fill("12");
+  await page.getByRole("button", { name: "Enregistrer" }).click();
+  await expect(page.getByText("Numéro de téléphone invalide.")).toBeVisible();
+  await page.getByLabel("Téléphone").fill("+237 699 11 22 33");
+  await page.getByRole("button", { name: "Enregistrer" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Informations enregistrées." })).toBeVisible();
+
+  await page.getByLabel("Photo de profil").setInputFiles("public/photos/poulet.jpg");
+  await expect(page.getByRole("button", { name: "Retirer" })).toBeVisible();
+  await page.getByRole("button", { name: "Retirer" }).click();
+  await expect(page.getByText("Ajouter une photo")).toBeVisible();
+
+  await page.getByRole("button", { name: "Se déconnecter" }).click();
+  await expect(page).toHaveURL(/\/$/);
+});

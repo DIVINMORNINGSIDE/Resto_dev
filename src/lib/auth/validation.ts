@@ -15,14 +15,14 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Mot de passe requis."),
 });
 
+const PHONE = /^\+?[0-9 ]{8,20}$/;
+const phoneSchema = z.string().trim().regex(PHONE, "Numéro de téléphone invalide.");
+
 export const signupSchema = z
   .object({
     fullName: z.string().trim().min(2, "Indique ton nom."),
     email: emailSchema,
-    phone: z
-      .string()
-      .trim()
-      .regex(/^\+?[0-9 ]{8,20}$/, "Numéro de téléphone invalide."),
+    phone: phoneSchema,
     deliveryAddress: z.string().trim().max(200).optional(),
     referralCode: z
       .string()
@@ -38,6 +38,16 @@ export const signupSchema = z
     message: "Les mots de passe ne correspondent pas.",
     path: ["confirmPassword"],
   });
+
+// Mon compte : le téléphone reste facultatif (les comptes du personnel n'en ont pas toujours).
+export const profileSchema = z.object({
+  fullName: z.string().trim().min(2, "Indique ton nom.").max(80, "80 caractères maximum."),
+  phone: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || PHONE.test(v), "Numéro de téléphone invalide."),
+  deliveryAddress: z.string().trim().max(200, "200 caractères maximum."),
+});
 
 export const resetRequestSchema = z.object({ email: emailSchema });
 
