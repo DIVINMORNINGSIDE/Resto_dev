@@ -191,6 +191,7 @@ e2e/                      tests Playwright
   - `get_stats` réserve les statistiques au personnel ;
   - `comment_my_order` laisse le client donner son avis sur sa propre commande, une fois servie ;
   - `top_customers` calcule le top 10 du jour, de la semaine ou du mois (prénom et initiale pour les étudiants, nom complet pour le personnel) ;
+  - notifications : chaque appareil s'abonne avec `save_push_subscription` (table `push_subscriptions`, visible seulement par son propriétaire). Après un changement de statut, le serveur lit les appareils du client avec `order_push_targets`, réservé au personnel et seulement dans les deux minutes qui suivent ce changement, puis envoie la notification (bibliothèque `web-push`, clé privée VAPID côté serveur uniquement) ;
   - `play_quiz` et `spin_wheel` (étudiants seulement) : une partie par jeu et par jour, tirage de la roue fait en base, points crédités avec la même validité que les autres ; `my_games_today` ne révèle la bonne réponse qu'après avoir joué, et la table des questions n'est lisible que par le gérant et l'admin ;
   - les points expirent après la durée réglée dans les paramètres : une tâche `pg_cron` (`expirer-points-fidelite`, chaque heure) retire les points échus, en consommant toujours d'abord ceux qui expirent le plus tôt ; `my_next_points_expiry` annonce la prochaine échéance au client.
 
@@ -206,6 +207,7 @@ e2e/                      tests Playwright
    À refaire après chaque fusion qui ajoute un fichier dans `supabase/migrations/` : Vercel déploie le code mais n'applique pas les migrations.
    Dans Authentication > URL Configuration, renseigner l'URL du site et ajouter `https://<domaine>/**` aux redirections autorisées. Dans Authentication > Providers > Email, exiger 8 caractères avec minuscules, majuscules et chiffres.
 2. **Vercel** : importer le dépôt GitHub, puis définir `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` et `NEXT_PUBLIC_SITE_URL`. Chaque push sur `main` est alors déployé.
+3. **Notifications** : générer une paire de clés avec `npx web-push generate-vapid-keys`, puis ajouter dans Vercel `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (clé publique), `VAPID_PRIVATE_KEY` (clé privée, à garder secrète) et `VAPID_SUBJECT` (`mailto:` + email de contact), et redéployer. Sans ces clés, le site marche normalement mais sans notifications.
 
 ## Fonctionnalités
 
@@ -214,6 +216,7 @@ e2e/                      tests Playwright
 - **Gérant et admin** : supervision des commandes, validation des réclamations, statistiques par jour, semaine ou mois.
 - **Deuxième version** : affiches de promotions et d'événements publiées par le gérant ou l'admin (`/gerant/promotions`) et visibles sur l'accueil étudiant, top 10 des clients (`/espace/classement` et statistiques), avis après une commande servie, expiration des points avec rappel de la prochaine échéance.
 - **Mini-jeux** (`/espace/jeux`) : un quiz du jour et une roue de la chance, une partie de chaque par jour, pour gagner des points. Le gérant et l'admin gèrent les questions (`/gerant/jeux`), ouvrent ou ferment les jeux et règlent les points du quiz dans les paramètres.
+- **Application installable** : le site s'installe sur l'écran d'accueil (Android, iPhone, ordinateur), s'ouvre sur l'espace étudiant et affiche une page « Pas de connexion » hors réseau. L'étudiant peut activer les notifications : il est prévenu quand sa commande est acceptée, prête, en livraison ou annulée. Sur iPhone, il faut d'abord installer l'application (iOS 16.4 ou plus récent).
 - **Tout le monde** : bandeau cookies (seulement des cookies nécessaires), mentions légales et politique de confidentialité. Les coordonnées légales se règlent dans `src/lib/legal.ts`.
 - **Paiement** : sur place ou à la livraison ; aucun paiement en ligne pour l'instant (CinetPay prévu plus tard).
 
@@ -227,3 +230,4 @@ Règles de fidélité (modifiables dans les paramètres) : 1 point par tranche d
 - [x] Étape 4 : qualité et mise en ligne (cookies, pages légales, espace étudiant sur ordinateur, tests sur Chrome, Firefox et Safari)
 - [x] Étape 5 : deuxième version (affiches de promotions et d'événements, top 10 des clients, expiration des points, avis après commande)
 - [x] Plus tard (1) : mini-jeux (quiz du jour, roue de la chance)
+- [x] Plus tard (2) : application installable et notifications de commande

@@ -1,12 +1,14 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { after } from "next/server";
 import { requireRole } from "@/lib/auth/dal";
 import { can, PERMISSIONS } from "@/lib/auth/roles";
 import { fieldErrors, type FieldErrors } from "@/lib/auth/validation";
 import { arrivalFromClock } from "@/lib/orders/time";
 import { needsValidation, ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/orders/status";
 import { checkoutSchema } from "@/lib/orders/validation";
+import { notifyOrderStatus } from "@/lib/push/send";
 import { createClient } from "@/lib/supabase/server";
 
 const UNEXPECTED = "Ça n'a pas marché. Réessaie dans un instant.";
@@ -75,6 +77,8 @@ export async function advanceOrder(orderId: string, status: OrderStatus): Promis
   const supabase = await createClient();
   const { error } = await supabase.rpc("advance_order", { p_order_id: orderId, p_status: status });
   if (error) return { error: sqlMessage(error) };
+  // La notification part après la réponse : l'écran cuisine n'attend pas.
+  after(() => notifyOrderStatus(orderId, status));
   refresh();
   return {};
 }

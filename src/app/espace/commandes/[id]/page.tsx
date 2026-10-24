@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { NotifyPrompt } from "@/features/notifications/app-card";
 import { getOrder } from "@/features/orders/queries";
 import { LiveRefresh } from "@/features/orders/live-refresh";
 import { CancelOrderButton } from "@/features/student/cancel-order-button";
@@ -71,6 +72,7 @@ async function OrderDetail({ params, searchParams }: Pick<PageProps<"/espace/com
                 : null}
           </p>
           {order.status === "en_attente" ? <CancelOrderButton orderId={order.id} /> : null}
+          {order.status !== "livree" && order.status !== "annulee" ? <NotifyPrompt /> : null}
         </section>
 
         <section aria-labelledby="detail" className="flex flex-col gap-2">
