@@ -41,6 +41,8 @@ export const PERMISSIONS = {
   statistiques: MANAGERS,
   parametres: MANAGERS,
   promotions: MANAGERS,
+  // Questions du quiz et réglages des mini-jeux ; seuls les étudiants jouent.
+  jeux: MANAGERS,
   personnel: ["admin"],
 } as const satisfies Record<string, readonly AppRole[]>;
 

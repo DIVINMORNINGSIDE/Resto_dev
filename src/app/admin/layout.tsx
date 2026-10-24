@@ -10,6 +10,7 @@ const NAV: NavItem[] = [
   { label: "Personnel", href: "/admin/employes" },
   { label: "Paramètres", href: "/admin/parametres" },
   { label: "Promotions", href: "/admin/promotions" },
+  { label: "Mini-jeux", href: "/admin/jeux" },
 ];
 
 export default function Layout({ children }: LayoutProps<"/admin">) {

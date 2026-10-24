@@ -34,6 +34,15 @@ insert into public.menu_items (category_id, name, description, price_fcfa, image
 insert into public.promotions (kind, title, description, starts_at, ends_at) values
   ('evenement', 'Soirée Ligue des champions', 'Match sur grand écran, brochettes à 1 500 F pendant la mi-temps.', now(), now() + interval '30 days');
 
+-- Questions du quiz du jour.
+insert into public.quiz_questions (question, choices, correct_index) values
+  ('Quel plat camerounais est préparé avec des feuilles amères ?', array['Le ndolé', 'Le koki', 'Le poulet DG', 'Le eru'], 0),
+  ('Que veut dire « DG » dans poulet DG ?', array['Délice garni', 'Directeur général', 'Double grillé', 'Dîner gourmand'], 1),
+  ('Avec quelle fleur prépare-t-on le jus de bissap ?', array['La rose', 'Le jasmin', 'L''hibiscus', 'La citronnelle'], 2),
+  ('Le koki est préparé à base de…', array['Manioc', 'Plantain', 'Haricots cornille', 'Arachides'], 2),
+  ('Le miondo est fait à partir de…', array['Maïs', 'Manioc', 'Igname', 'Riz'], 1),
+  ('Combien de points faut-il pour 1 000 F de réduction chez ZeDuc@Space ?', array['5', '10', '15', '20'], 2);
+
 -- Comptes de démo : un par rôle
 do $$
 declare

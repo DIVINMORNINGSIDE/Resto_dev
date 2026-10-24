@@ -70,6 +70,19 @@ async function StudentHome() {
         </Link>
       )}
 
+      <Link
+        href="/espace/jeux"
+        className="group flex items-center justify-between gap-4 border border-accent/60 bg-accent/10 p-5 transition hover:border-accent hover:bg-accent/15"
+      >
+        <span>
+          <span className="deco block text-accent">Jeux du jour</span>
+          <span className="mt-1 block text-sm text-cream/85">Un quiz et un tour de roue chaque jour pour gagner des points.</span>
+        </span>
+        <span aria-hidden="true" className="font-display text-3xl text-accent transition group-hover:translate-x-1">
+          →
+        </span>
+      </Link>
+
       <PromoPosters promotions={promotions} />
 
       <div className="flex flex-wrap gap-x-6 gap-y-3">

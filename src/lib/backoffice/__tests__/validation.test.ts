@@ -6,6 +6,7 @@ import {
   generateTempPassword,
   isAllowedPhotoUrl,
   menuItemSchema,
+  quizQuestionSchema,
   settingsSchema,
   staffInviteSchema,
   storagePathOf,
@@ -103,15 +104,39 @@ describe("paramètres du restaurant", () => {
     redeemValueFcfa: "1000",
     pointsValidityMonths: "12",
     referralBonusPoints: "0",
+    gamesEnabled: "on",
+    quizPoints: "2",
   };
 
   it("accepte des valeurs correctes", () => {
-    expect(settingsSchema.parse(valid)).toMatchObject({ fcfaPerPoint: 1000, referralBonusPoints: 0, dimanche: "Fermé" });
+    expect(settingsSchema.parse(valid)).toMatchObject({
+      fcfaPerPoint: 1000,
+      referralBonusPoints: 0,
+      dimanche: "Fermé",
+      gamesEnabled: true,
+      quizPoints: 2,
+    });
+    expect(settingsSchema.parse({ ...valid, gamesEnabled: "" }).gamesEnabled).toBe(false);
   });
 
   it("refuse les règles impossibles", () => {
     expect(settingsSchema.safeParse({ ...valid, fcfaPerPoint: "0" }).success).toBe(false);
     expect(settingsSchema.safeParse({ ...valid, pointsValidityMonths: "61" }).success).toBe(false);
     expect(settingsSchema.safeParse({ ...valid, referralBonusPoints: "-2" }).success).toBe(false);
+    expect(settingsSchema.safeParse({ ...valid, quizPoints: "51" }).success).toBe(false);
+  });
+});
+
+describe("quizQuestionSchema", () => {
+  const valid = { question: "Le koki est préparé à base de…", choices: ["Manioc", "Haricots", "", ""], correct: "1", isActive: "on" };
+
+  it("accepte deux réponses et une bonne réponse remplie", () => {
+    expect(quizQuestionSchema.parse(valid)).toMatchObject({ correct: 1, isActive: true });
+  });
+
+  it("refuse moins de deux réponses ou une bonne réponse vide", () => {
+    expect(quizQuestionSchema.safeParse({ ...valid, choices: ["Manioc", "", "", ""], correct: "0" }).success).toBe(false);
+    expect(quizQuestionSchema.safeParse({ ...valid, correct: "2" }).success).toBe(false);
+    expect(quizQuestionSchema.safeParse({ ...valid, question: "Hein" }).success).toBe(false);
   });
 });

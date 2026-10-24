@@ -9,6 +9,7 @@ const NAV: NavItem[] = [
   { label: "Statistiques", href: "/gerant/statistiques" },
   { label: "Paramètres", href: "/gerant/parametres" },
   { label: "Promotions", href: "/gerant/promotions" },
+  { label: "Mini-jeux", href: "/gerant/jeux" },
 ];
 
 export default function Layout({ children }: LayoutProps<"/gerant">) {

@@ -26,7 +26,9 @@ export function StudentNav() {
           const active =
             tab.href === "/espace"
               ? pathname === "/espace" || pathname.startsWith("/espace/reclamations") || pathname.startsWith("/espace/classement")
-              : pathname.startsWith(tab.href) || (tab.href === "/espace/commander" && pathname.startsWith("/espace/panier"));
+              : pathname.startsWith(tab.href) ||
+                (tab.href === "/espace/commander" && pathname.startsWith("/espace/panier")) ||
+                (tab.href === "/espace/fidelite" && pathname.startsWith("/espace/jeux"));
           return (
             <li key={tab.href}>
               <Link
