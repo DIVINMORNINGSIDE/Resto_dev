@@ -36,6 +36,13 @@ test("l'étudiant peut activer les notifications de commande", async ({ page, co
   await loginAs(page, "etudiant@miammiam.test", /\/espace$/);
   const card = page.getByRole("region", { name: "Mon Miam Miam sur ton téléphone" });
   await expect(card).toBeVisible();
+
+  // Le Chromium sans interface de la CI bloque toujours les notifications :
+  // l'étudiant doit alors voir comment les débloquer.
+  if ((await page.evaluate(() => Notification.permission)) === "denied") {
+    await expect(card.getByText("Les notifications sont bloquées pour ce site.")).toBeVisible();
+    return;
+  }
   await card.getByRole("button", { name: "Activer les notifications" }).click();
   // Selon le navigateur de test, le service de notifications répond ou non :
   // dans les deux cas l'étudiant a une réponse claire.
