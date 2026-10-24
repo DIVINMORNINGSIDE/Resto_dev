@@ -10,7 +10,7 @@ export function PromoPosters({ promotions }: { promotions: Promotion[] }) {
       <h2 id="a-l-affiche" className="deco text-accent">
         À l&apos;affiche
       </h2>
-      <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0">
+      <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto overscroll-x-contain px-4 pb-2 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0">
         {promotions.map((p, i) => (
           <li
             key={p.id}

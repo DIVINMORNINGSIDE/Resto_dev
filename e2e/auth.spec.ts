@@ -119,9 +119,12 @@ test("un employé modifie son compte puis se déconnecte", async ({ page }) => {
   await expect(page).toHaveURL(/\/employe$/);
 
   // Le menu du compte est en haut sur téléphone, dans la barre latérale sur ordinateur.
+  // Le menu arrive en streaming : on attend qu'il soit là avant de tester sa visibilité.
   const menu = page.locator("summary[aria-label^='Mon compte']");
+  const link = page.getByRole("link", { name: "Mon compte" }).filter({ visible: true }).first();
+  await expect(menu.filter({ visible: true }).or(link)).toBeVisible();
   if (await menu.isVisible()) await menu.click();
-  await page.getByRole("link", { name: "Mon compte" }).filter({ visible: true }).first().click();
+  await link.click();
   await expect(page).toHaveURL(/\/compte$/);
   await expect(page.getByRole("heading", { name: "Paul" })).toBeVisible();
 
