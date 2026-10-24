@@ -161,14 +161,14 @@ isOneToOne: false
                   ]
                 },"orders": {
                   Row: {
-                    "arrival_time": string | null,"created_at": string,"customer_comment": string | null,"customer_id": string,"delivery_address": string | null,"discount_fcfa": number,"id": string,"order_type": Database["public"]['Enums']["order_type"],"points_earned": number,"points_used": number,"restaurant_id": string,"status": Database["public"]['Enums']["order_status"],"subtotal_fcfa": number,"total_fcfa": number,"updated_at": string
+                    "arrival_time": string | null,"commented_at": string | null,"created_at": string,"customer_comment": string | null,"customer_id": string,"delivery_address": string | null,"discount_fcfa": number,"id": string,"order_type": Database["public"]['Enums']["order_type"],"points_earned": number,"points_used": number,"restaurant_id": string,"status": Database["public"]['Enums']["order_status"],"subtotal_fcfa": number,"total_fcfa": number,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "arrival_time"?: string | null,"created_at"?: string,"customer_comment"?: string | null,"customer_id": string,"delivery_address"?: string | null,"discount_fcfa"?: number,"id"?: string,"order_type": Database["public"]['Enums']["order_type"],"points_earned"?: number,"points_used"?: number,"restaurant_id"?: string,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fcfa": number,"total_fcfa": number,"updated_at"?: string
+                    "arrival_time"?: string | null,"commented_at"?: string | null,"created_at"?: string,"customer_comment"?: string | null,"customer_id": string,"delivery_address"?: string | null,"discount_fcfa"?: number,"id"?: string,"order_type": Database["public"]['Enums']["order_type"],"points_earned"?: number,"points_used"?: number,"restaurant_id"?: string,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fcfa": number,"total_fcfa": number,"updated_at"?: string
                   }
                   Update: {
-                    "arrival_time"?: string | null,"created_at"?: string,"customer_comment"?: string | null,"customer_id"?: string,"delivery_address"?: string | null,"discount_fcfa"?: number,"id"?: string,"order_type"?: Database["public"]['Enums']["order_type"],"points_earned"?: number,"points_used"?: number,"restaurant_id"?: string,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fcfa"?: number,"total_fcfa"?: number,"updated_at"?: string
+                    "arrival_time"?: string | null,"commented_at"?: string | null,"created_at"?: string,"customer_comment"?: string | null,"customer_id"?: string,"delivery_address"?: string | null,"discount_fcfa"?: number,"id"?: string,"order_type"?: Database["public"]['Enums']["order_type"],"points_earned"?: number,"points_used"?: number,"restaurant_id"?: string,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fcfa"?: number,"total_fcfa"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -286,11 +286,19 @@ isOneToOne: false
 "cancel_my_order":
 { Args: { "p_order_id": string }; Returns: undefined
                            },
+"comment_my_order":
+{ Args: { "p_comment": string,"p_order_id": string }; Returns: undefined
+                           },
 "decide_complaint":
 { Args: { "p_bonus_points"?: number,"p_complaint_id": string,"p_decision": string }; Returns: undefined
                            },
 "get_stats":
 { Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"my_next_points_expiry":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "expires_at": string,"points": number
+            }[]
                            },
 "my_referrals":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -308,6 +316,11 @@ isOneToOne: false
                            },
 "set_staff_role":
 { Args: { "p_role": Database["public"]['Enums']["app_role"],"p_user_id": string }; Returns: undefined
+                           },
+"top_customers":
+{ Args: { "p_period": string }; Returns: {
+              "is_me": boolean,"name": string,"orders": number,"rank": number
+            }[]
                            }
           }
           Enums: {

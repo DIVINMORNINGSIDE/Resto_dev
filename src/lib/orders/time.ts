@@ -54,6 +54,13 @@ export function formatTime(iso: string): string {
   return timeFmt.format(new Date(iso));
 }
 
+const dateFmt = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Douala" });
+
+// "2026-11-13T00:00:00Z" -> "13 novembre 2026"
+export function formatDate(iso: string): string {
+  return dateFmt.format(new Date(iso));
+}
+
 export function formatDateTime(iso: string): string {
   return dateTimeFmt.format(new Date(iso));
 }

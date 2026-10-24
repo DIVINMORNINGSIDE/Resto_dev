@@ -6,7 +6,7 @@ import { ListSkeleton, StudentHeader } from "@/features/student/ui";
 import { requireRole } from "@/lib/auth/dal";
 import { allowedRolesFor } from "@/lib/auth/roles";
 import { formatFcfa } from "@/lib/format";
-import { formatDateTime } from "@/lib/orders/time";
+import { formatDate, formatDateTime } from "@/lib/orders/time";
 
 export const metadata: Metadata = { title: "Fidélité" };
 
@@ -14,7 +14,7 @@ const KIND_LABELS: Record<string, string> = {
   gain: "Commande",
   utilisation: "Réduction",
   parrainage: "Parrainage",
-  expiration: "Expiration",
+  expiration: "Points expirés",
   ajustement: "Ajustement",
 };
 
@@ -31,7 +31,7 @@ export default function LoyaltyPage() {
 
 async function Loyalty() {
   const profile = await requireRole(allowedRolesFor("/espace"));
-  const [rules, { entries, referrals }] = await Promise.all([getLoyaltyRules(), getMyLoyalty(profile.id)]);
+  const [rules, { entries, referrals, nextExpiry }] = await Promise.all([getLoyaltyRules(), getMyLoyalty(profile.id)]);
   const toNext = rules.redeemPointsBlock - (profile.pointsBalance % rules.redeemPointsBlock);
   const blocks = Math.floor(profile.pointsBalance / rules.redeemPointsBlock);
 
@@ -48,6 +48,12 @@ async function Loyalty() {
               ? `Tu peux déjà économiser ${formatFcfa(blocks * rules.redeemValueFcfa)} sur ta prochaine commande.`
               : `Encore ${toNext} points pour ta première réduction de ${formatFcfa(rules.redeemValueFcfa)}.`}
           </p>
+          {nextExpiry ? (
+            <p className="mt-2 text-sm font-semibold text-ink" data-testid="points-expiry">
+              {nextExpiry.points} point{nextExpiry.points > 1 ? "s" : ""} expire{nextExpiry.points > 1 ? "nt" : ""} le{" "}
+              {formatDate(nextExpiry.date)} : pense à les utiliser.
+            </p>
+          ) : null}
           <p className="mt-2 text-xs text-ink/70">
             1 point par tranche de {formatFcfa(rules.fcfaPerPoint)} · {rules.redeemPointsBlock} points ={" "}
             {formatFcfa(rules.redeemValueFcfa)} · points valables {rules.pointsValidityMonths} mois

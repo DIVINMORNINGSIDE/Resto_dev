@@ -80,7 +80,7 @@ set points_balance = 42, delivery_address = 'Résidence La Terrasse, chambre 12'
 where id = '00000000-0000-4000-8000-00000000a001';
 
 insert into public.loyalty_transactions (user_id, kind, points, expires_at, note, created_at)
-values ('00000000-0000-4000-8000-00000000a001', 'ajustement', 24, now() + interval '12 months', 'Points de démonstration', now() - interval '10 days');
+values ('00000000-0000-4000-8000-00000000a001', 'ajustement', 24, now() + interval '20 days', 'Points de démonstration', now() - interval '10 days');
 
 -- Trois commandes livrées ces derniers jours, pour l'historique et les statistiques.
 do $$
@@ -121,6 +121,16 @@ begin
   end loop;
 end;
 $$;
+
+-- Un avis laissé sur la plus ancienne commande.
+update public.orders
+set customer_comment = 'Poulet DG excellent et servi bien chaud. Merci !', commented_at = created_at + interval '2 hours'
+where id = (
+  select id from public.orders
+  where customer_id = '00000000-0000-4000-8000-00000000a001'
+  order by created_at
+  limit 1
+);
 
 -- Le solde suit le journal des points.
 update public.profiles

@@ -75,3 +75,18 @@ export async function advanceOrder(orderId: string, status: OrderStatus): Promis
   refresh();
   return {};
 }
+
+export type CommentState = { error?: string; success?: string; value?: string };
+
+export async function commentMyOrder(_prev: CommentState, formData: FormData): Promise<CommentState> {
+  await requireRole(allowedRolesFor("/espace"));
+  const value = text(formData, "comment").trim();
+  if (value.length < 3 || value.length > 500) {
+    return { error: "Ton commentaire doit faire entre 3 et 500 caractères.", value };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("comment_my_order", { p_order_id: text(formData, "orderId"), p_comment: value });
+  if (error) return { error: sqlMessage(error), value };
+  refresh();
+  return { success: "Merci pour ton avis !" };
+}

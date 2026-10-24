@@ -6,7 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/dal";
 import { allowedRolesFor } from "@/lib/auth/roles";
 import { formatFcfa } from "@/lib/format";
-import { formatDay, periodRange, type Period } from "@/lib/orders/time";
+import { getRecentComments, getTopCustomers, type OrderComment, type TopCustomer } from "@/features/orders/queries";
+import { formatDateTime, formatDay, periodRange, type Period } from "@/lib/orders/time";
 import { getStats, type Stats } from "./queries";
 
 const PERIODS: { value: Period; label: string }[] = [
@@ -35,8 +36,12 @@ async function StatsLoader({ area, basePath, searchParams }: { area: Area; baseP
   const requested = typeof query.periode === "string" ? query.periode : "semaine";
   const period: Period = area === "/employe" ? "semaine" : PERIODS.some((p) => p.value === requested) ? (requested as Period) : "semaine";
   const { from, to } = periodRange(period);
-  const stats = await getStats(from, to);
   const full = viewer.role !== "employe" && area !== "/employe";
+  const [stats, top, comments] = await Promise.all([
+    getStats(from, to),
+    full ? getTopCustomers(period) : Promise.resolve([]),
+    getRecentComments(),
+  ]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -102,7 +107,53 @@ async function StatsLoader({ area, basePath, searchParams }: { area: Area; baseP
           </div>
         </BoCard>
       ) : null}
+
+      <div className={`grid gap-6 ${full ? "xl:grid-cols-2" : ""}`}>
+        {full ? (
+          <BoCard>
+            <h2 className="mb-4 font-display text-2xl">Top 10 des clients</h2>
+            <TopCustomers customers={top} />
+          </BoCard>
+        ) : null}
+        <BoCard>
+          <h2 className="mb-4 font-display text-2xl">Derniers avis</h2>
+          <RecentComments comments={comments} />
+        </BoCard>
+      </div>
     </div>
+  );
+}
+
+function TopCustomers({ customers }: { customers: TopCustomer[] }) {
+  if (!customers.length) return <p className="text-sm text-bo-text2">Aucune commande servie sur la période.</p>;
+  return (
+    <ol className="divide-y divide-bo-line" aria-label="Top 10 des clients">
+      {customers.map((c) => (
+        <li key={c.rank} className="flex items-center gap-3 py-2 text-sm">
+          <span className="w-6 text-right font-semibold tabular-nums text-bo-text2">{c.rank}</span>
+          <span className="flex-1 truncate font-semibold">{c.name}</span>
+          <span className="tabular-nums text-bo-text2">
+            {c.orders} commande{c.orders > 1 ? "s" : ""}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function RecentComments({ comments }: { comments: OrderComment[] }) {
+  if (!comments.length) return <p className="text-sm text-bo-text2">Aucun avis pour l&apos;instant.</p>;
+  return (
+    <ul className="flex flex-col gap-3">
+      {comments.map((c) => (
+        <li key={c.id} className="border-l-2 border-bo-accent pl-3 text-sm">
+          <p>{c.comment}</p>
+          <p className="mt-1 text-xs text-bo-text2">
+            {c.customer} · commande {c.number} · {formatDateTime(c.commentedAt)}
+          </p>
+        </li>
+      ))}
+    </ul>
   );
 }
 

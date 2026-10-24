@@ -50,6 +50,36 @@ export const menuItemSchema = z.object({
   isDishOfDay: checkbox,
 });
 
+const isoDay = /^\d{4}-\d{2}-\d{2}$/;
+
+export const promotionSchema = z
+  .object({
+    kind: z.enum(["promotion", "evenement"], { error: "Choisis le type d'affiche." }),
+    title: z.string().trim().min(3, "Titre trop court.").max(80, "80 caractères maximum."),
+    description: z.string().trim().max(300, "300 caractères maximum."),
+    posterUrl: z.string().trim(),
+    startsOn: z.string().regex(isoDay, "Indique la date de début."),
+    endsOn: z.union([z.literal(""), z.string().regex(isoDay, "Date de fin invalide.")]),
+    isActive: checkbox,
+  })
+  .refine((v) => !v.endsOn || v.endsOn >= v.startsOn, {
+    path: ["endsOn"],
+    message: "La fin doit être après le début.",
+  });
+
+// Les dates d'affiche sont des journées entières à l'heure de Douala (UTC+1).
+export function promotionWindow(startsOn: string, endsOn: string): { startsAt: string; endsAt: string | null } {
+  return {
+    startsAt: `${startsOn}T00:00:00+01:00`,
+    endsAt: endsOn ? `${endsOn}T23:59:59+01:00` : null,
+  };
+}
+
+// Jour à Douala d'un instant enregistré en base : "2026-10-24".
+export function doualaDay(iso: string): string {
+  return new Date(new Date(iso).getTime() + 60 * 60_000).toISOString().slice(0, 10);
+}
+
 export const MENU_TOGGLES = ["is_available", "is_dish_of_day"] as const;
 export type MenuToggle = (typeof MENU_TOGGLES)[number];
 
