@@ -3,10 +3,13 @@ import { login, PASSWORD } from "./helpers";
 
 test("l'accueil affiche le menu venant de la base", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Poulet DG" })).toBeVisible();
-  const card = (name: string) => page.getByRole("listitem").filter({ has: page.getByRole("heading", { name }) });
+  const menu = page.locator("#menu");
+  await expect(menu.getByRole("heading", { name: "Poulet DG" })).toBeVisible();
+  const card = (name: string) => menu.getByRole("listitem").filter({ has: page.getByRole("heading", { name }) });
   await expect(card("Poulet DG").getByText("Plat du jour")).toBeVisible();
   await expect(card("Riz sauté poulet").getByText("Épuisé")).toBeVisible();
+  // Le panneau « plat du jour » reprend le plat marqué en base.
+  await expect(page.locator("#fidelite").getByRole("heading", { name: "Poulet DG" })).toBeVisible();
 });
 
 test("un espace protégé renvoie vers la connexion", async ({ page }) => {
