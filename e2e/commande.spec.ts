@@ -12,6 +12,17 @@ async function points(page: Page): Promise<number> {
   return Number(await page.getByTestId("points-balance").filter({ visible: true }).textContent());
 }
 
+test("cliquer sur un plat de l'accueil ouvre la page Commander sur ce plat", async ({ page }) => {
+  await loginAs(page, STUDENT, /\/espace$/);
+  await page.goto("/");
+  await page.locator("#menu").getByRole("link", { name: "Brochettes de bœuf" }).click();
+  await expect(page).toHaveURL(/\/espace\/commander#plat-/);
+  await expect(page.getByRole("button", { name: "Ajouter Brochettes de bœuf au panier" })).toBeInViewport();
+  // Un plat épuisé n'est pas cliquable.
+  await page.goto("/");
+  await expect(page.locator("#menu").getByRole("link", { name: "Riz sauté poulet" })).toHaveCount(0);
+});
+
 test("une commande va de l'étudiant à la cuisine, en direct, et crédite les points", async ({ page, browser }) => {
   await loginAs(page, STUDENT, /\/espace$/);
   const before = await points(page);
