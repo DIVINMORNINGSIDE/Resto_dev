@@ -9,7 +9,7 @@ export function FormSkeleton({ fields = 2 }: { fields?: number }) {
           <Skeleton className="h-12 w-full" />
         </div>
       ))}
-      <Skeleton className="mt-2 h-12 w-full rounded-full" />
+      <Skeleton className="mt-2 h-12 w-full" />
     </div>
   );
 }

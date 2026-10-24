@@ -11,8 +11,8 @@ export default function ForgotPasswordPage() {
   const [state, formAction] = useActionState<FormState, FormData>(requestPasswordReset, {});
   return (
     <>
-      <p className="deco text-gold">Pas de panique</p>
-      <h1 className="mt-2 font-display text-4xl">Mot de passe oublié</h1>
+      <p className="deco text-accent">Pas de panique</p>
+      <h1 className="mt-3 font-display text-5xl">Mot de passe oublié</h1>
       <p className="mt-2 text-mute">Indique ton email, on t&apos;envoie un lien pour en choisir un nouveau.</p>
       <div className="mt-8">
         {state.success ? (
@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
         )}
       </div>
       <p className="mt-6 text-center text-sm">
-        <Link href="/connexion" className="font-semibold text-gold hover:text-gold-hi">
+        <Link href="/connexion" className="font-semibold text-accent hover:text-accent-hi">
           Retour à la connexion
         </Link>
       </p>

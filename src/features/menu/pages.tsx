@@ -18,7 +18,7 @@ export function MenuPage({ area }: { area: Area }) {
       <BoPageHeader kicker="Carte du restaurant" title="Menu">
         <Link
           href={`${base}/nouveau`}
-          className="inline-flex min-h-11 items-center rounded-full bg-bo-text px-5 text-sm font-semibold text-bo-bg transition hover:bg-bo-text/85"
+          className="deco inline-flex min-h-11 items-center rounded-sm bg-bo-text px-5 text-bo-bg transition hover:bg-bo-text/85"
         >
           Ajouter un plat
         </Link>
@@ -51,7 +51,7 @@ async function NewItem({ base }: { base: string }) {
     return (
       <p className="text-bo-text2">
         Crée d&apos;abord une catégorie depuis la page{" "}
-        <Link href={base} className="font-semibold text-bo-gold underline">
+        <Link href={base} className="font-semibold text-bo-accent underline">
           Menu
         </Link>
         .

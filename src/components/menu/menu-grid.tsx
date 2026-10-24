@@ -1,55 +1,56 @@
-import { createClient } from "@/lib/supabase/server";
+import { getPublicMenu } from "@/features/home/queries";
 import { formatFcfa } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowIcon } from "@/components/ui/arrow-icon";
 import { MenuPhoto } from "./menu-photo";
 
+// Cartes façon Kado : photo pleine, nom en haut, prix et flèche en bas.
 export async function MenuGrid() {
-  const supabase = await createClient();
-  const { data: items, error } = await supabase
-    .from("menu_items")
-    .select("id, name, description, price_fcfa, image_url, is_available, is_dish_of_day, categories(name, position)")
-    .order("is_dish_of_day", { ascending: false })
-    .order("name");
+  const items = await getPublicMenu();
 
-  if (error) {
-    return <p className="text-bad">Le menu n&apos;a pas pu être chargé. Réessaie dans un instant.</p>;
+  if (!items) {
+    return <p className="text-center text-bad">Le menu n&apos;a pas pu être chargé. Réessaie dans un instant.</p>;
   }
-  if (!items?.length) {
-    return <p className="text-mute">Le menu du jour arrive bientôt.</p>;
+  if (!items.length) {
+    return <p className="text-center text-mute">Le menu du jour arrive bientôt.</p>;
   }
 
   return (
-    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {items.map((item, i) => (
         <li
           key={item.id}
-          className={`group overflow-hidden rounded-2xl border border-line bg-s1 animate-rise ${item.is_available ? "" : "opacity-60"}`}
+          className={`group relative aspect-[3/4] overflow-hidden border border-cream/15 bg-s2 animate-rise ${item.isAvailable ? "" : "opacity-60"}`}
           style={{ animationDelay: `${i * 60}ms` }}
         >
-          <div className="relative aspect-[4/3] overflow-hidden bg-s2">
-            {item.image_url ? (
-              <MenuPhoto
-                src={item.image_url}
-                alt={item.name}
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                className="transition duration-500 ease-soft group-hover:scale-105"
-              />
-            ) : null}
-            {item.is_dish_of_day ? (
-              <span className="deco absolute left-3 top-3 rounded-full bg-gold px-3 py-1 text-ink">Plat du jour</span>
-            ) : null}
-            {!item.is_available ? (
-              <span className="deco absolute right-3 top-3 rounded-full bg-ink/80 px-3 py-1 text-bad">Épuisé</span>
-            ) : null}
+          {item.imageUrl ? (
+            <MenuPhoto
+              src={item.imageUrl}
+              alt={item.name}
+              sizes="(min-width: 1024px) 25vw, 50vw"
+              className="transition duration-700 ease-soft group-hover:scale-105"
+            />
+          ) : null}
+          <div className="absolute inset-0 bg-gradient-to-b from-ink/80 via-ink/5 to-ink/85" />
+          <div className="absolute inset-x-0 top-0 flex flex-col items-start gap-2 p-3 sm:p-4">
+            <h3 className="font-display text-base sm:text-lg">{item.name}</h3>
+            {item.isDishOfDay ? <span className="deco bg-accent px-2 py-1 text-[10px] text-ink">Plat du jour</span> : null}
+            {!item.isAvailable ? <span className="deco bg-ink/80 px-2 py-1 text-[10px] text-bad">Épuisé</span> : null}
           </div>
-          <div className="flex flex-col gap-1 p-4">
-            <div className="flex items-baseline justify-between gap-3">
-              <h3 className="font-display text-xl">{item.name}</h3>
-              <b className="shrink-0 tabular-nums text-gold">{formatFcfa(item.price_fcfa)}</b>
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 sm:p-4">
+            <div className="min-w-0">
+              <p className="deco text-[10px] text-cream/70">{item.categoryName}</p>
+              <b className="text-sm tabular-nums">{formatFcfa(item.priceFcfa)}</b>
             </div>
-            <p className="text-xs uppercase tracking-wider text-gold-lo">{item.categories?.name}</p>
-            {item.description ? <p className="text-sm text-mute">{item.description}</p> : null}
+            <span className="grid size-7 shrink-0 place-items-center bg-cream text-ink transition duration-300 ease-soft group-hover:bg-accent">
+              <ArrowIcon className="size-3.5 -rotate-45" />
+            </span>
           </div>
+          {item.description ? (
+            <p className="absolute inset-x-3 bottom-16 text-xs leading-snug text-cream/90 opacity-0 transition duration-300 ease-soft group-hover:opacity-100 max-sm:sr-only sm:inset-x-4">
+              {item.description}
+            </p>
+          ) : null}
         </li>
       ))}
     </ul>
@@ -58,15 +59,10 @@ export async function MenuGrid() {
 
 export function MenuGridSkeleton() {
   return (
-    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Chargement du menu">
-      {Array.from({ length: 6 }, (_, i) => (
-        <li key={i} className="overflow-hidden rounded-2xl border border-line bg-s1">
-          <Skeleton className="aspect-[4/3] rounded-none" />
-          <div className="flex flex-col gap-2 p-4">
-            <Skeleton className="h-6 w-2/3" />
-            <Skeleton className="h-3 w-1/4" />
-            <Skeleton className="h-4 w-full" />
-          </div>
+    <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4" aria-busy="true" aria-label="Chargement du menu">
+      {Array.from({ length: 8 }, (_, i) => (
+        <li key={i}>
+          <Skeleton className="aspect-[3/4] w-full" />
         </li>
       ))}
     </ul>

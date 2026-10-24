@@ -10,21 +10,24 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
       </div>
-      <div className="relative hidden overflow-hidden border-l border-line lg:block">
+      <div className="relative hidden overflow-hidden lg:block">
         <Image
           src="/photos/terrasse.jpg"
           alt="La terrasse du ZeDuc@Space au coucher du soleil"
           fill
           sizes="55vw"
-          className="object-cover opacity-70"
+          className="scale-105 object-cover blur-[1px]"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
-        <div className="absolute inset-x-10 bottom-12">
-          <p className="deco text-gold">Au sommet de la résidence La Terrasse</p>
-          <p className="mt-3 max-w-md font-display text-4xl leading-tight">
-            Le bon <em className="text-gold">miam miam</em>, sans passer par la messagerie.
-          </p>
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/30 via-ink/30 to-ink/90" />
+        <div className="absolute inset-x-12 bottom-14">
+          <p className="deco text-accent">Au sommet de la résidence La Terrasse</p>
+          <p className="mt-4 max-w-lg font-display text-6xl">Le bon miam miam, sans passer par la messagerie</p>
+        </div>
+        <div className="absolute right-10 top-10 w-56 bg-gradient-to-b from-lime to-sky p-4 text-ink shadow-2xl">
+          <p className="deco text-[10px] text-ink/70">Fidélité</p>
+          <p className="mt-1 font-extrabold leading-tight">15 points = 1 000 F de réduction</p>
+          <p className="mt-1 text-xs text-ink/75">1 point par tranche de 1 000 F dépensée.</p>
         </div>
       </div>
     </div>

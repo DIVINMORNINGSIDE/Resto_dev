@@ -14,7 +14,7 @@ export function BrandLoader({ label = "Chargement…", tone = "dark" }: BrandLoa
         className="animate-breathe rounded-full"
         priority
       />
-      <p className={`deco ${tone === "dark" ? "text-gold" : "text-bo-gold"}`}>{label}</p>
+      <p className={`deco ${tone === "dark" ? "text-accent" : "text-bo-accent"}`}>{label}</p>
     </div>
   );
 }

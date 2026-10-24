@@ -45,7 +45,7 @@ export function MenuSwitch({ id, field, checked, label, itemName }: MenuSwitchPr
         <span
           aria-hidden="true"
           className={`relative h-6 w-11 rounded-full transition-colors duration-300 ease-soft ${
-            optimistic ? (field === "is_available" ? "bg-bo-ok" : "bg-bo-gold") : "bg-bo-line"
+            optimistic ? (field === "is_available" ? "bg-bo-ok" : "bg-bo-accent") : "bg-bo-line"
           }`}
         >
           <span

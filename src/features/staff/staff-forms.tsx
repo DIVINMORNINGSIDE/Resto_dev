@@ -56,14 +56,14 @@ export function AddStaffForm({ roles }: { roles: AppRole[] }) {
 function TempPassword({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-bo-gold bg-bo-bg px-4 py-3 animate-rise">
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-bo-accent bg-bo-bg px-4 py-3 animate-rise">
       <span className="text-sm text-bo-text2">Mot de passe provisoire, affiché une seule fois :</span>
       <code data-testid="temp-password" className="font-mono text-base font-semibold tracking-wider">
         {value}
       </code>
       <button
         type="button"
-        className="text-sm font-semibold text-bo-gold underline"
+        className="text-sm font-semibold text-bo-accent underline"
         onClick={() => navigator.clipboard?.writeText(value).then(() => setCopied(true))}
       >
         {copied ? "Copié" : "Copier"}
@@ -82,7 +82,7 @@ export function StaffRow({ member, roles, editable }: { member: StaffMember; rol
           <p className="flex items-center gap-2 font-semibold">
             <span className="truncate">{member.fullName}</span>
             {!member.isActive ? (
-              <span className="deco rounded-full bg-bo-badbg px-2 py-0.5 text-bo-bad">Désactivé</span>
+              <span className="deco rounded-sm bg-bo-badbg px-2 py-0.5 text-bo-bad">Désactivé</span>
             ) : null}
           </p>
           <p className="truncate text-sm text-bo-text2">{member.email}</p>
@@ -119,7 +119,7 @@ export function StaffRow({ member, roles, editable }: { member: StaffMember; rol
             </form>
           </>
         ) : (
-          <span className="deco rounded-full bg-bo-infobg px-3 py-1 text-bo-info">{ROLE_LABELS[member.role]}</span>
+          <span className="deco rounded-sm bg-bo-infobg px-3 py-1 text-bo-info">{ROLE_LABELS[member.role]}</span>
         )}
       </div>
       <BoNotice

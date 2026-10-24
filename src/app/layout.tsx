@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Josefin_Sans, Karla, Playfair_Display } from "next/font/google";
+import { Anton, Archivo } from "next/font/google";
 import "./globals.css";
 
-const playfair = Playfair_Display({ variable: "--font-playfair", subsets: ["latin"] });
-const karla = Karla({ variable: "--font-karla", subsets: ["latin"] });
-const josefin = Josefin_Sans({ variable: "--font-josefin", subsets: ["latin"] });
+const anton = Anton({ variable: "--font-anton", weight: "400", subsets: ["latin"] });
+const archivo = Archivo({ variable: "--font-archivo", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
@@ -17,14 +16,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0a08",
+  themeColor: "#17110f",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
-      className={`${playfair.variable} ${karla.variable} ${josefin.variable} h-full antialiased`}
+      className={`${anton.variable} ${archivo.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">{children}</body>
     </html>

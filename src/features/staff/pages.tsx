@@ -61,7 +61,7 @@ function StaffSkeleton() {
               <Skeleton tone="light" className="h-4 w-40" />
               <Skeleton tone="light" className="h-3 w-56" />
             </div>
-            <Skeleton tone="light" className="h-11 w-48 rounded-full" />
+            <Skeleton tone="light" className="h-11 w-48" />
           </div>
         ))}
       </div>

@@ -10,8 +10,8 @@ export default function NewPasswordPage() {
   const [state, formAction] = useActionState<FormState, FormData>(updatePassword, {});
   return (
     <>
-      <p className="deco text-gold">Dernière étape</p>
-      <h1 className="mt-2 font-display text-4xl">Nouveau mot de passe</h1>
+      <p className="deco text-accent">Dernière étape</p>
+      <h1 className="mt-3 font-display text-5xl">Nouveau mot de passe</h1>
       <form action={formAction} className="mt-8 flex flex-col gap-5" noValidate>
         <FormMessage message={state.message} />
         <Field

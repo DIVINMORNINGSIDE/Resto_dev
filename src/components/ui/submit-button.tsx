@@ -17,7 +17,7 @@ export function SubmitButton({ children, pendingLabel, className = "" }: SubmitB
       type="submit"
       disabled={pending}
       aria-disabled={pending}
-      className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gold px-6 font-semibold text-ink transition duration-300 ease-soft hover:bg-gold-hi disabled:cursor-wait disabled:opacity-80 ${className}`}
+      className={`deco inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-sm bg-accent px-6 text-[13px] text-ink transition duration-300 ease-soft hover:bg-accent-hi disabled:cursor-wait disabled:opacity-80 ${className}`}
     >
       {pending ? (
         <>

@@ -1,66 +1,73 @@
-import Image from "next/image";
-import Link from "next/link";
 import { Suspense } from "react";
-import { AccountLink, AccountLinkSkeleton } from "@/components/account/account-link";
+import {
+  DishOfDayPanel,
+  DishOfDaySkeleton,
+  PromoPanel,
+  PromoPanelSkeleton,
+  SignatureDishes,
+  SignatureDishesSkeleton,
+} from "@/components/home/live-sections";
+import {
+  Hero,
+  HowItWorks,
+  outlineDark,
+  PhotoStrip,
+  SectionTitle,
+  SiteFooter,
+  TableCta,
+  Welcome,
+} from "@/components/home/sections";
+import { SiteNav } from "@/components/home/site-nav";
 import { MenuGrid, MenuGridSkeleton } from "@/components/menu/menu-grid";
-import { Logo } from "@/components/ui/logo";
 
 export default function HomePage() {
   return (
     <>
-      <header className="sticky top-0 z-20 border-b border-line bg-ink/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-          <Logo />
-          <Suspense fallback={<AccountLinkSkeleton />}>
-            <AccountLink />
-          </Suspense>
-        </div>
-      </header>
-
+      <SiteNav />
       <main className="flex-1">
-        <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[1.1fr_0.9fr]">
-          <div className="animate-rise">
-            <p className="deco text-gold">Restaurant · Résidence La Terrasse</p>
-            <h1 className="mt-3 font-display text-5xl leading-[1.05] sm:text-6xl">
-              Commande ton <em className="text-gold">miam miam</em>, on s&apos;occupe du reste.
-            </h1>
-            <p className="mt-5 max-w-xl text-lg text-mute">
-              Sur place ou en livraison, suis ta commande en direct et cumule des points de fidélité à chaque repas.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/inscription"
-                className="inline-flex min-h-12 items-center rounded-full bg-gold px-6 font-semibold text-ink transition hover:bg-gold-hi"
-              >
-                Créer mon compte
-              </Link>
-              <a
-                href="#menu"
-                className="inline-flex min-h-12 items-center rounded-full border border-line px-6 font-semibold text-cream transition hover:border-gold"
-              >
-                Voir le menu
-              </a>
-            </div>
-          </div>
-          <div className="relative mx-auto w-full max-w-sm animate-rise [animation-delay:120ms]">
-            <Image src="/brand/logo-full.png" alt="Logo ZeDuc@Space" width={444} height={362} priority className="w-full" />
-          </div>
-        </section>
+        <Hero />
+        <Welcome />
+        <PhotoStrip />
 
-        <section id="menu" className="mx-auto max-w-6xl scroll-mt-20 px-4 pb-20">
-          <p className="deco text-gold">Aujourd&apos;hui</p>
-          <h2 className="mt-2 font-display text-4xl">Le menu</h2>
-          <div className="mt-8">
+        <section id="menu" className="scroll-mt-6 bg-ink px-4 py-20 md:py-28">
+          <SectionTitle kicker="Nos plats">Des plats qui font revenir nos clients</SectionTitle>
+          <div className="mx-auto mt-12 max-w-5xl">
             <Suspense fallback={<MenuGridSkeleton />}>
               <MenuGrid />
             </Suspense>
           </div>
         </section>
-      </main>
 
-      <footer className="border-t border-line py-6 text-center text-sm text-mute">
-        ZeDuc@Space · Mon Miam Miam
-      </footer>
+        <section id="fidelite" className="grid scroll-mt-6 lg:grid-cols-2">
+          <Suspense fallback={<PromoPanelSkeleton />}>
+            <PromoPanel />
+          </Suspense>
+          <Suspense fallback={<DishOfDaySkeleton />}>
+            <DishOfDayPanel />
+          </Suspense>
+        </section>
+
+        <section className="bg-paper text-ink">
+          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 md:py-28 lg:grid-cols-[1fr_1.35fr]">
+            <div>
+              <h2 className="font-display text-[clamp(2.25rem,4.4vw,3.4rem)]">Des spécialités pour chaque repas</h2>
+              <p className="deco mt-5 max-w-sm text-[11px] leading-relaxed text-ink/75">
+                Découvre nos grillades, nos plats mijotés, nos jus maison et nos plats du jour rafraîchissants.
+              </p>
+              <a href="#menu" className={`${outlineDark} mt-6`}>
+                Voir le menu
+              </a>
+            </div>
+            <Suspense fallback={<SignatureDishesSkeleton />}>
+              <SignatureDishes />
+            </Suspense>
+          </div>
+        </section>
+
+        <HowItWorks />
+        <TableCta />
+      </main>
+      <SiteFooter />
     </>
   );
 }

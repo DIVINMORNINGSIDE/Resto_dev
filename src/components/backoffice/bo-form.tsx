@@ -1,14 +1,14 @@
 // Champs du back-office clair (même structure que les champs de l'espace client).
 
 const inputClass =
-  "min-h-11 w-full rounded-xl border border-bo-line bg-bo-card px-3.5 text-base text-bo-text placeholder:text-bo-text2/60 transition-colors focus:border-bo-gold focus:outline-none aria-invalid:border-bo-bad";
+  "min-h-11 w-full rounded-xl border border-bo-line bg-bo-card px-3.5 text-base text-bo-text placeholder:text-bo-text2/60 transition-colors focus:border-bo-accent focus:outline-none aria-invalid:border-bo-bad";
 
 type Common = { label: string; name: string; error?: string; hint?: string; id?: string };
 
 function Wrapper({ label, inputId, error, hint, children }: { label: string; inputId: string; error?: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-sm font-semibold text-bo-text">
+      <label htmlFor={inputId} className="deco text-bo-text/80">
         {label}
       </label>
       {children}
@@ -95,7 +95,7 @@ export function BoSelect({
 export function BoCheckbox({ label, name, defaultChecked }: { label: string; name: string; defaultChecked?: boolean }) {
   return (
     <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-bo-line bg-bo-card px-3.5 text-sm font-semibold">
-      <input type="checkbox" name={name} defaultChecked={defaultChecked} className="size-4 accent-bo-gold" />
+      <input type="checkbox" name={name} defaultChecked={defaultChecked} className="size-4 accent-bo-accent" />
       {label}
     </label>
   );
@@ -132,8 +132,8 @@ export function BoPageHeader({ kicker, title, children }: { kicker: string; titl
   return (
     <header className="mb-6 flex flex-wrap items-end justify-between gap-4 animate-rise">
       <div>
-        <p className="deco text-bo-gold">{kicker}</p>
-        <h1 className="mt-1 font-display text-3xl md:text-4xl">{title}</h1>
+        <p className="deco text-bo-accent">{kicker}</p>
+        <h1 className="mt-2 font-display text-4xl md:text-5xl">{title}</h1>
       </div>
       {children}
     </header>
