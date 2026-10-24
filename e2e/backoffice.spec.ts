@@ -171,7 +171,7 @@ test("l'admin modifie les paramètres du restaurant", async ({ page }) => {
   await page.getByRole("button", { name: "Enregistrer les paramètres" }).click();
   await expect(page.getByText("Paramètres enregistrés.")).toBeVisible();
   await page.goto("/");
-  await expect(page.getByText("Bienvenue au Big Fish")).toBeVisible();
+  await expect(page.getByText("Big Fish · Mon Miam Miam")).toBeVisible();
   await page.goto("/admin/parametres");
   await page.getByLabel("Nom affiché").fill("ZeDuc@Space");
   await page.getByRole("button", { name: "Enregistrer les paramètres" }).click();

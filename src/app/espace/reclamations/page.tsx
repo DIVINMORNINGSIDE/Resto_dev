@@ -35,7 +35,7 @@ async function Complaints() {
   const profile = await requireRole(allowedRolesFor("/espace"));
   const [complaints, orders] = await Promise.all([getMyComplaints(profile.id), getMyOrders(profile.id)]);
   return (
-    <div className="flex flex-col gap-8">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
       <section aria-labelledby="mes-reclamations" className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h2 id="mes-reclamations" className="deco text-accent">
@@ -69,7 +69,7 @@ async function Complaints() {
           <p className="text-sm text-mute">Aucune réclamation. Tant mieux !</p>
         )}
       </section>
-      <section aria-labelledby="nouvelle" className="flex flex-col gap-3 border border-cream/15 p-4">
+      <section aria-labelledby="nouvelle" className="flex flex-col gap-3 border border-cream/15 p-4 lg:sticky lg:top-6">
         <h2 id="nouvelle" className="deco text-accent">
           Nouvelle réclamation
         </h2>

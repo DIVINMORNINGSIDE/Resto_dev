@@ -42,14 +42,129 @@ Les emails envoyés en local (confirmation, mot de passe oublié) sont visibles 
 | `npm run dev` | Serveur de développement |
 | `npm run lint` / `npm run typecheck` | Qualité du code |
 | `npm test` | Tests unitaires |
-| `npm run test:e2e` | Tests de bout en bout (Supabase local et application lancés) |
+| `npm run test:e2e` | Tests de bout en bout (Supabase local et application lancés) ; `PW_ALL_BROWSERS=1` ajoute Safari et Firefox |
 | `npm run db:reset` | Recrée la base locale depuis les migrations et `supabase/seed.sql` |
 | `npm run db:types` | Régénère les types TypeScript de la base |
+
+## Architecture
+
+Une seule application Next.js, déployée sur Vercel, qui parle à Supabase :
+
+```mermaid
+flowchart LR
+  N[Navigateur] -->|pages, Server Actions| A[Next.js sur Vercel]
+  A -->|requêtes SQL et fonctions, au nom de l'utilisateur| S[(Supabase PostgreSQL)]
+  N -->|temps réel : commandes et réclamations| R[Supabase Realtime]
+  R --- S
+  N -->|photos du menu| ST[Supabase Storage]
+```
+
+- **Lecture** : les pages serveur lisent la base avec la session de l'utilisateur ; la Row Level Security décide de ce que chacun voit. Chaque chargement de données est entouré d'un squelette (`<Suspense>`).
+- **Écriture** : les formulaires appellent des Server Actions, qui valident les champs (Zod) puis appellent la base. Tout ce qui touche à l'argent ou aux points passe par une fonction SQL transactionnelle.
+- **Temps réel** : l'écran cuisine et le suivi étudiant s'abonnent aux changements de `orders` et `complaints`, puis rechargent la page (avec un rechargement de secours toutes les 15 secondes).
+- **Rôles** : `etudiant`, `employe`, `gerant`, `admin`. `src/proxy.ts` renvoie vers la connexion, chaque page revérifie le rôle côté serveur, et la base l'impose une troisième fois.
+
+## Schéma de la base
+
+```mermaid
+erDiagram
+  restaurants ||--o{ categories : propose
+  restaurants ||--o{ promotions : publie
+  categories ||--o{ menu_items : contient
+  profiles ||--o{ orders : passe
+  orders ||--|{ order_items : contient
+  menu_items ||--o{ order_items : "commandé dans"
+  profiles ||--o{ loyalty_transactions : cumule
+  orders ||--o{ loyalty_transactions : "génère"
+  profiles ||--o{ referrals : parraine
+  profiles ||--o| referrals : "est filleul"
+  profiles ||--o{ complaints : "dépose"
+  orders ||--o{ complaints : concerne
+
+  restaurants {
+    text name "nom affiché"
+    jsonb opening_hours
+    int fcfa_per_point
+    int redeem_points_block
+    int redeem_value_fcfa
+    int points_validity_months
+    int referral_bonus_points
+  }
+  profiles {
+    uuid id "= auth.users.id"
+    text full_name
+    text email
+    text phone
+    text delivery_address
+    app_role role
+    int points_balance
+    text referral_code
+    uuid referred_by
+    boolean is_active
+  }
+  categories {
+    text name
+    int position
+  }
+  menu_items {
+    text name
+    text description
+    int price_fcfa
+    text image_url
+    boolean is_available
+    boolean is_dish_of_day
+  }
+  orders {
+    order_type order_type
+    order_status status
+    timestamptz arrival_time
+    text delivery_address
+    int subtotal_fcfa
+    int discount_fcfa
+    int total_fcfa
+    int points_earned
+    int points_used
+  }
+  order_items {
+    text item_name
+    int unit_price_fcfa
+    int quantity
+  }
+  loyalty_transactions {
+    loyalty_kind kind
+    int points
+    timestamptz expires_at
+    text note
+  }
+  referrals {
+    int reward_points
+    timestamptz rewarded_at
+  }
+  complaints {
+    text subject
+    text message
+    complaint_status status
+    text staff_response
+    uuid responded_by
+    uuid decided_by
+  }
+  promotions {
+    promotion_kind kind
+    text title
+    text poster_url
+    timestamptz starts_at
+    timestamptz ends_at
+  }
+```
+
+- `profiles.points_balance` est toujours la somme de `loyalty_transactions` : seules les fonctions SQL l'écrivent.
+- `order_items` garde le nom et le prix au moment de la commande : changer le menu ne modifie pas l'historique.
+- Statuts d'une commande : `en_attente` → `en_preparation` → `prete` → (`en_livraison`) → `livree`, ou `annulee`.
 
 ## Structure
 
 ```
-src/app/                  pages (accueil, (auth), espace, employe, gerant, admin)
+src/app/                  pages (accueil, (auth), (legal), espace, employe, gerant, admin)
 src/components/           composants d'interface et de chargement
 src/features/             par domaine : menu, personnel, paramètres, commandes, panier, réclamations, statistiques, espace étudiant
 src/lib/orders/           règles pures testées : panier, points, statuts, heures
@@ -92,6 +207,8 @@ e2e/                      tests Playwright
 - **Étudiant** (`/espace`) : menu et panier, commande sur place (heure d'arrivée) ou en livraison (adresse), réduction avec les points, suivi en direct, historique, annulation tant que la cuisine n'a pas commencé, fidélité (solde, historique, filleuls, partage du code), réclamations.
 - **Employé** (`/employe`) : écran cuisine en temps réel, réclamations (réponse proposée au gérant), statistiques de la semaine.
 - **Gérant et admin** : supervision des commandes, validation des réclamations, statistiques par jour, semaine ou mois.
+- **Tout le monde** : bandeau cookies (seulement des cookies nécessaires), mentions légales et politique de confidentialité. Les coordonnées légales se règlent dans `src/lib/legal.ts`.
+- **Paiement** : sur place ou à la livraison ; aucun paiement en ligne pour l'instant (CinetPay prévu plus tard).
 
 Règles de fidélité (modifiables dans les paramètres) : 1 point par tranche de 1 000 F, 15 points = 1 000 F de réduction, 5 points au parrain après la première commande servie du filleul.
 
@@ -100,4 +217,4 @@ Règles de fidélité (modifiables dans les paramètres) : 1 point par tranche d
 - [x] Étape 1 : fondations (projet, schéma, authentification, rôles, CI)
 - [x] Étape 2 : back-office (menu, employés, paramètres)
 - [x] Étape 3 : commande, cuisine en temps réel, fidélité, parrainage, réclamations, statistiques
-- [ ] Étape 4 : qualité et mise en ligne
+- [x] Étape 4 : qualité et mise en ligne (cookies, pages légales, espace étudiant sur ordinateur, tests sur Chrome, Firefox et Safari)

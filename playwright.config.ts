@@ -12,6 +12,11 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     trace: "retain-on-failure",
+    // Le bandeau cookies est déjà accepté, sauf dans le test qui le vérifie.
+    storageState: {
+      cookies: [],
+      origins: [{ origin: "http://localhost:3000", localStorage: [{ name: "miam-cookies", value: "accepte" }] }],
+    },
     launchOptions: process.env.PW_CHROMIUM_PATH
       ? { executablePath: process.env.PW_CHROMIUM_PATH }
       : undefined,
@@ -19,6 +24,13 @@ export default defineConfig({
   projects: [
     { name: "mobile", use: { ...devices["Pixel 7"] } },
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    // Safari (iPhone) et Firefox : lancés en CI, où ces navigateurs sont installés.
+    ...(process.env.PW_ALL_BROWSERS
+      ? [
+          { name: "safari-mobile", use: { ...devices["iPhone 14"] } },
+          { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+        ]
+      : []),
   ],
   webServer: {
     command: process.env.CI ? "npm run start" : "npm run dev",

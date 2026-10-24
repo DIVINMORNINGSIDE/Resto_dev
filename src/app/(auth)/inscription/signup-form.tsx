@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { Field } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -46,6 +47,13 @@ export function SignupForm() {
         error={e.password}
       />
       <Field label="Confirmer le mot de passe" name="confirmPassword" type="password" autoComplete="new-password" required error={e.confirmPassword} />
+      <p className="text-xs text-mute">
+        En créant ton compte, tu acceptes que tes données soient utilisées comme le décrit la{" "}
+        <Link href="/confidentialite" className="text-accent underline">
+          politique de confidentialité
+        </Link>
+        .
+      </p>
       <SubmitButton pendingLabel="Création du compte…">Créer mon compte</SubmitButton>
     </form>
   );
