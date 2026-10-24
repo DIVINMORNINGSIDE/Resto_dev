@@ -18,7 +18,7 @@ type BackofficeShellProps = {
 // Back-office papier crème avec barre latérale espresso, accents jaunes (charte Kado).
 export function BackofficeShell({ areaLabel, root, nav, children }: BackofficeShellProps) {
   return (
-    <div className="flex min-h-dvh flex-1 flex-col bg-bo-bg text-bo-text [color-scheme:light] md:flex-row">
+    <div data-shell="backoffice" className="flex min-h-dvh flex-1 flex-col bg-bo-bg text-bo-text [color-scheme:light] md:flex-row">
       {/* Le fond couvre toute la hauteur de la page ; le contenu reste fixe au défilement. */}
       <aside className="bg-ink text-cream md:w-64 md:shrink-0">
         <div className="flex flex-col gap-6 px-4 py-5 md:sticky md:top-0 md:h-dvh md:py-8">

@@ -9,7 +9,7 @@ export type NavItem = { label: string; href: string } | { label: string; later: 
 export function BackofficeNav({ label, root, items }: { label: string; root: string; items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <nav aria-label={label} className="flex gap-1 overflow-x-auto md:flex-col">
+    <nav aria-label={label} className="flex gap-1 overflow-x-auto overscroll-x-contain md:flex-col">
       {items.map((item) => {
         if ("later" in item) {
           return (
