@@ -138,10 +138,17 @@ test("une fois connecté, l'accueil et la connexion ne proposent plus de se conn
   await page.goto("/");
   await expect(page.getByRole("link", { name: "Ouvrir mon espace" }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: /Se connecter|Créer mon compte|Créer un compte|Rejoindre/ })).toHaveCount(0);
-  const account = page.getByRole("link", { name: "Mon compte" }).first();
-  if (isMobile) await openSectionsMenu(page, account);
-  else await page.locator("header summary[aria-label^='Mon compte']").click();
-  await expect(account).toBeVisible();
+  // Sur téléphone comme sur ordinateur, le compte s'ouvre en touchant la photo.
+  const header = page.getByRole("banner");
+  await header.locator("summary[aria-label^='Mon compte']").filter({ visible: true }).click();
+  await expect(header.getByRole("link", { name: "Mon compte" }).filter({ visible: true })).toBeVisible();
+  await expect(header.getByRole("button", { name: "Se déconnecter" }).filter({ visible: true })).toBeVisible();
+  if (isMobile) {
+    // Le menu des sections ne reprend plus le compte.
+    const sections = header.getByRole("navigation", { name: "Navigation principale" }).filter({ visible: true });
+    await openSectionsMenu(page, sections.getByRole("link", { name: "Questions fréquentes" }));
+    await expect(sections.getByRole("link", { name: /Mon compte|Mon espace/ })).toHaveCount(0);
+  }
 });
 
 test("un employé modifie son compte puis se déconnecte", async ({ page }) => {

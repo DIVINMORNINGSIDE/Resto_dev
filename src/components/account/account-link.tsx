@@ -9,10 +9,13 @@ const base = "deco inline-flex min-h-10 items-center whitespace-nowrap rounded-s
 
 // Lien du compte dans la barre de l'accueil : « Se connecter » pour un visiteur,
 // sinon la photo et un menu (mon espace, mon compte, déconnexion).
-export async function AccountLink({ variant = "bar" }: { variant?: "bar" | "menu" }) {
+// Sur téléphone, le menu des sections ne garde que « Se connecter » (variant
+// "menu") ; une fois connecté, le compte s'ouvre en touchant la photo (variant "avatar").
+export async function AccountLink({ variant = "bar" }: { variant?: "bar" | "menu" | "avatar" }) {
   const profile = await getCurrentProfile();
   if (!profile) {
-    return (
+    if (variant === "avatar") return null;
+    const link = (
       <Link
         href="/connexion"
         className={`${base} border border-cream/30 text-cream hover:border-cream ${variant === "menu" ? "w-full" : ""}`}
@@ -20,16 +23,23 @@ export async function AccountLink({ variant = "bar" }: { variant?: "bar" | "menu
         Se connecter
       </Link>
     );
+    return variant === "menu" ? <li className="mt-1 border-t border-cream/10 pt-2">{link}</li> : link;
   }
-  if (variant === "menu") return <AccountMenuItems profile={profile} />;
+  if (variant === "menu") return null;
+  const compact = variant === "avatar";
   return (
-    <details className="group relative">
+    // Même nom que le menu des sections : en ouvrir un referme l'autre.
+    <details name="menu-barre" className="group relative">
       <summary
         aria-label={`Mon compte · ${profile.fullName}`}
-        className="flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-sm border border-cream/30 py-1 pl-1 pr-3 text-cream transition hover:border-cream [&::-webkit-details-marker]:hidden"
+        className={
+          compact
+            ? "grid size-10 cursor-pointer list-none place-items-center rounded-full text-cream ring-1 ring-cream/25 transition group-open:ring-accent [&::-webkit-details-marker]:hidden"
+            : "flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-sm border border-cream/30 py-1 pl-1 pr-3 text-cream transition hover:border-cream [&::-webkit-details-marker]:hidden"
+        }
       >
-        <Avatar name={profile.fullName} url={profile.avatarUrl} size={30} />
-        <span className="deco">{firstName(profile)}</span>
+        <Avatar name={profile.fullName} url={profile.avatarUrl} size={compact ? 34 : 30} />
+        {compact ? null : <span className="deco">{firstName(profile)}</span>}
       </summary>
       <div className="absolute right-0 top-full mt-2 w-60 border border-cream/10 bg-ink p-2 shadow-2xl">
         <AccountMenuItems profile={profile} />
