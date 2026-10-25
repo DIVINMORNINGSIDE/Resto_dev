@@ -6,6 +6,7 @@ import {
   CustomerReviewsSkeleton,
   DishOfDayPanel,
   DishOfDaySkeleton,
+  HomeRestaurantPicker,
   LoyaltyRulesCards,
   LoyaltyRulesSkeleton,
   PromoPanel,
@@ -37,6 +38,9 @@ export default function HomePage() {
 
         <section id="menu" className="scroll-mt-24 bg-ink px-4 py-20 md:py-28">
           <SectionTitle kicker="Nos plats">Des plats qui font revenir nos clients</SectionTitle>
+          <Suspense fallback={null}>
+            <HomeRestaurantPicker />
+          </Suspense>
           <div className="mx-auto mt-12 max-w-5xl">
             <Suspense fallback={<MenuGridSkeleton />}>
               <MenuGrid />

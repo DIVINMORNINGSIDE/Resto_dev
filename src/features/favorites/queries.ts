@@ -7,6 +7,8 @@ export type Favorite = {
   priceFcfa: number;
   imageUrl: string | null;
   isAvailable: boolean;
+  restaurantId: string;
+  restaurantName: string | null;
 };
 
 // Identifiants des plats favoris de l'étudiant connecté (la RLS ne montre que les siens).
@@ -22,12 +24,22 @@ export async function getFavorites(): Promise<Favorite[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("favorites")
-    .select("created_at, menu_items (id, name, price_fcfa, image_url, is_available)")
+    .select("created_at, menu_items (id, name, price_fcfa, image_url, is_available, restaurant_id, restaurants (name))")
     .order("created_at", { ascending: false });
   if (error) return [];
   return data.flatMap(({ menu_items: item }) =>
     item
-      ? [{ id: item.id, name: item.name, priceFcfa: item.price_fcfa, imageUrl: item.image_url, isAvailable: item.is_available }]
+      ? [
+          {
+            id: item.id,
+            name: item.name,
+            priceFcfa: item.price_fcfa,
+            imageUrl: item.image_url,
+            isAvailable: item.is_available,
+            restaurantId: item.restaurant_id,
+            restaurantName: item.restaurants?.name ?? null,
+          },
+        ]
       : [],
   );
 }

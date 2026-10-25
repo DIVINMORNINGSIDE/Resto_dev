@@ -15,6 +15,7 @@ import {
   type BoFormState,
   type MenuToggle,
 } from "@/lib/backoffice/validation";
+import { currentRestaurantId } from "@/features/restaurants/queries";
 import { createClient } from "@/lib/supabase/server";
 
 const MENU_BASES = ["/admin/menu", "/gerant/menu"] as const;
@@ -46,15 +47,17 @@ export async function createCategory(_prev: BoFormState, formData: FormData): Pr
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
 
   const supabase = await requireManager();
+  const restaurantId = await currentRestaurantId();
   const { data: last } = await supabase
     .from("categories")
     .select("position")
+    .eq("restaurant_id", restaurantId)
     .order("position", { ascending: false })
     .limit(1)
     .maybeSingle();
   const { error } = await supabase
     .from("categories")
-    .insert({ name: parsed.data.name, position: (last?.position ?? 0) + 1 });
+    .insert({ restaurant_id: restaurantId, name: parsed.data.name, position: (last?.position ?? 0) + 1 });
   if (error) {
     return { message: error.code === "23505" ? "Cette catégorie existe déjà." : UNEXPECTED, values };
   }
@@ -96,7 +99,12 @@ export async function moveCategory(move: "up" | "down", formData: FormData): Pro
   const supabase = await requireManager();
   const id = text(formData, "id");
   const direction = move === "up" ? -1 : 1;
-  const { data: categories } = await supabase.from("categories").select("id, position").order("position").order("name");
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id, position")
+    .eq("restaurant_id", await currentRestaurantId())
+    .order("position")
+    .order("name");
   if (!categories) return;
   const index = categories.findIndex((c) => c.id === id);
   const neighbour = categories[index + direction];
@@ -152,7 +160,8 @@ export async function saveMenuItem(_prev: BoFormState, formData: FormData): Prom
     if (error) return { message: UNEXPECTED, values };
     await removePhoto(supabase, before?.image_url ?? null, row.image_url);
   } else {
-    const { error } = await supabase.from("menu_items").insert(row);
+    // Un nouveau plat rejoint la carte du restaurant affiché (et doit y trouver sa catégorie).
+    const { error } = await supabase.from("menu_items").insert({ ...row, restaurant_id: await currentRestaurantId() });
     if (error) return { message: UNEXPECTED, values };
   }
 

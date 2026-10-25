@@ -3,6 +3,7 @@ import { BoPageHeader } from "@/components/backoffice/bo-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/dal";
 import { PERMISSIONS } from "@/lib/auth/roles";
+import { currentRestaurantId, getRestaurants } from "@/features/restaurants/queries";
 import { createClient } from "@/lib/supabase/server";
 import { SettingsForm } from "./settings-form";
 
@@ -19,15 +20,14 @@ export function SettingsPage() {
 
 async function SettingsLoader() {
   await requireRole(PERMISSIONS.parametres);
-  const supabase = await createClient();
+  const [supabase, restaurantId, restaurants] = await Promise.all([createClient(), currentRestaurantId(), getRestaurants()]);
   const { data: r } = await supabase
     .from("restaurants")
     .select(
       "id, name, opening_hours, fcfa_per_point, redeem_points_block, redeem_value_fcfa, points_validity_months, referral_bonus_points, games_enabled, quiz_points",
     )
-    .order("created_at")
-    .limit(1)
-    .single();
+    .eq("id", restaurantId)
+    .maybeSingle();
   if (!r) return <p className="text-bo-bad">Aucun restaurant n&apos;est configuré.</p>;
   const hours = r.opening_hours && typeof r.opening_hours === "object" && !Array.isArray(r.opening_hours) ? r.opening_hours : {};
   return (
@@ -43,6 +43,7 @@ async function SettingsLoader() {
         referralBonusPoints: r.referral_bonus_points,
         gamesEnabled: r.games_enabled,
         quizPoints: r.quiz_points,
+        mainRestaurantName: restaurants[0] && restaurants[0].id !== r.id ? restaurants[0].name : null,
       }}
     />
   );

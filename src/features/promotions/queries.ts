@@ -1,4 +1,5 @@
 import "server-only";
+import { currentRestaurantId } from "@/features/restaurants/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export type PromotionKind = "promotion" | "evenement";
@@ -50,10 +51,15 @@ export function promotionState(p: Promotion, now = new Date()): PromotionState {
   return "en_cours";
 }
 
-// Toutes les affiches, pour le back-office (la RLS montre aussi les masquées au personnel).
+// Toutes les affiches du restaurant affiché, pour le back-office (la RLS
+// montre aussi les masquées au gérant).
 export async function getPromotions(): Promise<Promotion[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from("promotions").select(COLUMNS).order("starts_at", { ascending: false });
+  const [supabase, restaurantId] = await Promise.all([createClient(), currentRestaurantId()]);
+  const { data, error } = await supabase
+    .from("promotions")
+    .select(COLUMNS)
+    .eq("restaurant_id", restaurantId)
+    .order("starts_at", { ascending: false });
   if (error) throw new Error("Les promotions n'ont pas pu être chargées.");
   return (data as Row[]).map(toPromotion);
 }
@@ -64,13 +70,14 @@ export async function getPromotion(id: string): Promise<Promotion | null> {
   return data ? toPromotion(data as Row) : null;
 }
 
-// Affiches visibles aujourd'hui, pour les clients.
+// Affiches visibles aujourd'hui dans le restaurant choisi, pour les clients.
 export async function getCurrentPromotions(limit = 6): Promise<Promotion[]> {
-  const supabase = await createClient();
+  const [supabase, restaurantId] = await Promise.all([createClient(), currentRestaurantId()]);
   const now = new Date().toISOString();
   const { data, error } = await supabase
     .from("promotions")
     .select(COLUMNS)
+    .eq("restaurant_id", restaurantId)
     .eq("is_active", true)
     .lte("starts_at", now)
     .or(`ends_at.is.null,ends_at.gte.${now}`)

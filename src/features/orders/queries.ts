@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import type { LoyaltyRules } from "@/lib/orders/loyalty";
 import { ACTIVE_STATUSES, type OrderStatus, type OrderType } from "@/lib/orders/status";
+import { currentRestaurantId } from "@/features/restaurants/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export type OrderLine = { name: string; quantity: number; unitPriceFcfa: number };
@@ -21,12 +22,13 @@ export type Order = {
   updatedAt: string;
   comment: string | null;
   commentedAt: string | null;
+  restaurantName: string | null;
   lines: OrderLine[];
   customer?: { name: string; phone: string | null };
 };
 
 const ORDER_COLUMNS =
-  "id, order_type, status, arrival_time, delivery_address, subtotal_fcfa, discount_fcfa, total_fcfa, points_earned, points_used, created_at, updated_at, customer_comment, commented_at, order_items(item_name, quantity, unit_price_fcfa)";
+  "id, order_type, status, arrival_time, delivery_address, subtotal_fcfa, discount_fcfa, total_fcfa, points_earned, points_used, created_at, updated_at, customer_comment, commented_at, restaurants(name), order_items(item_name, quantity, unit_price_fcfa)";
 
 type OrderRow = {
   id: string;
@@ -43,6 +45,7 @@ type OrderRow = {
   updated_at: string;
   customer_comment: string | null;
   commented_at: string | null;
+  restaurants: { name: string } | null;
   order_items: { item_name: string; quantity: number; unit_price_fcfa: number }[];
   profiles?: { full_name: string; phone: string | null } | null;
 };
@@ -69,19 +72,20 @@ function toOrder(row: OrderRow): Order {
     updatedAt: row.updated_at,
     comment: row.customer_comment,
     commentedAt: row.commented_at,
+    restaurantName: row.restaurants?.name ?? null,
     lines: row.order_items.map((l) => ({ name: l.item_name, quantity: l.quantity, unitPriceFcfa: l.unit_price_fcfa })),
     customer: row.profiles ? { name: row.profiles.full_name, phone: row.profiles.phone } : undefined,
   };
 }
 
+// Règles de fidélité du restaurant affiché.
 export const getLoyaltyRules = cache(async (): Promise<LoyaltyRules & { pointsValidityMonths: number; referralBonusPoints: number }> => {
-  const supabase = await createClient();
+  const [supabase, restaurantId] = await Promise.all([createClient(), currentRestaurantId()]);
   const { data } = await supabase
     .from("restaurants")
     .select("fcfa_per_point, redeem_points_block, redeem_value_fcfa, points_validity_months, referral_bonus_points")
-    .order("created_at")
-    .limit(1)
-    .single();
+    .eq("id", restaurantId)
+    .maybeSingle();
   return {
     fcfaPerPoint: data?.fcfa_per_point ?? 1000,
     redeemPointsBlock: data?.redeem_points_block ?? 15,
@@ -111,15 +115,17 @@ export async function getOrder(id: string): Promise<Order | null> {
   return data ? toOrder(data as OrderRow) : null;
 }
 
-// Écran cuisine : commandes en cours, et celles terminées depuis minuit.
+// Écran cuisine du restaurant affiché : commandes en cours, et celles
+// terminées depuis minuit.
 export async function getKitchenOrders(since: Date): Promise<{ active: Order[]; done: Order[] }> {
-  const supabase = await createClient();
+  const [supabase, restaurantId] = await Promise.all([createClient(), currentRestaurantId()]);
   const columns = `${ORDER_COLUMNS}, profiles!orders_customer_id_fkey(full_name, phone)`;
   const [active, done] = await Promise.all([
-    supabase.from("orders").select(columns).in("status", ACTIVE_STATUSES).order("created_at"),
+    supabase.from("orders").select(columns).eq("restaurant_id", restaurantId).in("status", ACTIVE_STATUSES).order("created_at"),
     supabase
       .from("orders")
       .select(columns)
+      .eq("restaurant_id", restaurantId)
       .in("status", ["livree", "annulee"])
       .gte("updated_at", since.toISOString())
       .order("updated_at", { ascending: false })
@@ -180,12 +186,13 @@ export async function getTopCustomers(period: TopPeriod): Promise<TopCustomer[]>
 
 export type OrderComment = { id: string; number: string; comment: string; commentedAt: string; customer: string; hidden: boolean };
 
-// Derniers avis laissés par les clients (personnel uniquement, via la RLS).
+// Derniers avis laissés dans le restaurant affiché (personnel uniquement, via la RLS).
 export async function getRecentComments(limit = 6): Promise<OrderComment[]> {
-  const supabase = await createClient();
+  const [supabase, restaurantId] = await Promise.all([createClient(), currentRestaurantId()]);
   const { data, error } = await supabase
     .from("orders")
     .select("id, customer_comment, commented_at, review_hidden, profiles!orders_customer_id_fkey(full_name)")
+    .eq("restaurant_id", restaurantId)
     .not("commented_at", "is", null)
     .order("commented_at", { ascending: false })
     .limit(limit);

@@ -9,6 +9,7 @@ export type StaffMember = {
   phone: string | null;
   role: AppRole;
   isActive: boolean;
+  restaurantId: string | null;
 };
 
 const ROLE_ORDER: Record<AppRole, number> = { admin: 0, gerant: 1, employe: 2, etudiant: 3 };
@@ -18,11 +19,19 @@ export async function getStaff(): Promise<StaffMember[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, full_name, phone, role, is_active")
+    .select("id, email, full_name, phone, role, is_active, restaurant_id")
     .neq("role", "etudiant")
     .order("full_name");
   if (error) throw new Error("Le personnel n'a pas pu être chargé.");
   return data
-    .map((p) => ({ id: p.id, email: p.email, fullName: p.full_name, phone: p.phone, role: p.role, isActive: p.is_active }))
+    .map((p) => ({
+      id: p.id,
+      email: p.email,
+      fullName: p.full_name,
+      phone: p.phone,
+      role: p.role,
+      isActive: p.is_active,
+      restaurantId: p.restaurant_id,
+    }))
     .sort((a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role] || Number(b.isActive) - Number(a.isActive));
 }

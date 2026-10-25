@@ -6,6 +6,8 @@ import { getFavorites } from "@/features/favorites/queries";
 import { AppCard } from "@/features/notifications/app-card";
 import { getLoyaltyRules, getMyOrders } from "@/features/orders/queries";
 import { getCurrentPromotions } from "@/features/promotions/queries";
+import { RestaurantChips } from "@/features/restaurants/picker";
+import { getCurrentRestaurant, getOpenRestaurants } from "@/features/restaurants/queries";
 import { OrderCard } from "@/features/student/order-card";
 import { PromoPosters } from "@/features/student/promo-posters";
 import { ghostButton, primaryButton } from "@/features/student/ui";
@@ -29,12 +31,15 @@ export default function StudentHomePage() {
 async function StudentHome() {
   const profile = await requireRole(allowedRolesFor("/espace"));
   const firstName = profile.fullName.split(" ")[0];
-  const [orders, rules, promotions, favorites] = await Promise.all([
+  const [orders, rules, promotions, favorites, restaurants, restaurant] = await Promise.all([
     getMyOrders(profile.id),
     getLoyaltyRules(),
     getCurrentPromotions(),
     getFavorites(),
+    getOpenRestaurants(),
+    getCurrentRestaurant(),
   ]);
+  const several = restaurants.length > 1;
   const current = orders.filter((o) => ACTIVE_STATUSES.includes(o.status));
 
   return (
@@ -43,6 +48,10 @@ async function StudentHome() {
         <p className="deco text-accent">Bonjour</p>
         <h1 className="mt-2 font-display text-6xl">{firstName}</h1>
       </div>
+
+      {several && restaurant ? (
+        <RestaurantChips restaurants={restaurants} currentId={restaurant.id} label="Je commande chez" />
+      ) : null}
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Link href="/espace/fidelite" className="relative block overflow-hidden bg-gradient-to-b from-peach to-blush p-6 text-ink shadow-2xl shadow-ink/40 transition hover:-translate-y-0.5">
@@ -69,7 +78,7 @@ async function StudentHome() {
             Ma commande en cours
           </h2>
           {current.map((order) => (
-            <OrderCard key={order.id} order={order} />
+            <OrderCard key={order.id} order={order} showRestaurant={several} />
           ))}
         </section>
       ) : (
@@ -78,7 +87,7 @@ async function StudentHome() {
         </Link>
       )}
 
-      <FavoriteList favorites={favorites} />
+      <FavoriteList favorites={favorites} restaurantId={restaurant?.id ?? ""} showRestaurant={several} />
 
       <Link
         href="/espace/jeux"

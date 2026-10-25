@@ -48,6 +48,8 @@ export const PERMISSIONS = {
   // Questions du quiz et réglages des mini-jeux ; seuls les étudiants jouent.
   jeux: MANAGERS,
   personnel: ["admin"],
+  // Créer un restaurant, le renommer, le fermer aux commandes.
+  restaurants: ["admin"],
 } as const satisfies Record<string, readonly AppRole[]>;
 
 export type Permission = keyof typeof PERMISSIONS;

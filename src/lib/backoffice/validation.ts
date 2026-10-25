@@ -97,6 +97,7 @@ export const staffInviteSchema = z.object({
   email: emailSchema,
   fullName: z.string().trim().max(80),
   role: z.enum(["employe", "gerant", "admin"], { error: "Choisis un rôle." }),
+  restaurantId: z.uuid("Choisis un restaurant."),
 });
 
 export const DAYS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
@@ -131,6 +132,28 @@ export const settingsSchema = z.object({
     .min(0, "Points du quiz : 0 minimum.")
     .max(50, "Points du quiz : 50 maximum."),
 });
+
+// Adresse courte d'un restaurant, tirée de son nom : « ZeDuc@Campus Nord » → « zeduc-campus-nord ».
+export function slugify(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40)
+    .replace(/-+$/, "");
+}
+
+// Restaurant créé ou modifié par l'admin.
+export const restaurantSchema = z
+  .object({
+    name: z.string().trim().min(2, "Nom trop court.").max(60, "60 caractères maximum."),
+    address: z.string().trim().max(200, "200 caractères maximum."),
+    isActive: checkbox,
+  })
+  .transform((r) => ({ ...r, slug: slugify(r.name) }))
+  .refine((r) => r.slug.length >= 2, { path: ["name"], message: "Le nom doit contenir des lettres ou des chiffres." });
 
 // Question du quiz : 2 à 4 réponses, dont une bonne parmi celles remplies.
 export const quizQuestionSchema = z

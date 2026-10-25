@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { MenuPhoto } from "@/components/menu/menu-photo";
+import { chooseRestaurant } from "@/features/restaurants/actions";
 import { formatFcfa } from "@/lib/format";
 import { FavoriteButton } from "./favorite-button";
 import type { Favorite } from "./queries";
 
 // « Mes favoris » dans l'espace étudiant : les plats gardés d'un cœur, à
 // recommander en un geste.
-export function FavoriteList({ favorites }: { favorites: Favorite[] }) {
+// Avec plusieurs restaurants, chaque favori indique le sien ; « Commander »
+// passe d'abord sur ce restaurant si ce n'est pas celui choisi.
+export function FavoriteList({ favorites, restaurantId, showRestaurant }: { favorites: Favorite[]; restaurantId: string; showRestaurant: boolean }) {
   return (
     <section aria-labelledby="mes-favoris" className="flex flex-col gap-3">
       <h2 id="mes-favoris" className="deco text-accent">
@@ -34,7 +37,19 @@ export function FavoriteList({ favorites }: { favorites: Favorite[] }) {
               <div className="flex flex-1 flex-col p-3">
                 <h3 className="font-display text-lg leading-tight">{dish.name}</h3>
                 <p className="mt-0.5 text-xs tabular-nums text-accent">{formatFcfa(dish.priceFcfa)}</p>
-                {dish.isAvailable ? (
+                {showRestaurant && dish.restaurantName ? <p className="mt-1 text-xs text-mute">{dish.restaurantName}</p> : null}
+                {dish.isAvailable && dish.restaurantId !== restaurantId ? (
+                  <form action={chooseRestaurant} className="mt-auto flex">
+                    <input type="hidden" name="restaurantId" value={dish.restaurantId} />
+                    <input type="hidden" name="suivant" value={`/espace/commander#plat-${dish.id}`} />
+                    <button
+                      type="submit"
+                      className="deco mt-3 inline-flex min-h-10 w-full items-center justify-center border border-accent text-accent transition hover:bg-accent hover:text-ink"
+                    >
+                      Commander
+                    </button>
+                  </form>
+                ) : dish.isAvailable ? (
                   <Link
                     href={`/espace/commander#plat-${dish.id}`}
                     className="deco mt-3 inline-flex min-h-10 items-center justify-center border border-accent text-accent transition hover:bg-accent hover:text-ink"

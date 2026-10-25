@@ -38,6 +38,7 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     arrival: text(formData, "arrival"),
     deliveryAddress: text(formData, "deliveryAddress"),
     redeemBlocks: text(formData, "redeemBlocks") || "0",
+    restaurantId: text(formData, "restaurantId"),
     items,
   });
   if (!parsed.success) {
@@ -54,6 +55,7 @@ export async function placeOrder(_prev: CheckoutState, formData: FormData): Prom
     p_arrival_time: arrival?.toISOString(),
     p_delivery_address: order.orderType === "livraison" ? order.deliveryAddress : undefined,
     p_redeem_blocks: order.redeemBlocks,
+    p_restaurant_id: order.restaurantId,
   });
   if (error || !data) return { message: error ? sqlMessage(error) : UNEXPECTED };
   return { orderId: data };

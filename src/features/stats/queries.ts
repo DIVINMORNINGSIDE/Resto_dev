@@ -1,4 +1,5 @@
 import "server-only";
+import { currentRestaurantId } from "@/features/restaurants/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export type Stats = {
@@ -20,9 +21,14 @@ export type Stats = {
   newStudents: number;
 };
 
+// Statistiques du restaurant affiché (le gérant ne voit que le sien).
 export async function getStats(from: Date, to: Date): Promise<Stats> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("get_stats", { p_from: from.toISOString(), p_to: to.toISOString() });
+  const [supabase, restaurantId] = await Promise.all([createClient(), currentRestaurantId()]);
+  const { data, error } = await supabase.rpc("get_stats", {
+    p_from: from.toISOString(),
+    p_to: to.toISOString(),
+    p_restaurant_id: restaurantId,
+  });
   if (error || !data || typeof data !== "object" || Array.isArray(data)) {
     throw new Error("Les statistiques n'ont pas pu être chargées.");
   }

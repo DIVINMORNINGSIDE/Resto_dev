@@ -8,7 +8,9 @@ import type { BoFormState } from "@/lib/backoffice/validation";
 import { addStaff, changeStaffRole, setStaffActive } from "./actions";
 import type { StaffMember } from "./queries";
 
-export function AddStaffForm({ roles }: { roles: AppRole[] }) {
+type RestaurantOption = { id: string; name: string };
+
+export function AddStaffForm({ roles, restaurants, defaultRestaurantId }: { roles: AppRole[]; restaurants: RestaurantOption[]; defaultRestaurantId: string }) {
   const [state, action] = useActionState<BoFormState, FormData>(addStaff, {});
   const staffRoles = roles.filter((r) => r !== "etudiant");
   return (
@@ -44,6 +46,15 @@ export function AddStaffForm({ roles }: { roles: AppRole[] }) {
         error={state.errors?.role}
         options={staffRoles.map((r) => ({ value: r, label: ROLE_LABELS[r] }))}
       />
+      <BoSelect
+        label="Restaurant"
+        name="restaurantId"
+        id="staff-restaurant"
+        defaultValue={state.values?.restaurantId ?? defaultRestaurantId}
+        error={state.errors?.restaurantId}
+        hint="L'employé et le gérant ne voient que ce restaurant. L'administrateur les voit tous."
+        options={restaurants.map((r) => ({ value: r.id, label: r.name }))}
+      />
       <BoNotice message={state.message} success={state.success} />
       {state.tempPassword ? <TempPassword value={state.tempPassword} /> : null}
       <BoSubmit pendingLabel="Ajout…" className="self-start">
@@ -72,7 +83,11 @@ function TempPassword({ value }: { value: string }) {
   );
 }
 
-export function StaffRow({ member, roles, editable }: { member: StaffMember; roles: AppRole[]; editable: boolean }) {
+type StaffRowProps = { member: StaffMember; roles: AppRole[]; editable: boolean; restaurants: RestaurantOption[] };
+
+export function StaffRow({ member, roles, editable, restaurants }: StaffRowProps) {
+  const restaurantName =
+    member.role === "admin" ? "Tous les restaurants" : restaurants.find((r) => r.id === member.restaurantId)?.name;
   const [roleState, changeRole] = useActionState<BoFormState, FormData>(changeStaffRole, {});
   const [activeState, toggleActive] = useActionState<BoFormState, FormData>(setStaffActive, {});
   return (
@@ -86,6 +101,11 @@ export function StaffRow({ member, roles, editable }: { member: StaffMember; rol
             ) : null}
           </p>
           <p className="truncate text-sm text-bo-text2">{member.email}</p>
+          {restaurantName && restaurants.length > 1 ? (
+            <p className="truncate text-sm text-bo-text2" data-testid="staff-restaurant">
+              {restaurantName}
+            </p>
+          ) : null}
         </div>
         {editable ? (
           // Les deux actions s'alignent sur la même ligne de base, sous l'étiquette « Rôle ».
@@ -102,6 +122,18 @@ export function StaffRow({ member, roles, editable }: { member: StaffMember; rol
                   options={roles.map((r) => ({ value: r, label: r === "etudiant" ? "Retirer du personnel" : ROLE_LABELS[r] }))}
                 />
               </div>
+              {restaurants.length > 1 ? (
+                <div className="w-44">
+                  <BoSelect
+                    label="Restaurant"
+                    name="restaurantId"
+                    id={`restaurant-${member.id}`}
+                    defaultValue={member.restaurantId ?? restaurants[0]?.id}
+                    aria-label={`Restaurant de ${member.fullName}`}
+                    options={restaurants.map((r) => ({ value: r.id, label: r.name }))}
+                  />
+                </div>
+              ) : null}
               <BoSubmit pendingLabel="…" variant="ghost">
                 Appliquer
               </BoSubmit>

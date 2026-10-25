@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth/dal";
 import { PERMISSIONS } from "@/lib/auth/roles";
 import { fieldErrors, type FieldErrors } from "@/lib/auth/validation";
 import { complaintSchema, responseSchema } from "@/lib/orders/validation";
+import { currentRestaurantId } from "@/features/restaurants/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export type ComplaintFormState = { errors?: FieldErrors; message?: string; success?: string; values?: Record<string, string> };
@@ -27,8 +28,11 @@ export async function createComplaint(_prev: ComplaintFormState, formData: FormD
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
 
   const supabase = await createClient();
+  // Sans commande, la réclamation va au restaurant choisi ; avec une commande,
+  // la base la rattache au restaurant de cette commande.
   const { error } = await supabase.from("complaints").insert({
     customer_id: profile.id,
+    restaurant_id: await currentRestaurantId(),
     order_id: parsed.data.orderId || null,
     subject: parsed.data.subject,
     message: parsed.data.message,

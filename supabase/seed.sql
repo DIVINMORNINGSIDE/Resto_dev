@@ -34,6 +34,34 @@ insert into public.menu_items (category_id, name, description, price_fcfa, image
 insert into public.promotions (kind, title, description, starts_at, ends_at) values
   ('evenement', 'Soirée Ligue des champions', 'Match sur grand écran, brochettes à 1 500 F pendant la mi-temps.', now(), now() + interval '30 days');
 
+-- Deuxième restaurant de l'enseigne, avec sa propre carte et son gérant.
+insert into public.restaurants (id, name, slug, address, opening_hours, created_at)
+values (
+  '00000000-0000-4000-8000-000000000002',
+  'ZeDuc@Campus',
+  'zeduc-campus',
+  'Campus universitaire, bâtiment B',
+  '{"lundi": "10:00 – 20:00", "mardi": "10:00 – 20:00", "mercredi": "10:00 – 20:00", "jeudi": "10:00 – 20:00", "vendredi": "10:00 – 20:00", "samedi": "Fermé", "dimanche": "Fermé"}',
+  now() + interval '1 minute'
+);
+
+update public.restaurants
+set address = 'Terrasse du restaurant universitaire'
+where id = '00000000-0000-4000-8000-000000000001';
+
+insert into public.categories (id, restaurant_id, name, position) values
+  ('00000000-0000-4000-8000-000000000201', '00000000-0000-4000-8000-000000000002', 'Plats', 1),
+  ('00000000-0000-4000-8000-000000000202', '00000000-0000-4000-8000-000000000002', 'Boissons', 2);
+
+insert into public.menu_items (restaurant_id, category_id, name, description, price_fcfa, image_url, is_available, is_dish_of_day) values
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000201', 'Riz sauce arachide', 'Riz blanc, sauce arachide et poulet, la formule étudiante.', 1500, '/photos/riz.jpg', true, true),
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000201', 'Omelette spaghetti', 'Spaghetti sautés, omelette aux oignons.', 1000, '/photos/spag.jpg', true, false),
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000201', 'Poulet pané', 'Filet de poulet pané, frites de plantain.', 2500, '/photos/poulet.jpg', true, false),
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000202', 'Bissap glacé', 'Jus d''hibiscus maison, servi frais.', 300, '/photos/bissap.jpg', true, false);
+
+insert into public.promotions (restaurant_id, kind, title, description, starts_at, ends_at) values
+  ('00000000-0000-4000-8000-000000000002', 'promotion', 'Formule midi à 1 500 F', 'Plat du jour et bissap glacé, du lundi au vendredi.', now(), now() + interval '30 days');
+
 -- Questions du quiz du jour.
 insert into public.quiz_questions (question, choices, correct_index) values
   ('Quel plat camerounais est préparé avec des feuilles amères ?', array['Le ndolé', 'Le koki', 'Le poulet DG', 'Le eru'], 0),
@@ -53,7 +81,8 @@ begin
       ('00000000-0000-4000-8000-00000000a001'::uuid, 'etudiant@miammiam.test', 'Awa Étudiante', 'etudiant'::public.app_role),
       ('00000000-0000-4000-8000-00000000a002'::uuid, 'employe@miammiam.test', 'Paul Employé', 'employe'::public.app_role),
       ('00000000-0000-4000-8000-00000000a003'::uuid, 'gerant@miammiam.test', 'Marie Gérante', 'gerant'::public.app_role),
-      ('00000000-0000-4000-8000-00000000a004'::uuid, 'admin@miammiam.test', 'Mr Miam Miam', 'admin'::public.app_role)
+      ('00000000-0000-4000-8000-00000000a004'::uuid, 'admin@miammiam.test', 'Mr Miam Miam', 'admin'::public.app_role),
+      ('00000000-0000-4000-8000-00000000a005'::uuid, 'gerant.campus@miammiam.test', 'Jean Gérant', 'gerant'::public.app_role)
     ) as t(id, email, full_name, role)
   loop
     insert into auth.users (
@@ -78,6 +107,7 @@ begin
     update public.profiles
     set role = v_user.role,
         restaurant_id = case when v_user.role = 'etudiant' then null
+                             when v_user.email = 'gerant.campus@miammiam.test' then '00000000-0000-4000-8000-000000000002'::uuid
                              else '00000000-0000-4000-8000-000000000001'::uuid end
     where id = v_user.id;
   end loop;
@@ -116,13 +146,13 @@ begin
       now() - make_interval(days => v_line.days_ago), now() - make_interval(days => v_line.days_ago)
     from (
       select sum(price_fcfa * case when name = v_line.dish then v_line.dish_qty else v_line.extra_qty end)::int as total
-      from public.menu_items where name in (v_line.dish, v_line.extra)
+      from public.menu_items where name in (v_line.dish, v_line.extra) and restaurant_id = '00000000-0000-4000-8000-000000000001'
     ) t
     returning id into v_order;
 
     insert into public.order_items (order_id, menu_item_id, item_name, unit_price_fcfa, quantity)
     select v_order, id, name, price_fcfa, case when name = v_line.dish then v_line.dish_qty else v_line.extra_qty end
-    from public.menu_items where name in (v_line.dish, v_line.extra);
+    from public.menu_items where name in (v_line.dish, v_line.extra) and restaurant_id = '00000000-0000-4000-8000-000000000001';
 
     insert into public.loyalty_transactions (user_id, order_id, kind, points, expires_at, note, created_at)
     select customer_id, id, 'gain', points_earned, now() + interval '12 months', 'Commande livrée', created_at

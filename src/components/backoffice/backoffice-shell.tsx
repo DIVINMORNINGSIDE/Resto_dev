@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { Avatar } from "@/components/account/avatar";
 import { SignOutButton } from "@/components/account/sign-out-button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RestaurantSelect } from "@/features/restaurants/picker";
+import { getCurrentRestaurant, getRestaurants } from "@/features/restaurants/queries";
 import { getCurrentProfile } from "@/lib/auth/dal";
 import { ROLE_LABELS } from "@/lib/auth/roles";
 import { BackofficeNav, type NavItem } from "./backoffice-nav";
@@ -37,6 +39,9 @@ export function BackofficeShell({ areaLabel, root, nav, children }: BackofficeSh
               </Suspense>
             </div>
           </div>
+          <Suspense fallback={<Skeleton className="h-11 w-full" />}>
+            <RestaurantSwitch />
+          </Suspense>
           <BackofficeNav label={`Navigation ${areaLabel}`} root={root} items={nav} />
           <div className="mt-auto hidden md:block">
             <Suspense fallback={<Skeleton className="h-10 w-full" />}>
@@ -47,6 +52,22 @@ export function BackofficeShell({ areaLabel, root, nav, children }: BackofficeSh
       </aside>
       <main className="flex min-w-0 flex-1 flex-col px-4 py-6 md:px-10 md:py-10">{children}</main>
     </div>
+  );
+}
+
+// Restaurant géré : l'admin passe de l'un à l'autre, le gérant et l'employé
+// voient le leur.
+async function RestaurantSwitch() {
+  const [profile, restaurants, current] = await Promise.all([getCurrentProfile(), getRestaurants(), getCurrentRestaurant()]);
+  if (!profile || !current) return null;
+  if (profile.role === "admin" && restaurants.length > 1) {
+    return <RestaurantSelect restaurants={restaurants} currentId={current.id} />;
+  }
+  return (
+    <p className="leading-tight" data-testid="bo-restaurant">
+      <span className="deco block text-mute">Restaurant</span>
+      <b className="mt-1 block truncate font-display text-lg">{current.name}</b>
+    </p>
   );
 }
 

@@ -17,9 +17,13 @@ export type MenuSection = {
 
 // Carte à commander : un bouton « Ajouter », puis des boutons − / + par plat,
 // et un cœur pour garder le plat dans ses favoris.
-export function OrderMenu({ sections, favoriteIds }: { sections: MenuSection[]; favoriteIds: string[] }) {
+type OrderMenuProps = { sections: MenuSection[]; favoriteIds: string[]; restaurantId: string };
+
+export function OrderMenu({ sections, favoriteIds, restaurantId }: OrderMenuProps) {
   const { lines, dispatch, ready } = useCart();
   const count = cartCount(lines);
+  // Panier commencé dans un autre restaurant : il sera remplacé au premier ajout.
+  const otherRestaurant = ready && lines.length > 0 && lines[0].restaurantId !== restaurantId;
 
   // Arrivée depuis une carte de l'accueil : la liste est chargée après la
   // navigation, donc on défile nous-mêmes jusqu'au plat demandé.
@@ -33,6 +37,11 @@ export function OrderMenu({ sections, favoriteIds }: { sections: MenuSection[]; 
 
   return (
     <>
+      {otherRestaurant ? (
+        <p role="status" className="mb-6 border border-accent/40 bg-accent/10 px-4 py-3 text-sm text-cream animate-rise">
+          Ton panier contient des plats d&apos;un autre restaurant. Si tu ajoutes un plat ici, il remplacera ce panier.
+        </p>
+      ) : null}
       <div className="flex flex-col gap-8">
         {sections.map((section) => (
           <section key={section.id} aria-labelledby={`cat-${section.id}`}>
@@ -41,7 +50,7 @@ export function OrderMenu({ sections, favoriteIds }: { sections: MenuSection[]; 
             </h2>
             <ul className="grid gap-3 lg:grid-cols-2">
               {section.items.map((item, i) => {
-                const line = lines.find((l) => l.id === item.id);
+                const line = otherRestaurant ? undefined : lines.find((l) => l.id === item.id);
                 return (
                   <li
                     key={item.id}
@@ -93,7 +102,10 @@ export function OrderMenu({ sections, favoriteIds }: { sections: MenuSection[]; 
                             type="button"
                             disabled={!ready}
                             onClick={() =>
-                              dispatch({ type: "add", item: { id: item.id, name: item.name, priceFcfa: item.priceFcfa, imageUrl: item.imageUrl } })
+                              dispatch({
+                                type: "add",
+                                item: { id: item.id, name: item.name, priceFcfa: item.priceFcfa, imageUrl: item.imageUrl, restaurantId },
+                              })
                             }
                             className="deco inline-flex min-h-10 items-center border border-accent px-4 text-accent transition hover:bg-accent hover:text-ink"
                             aria-label={`Ajouter ${item.name} au panier`}

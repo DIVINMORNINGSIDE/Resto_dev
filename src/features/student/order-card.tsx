@@ -21,7 +21,8 @@ export function StatusBadge({ status, type }: { status: OrderStatus; type: Order
   );
 }
 
-export function OrderCard({ order }: { order: Order }) {
+// Avec plusieurs restaurants, la carte rappelle où la commande a été passée.
+export function OrderCard({ order, showRestaurant = false }: { order: Order; showRestaurant?: boolean }) {
   const summary = order.lines.map((l) => `${l.quantity} × ${l.name}`).join(", ");
   return (
     <Link
@@ -33,6 +34,7 @@ export function OrderCard({ order }: { order: Order }) {
           <p className="font-display text-2xl">Commande {order.number}</p>
           <p className="text-xs text-mute">
             {formatDateTime(order.createdAt)} · {ORDER_TYPE_LABELS[order.type]}
+            {showRestaurant && order.restaurantName ? ` · ${order.restaurantName}` : ""}
           </p>
         </div>
         <StatusBadge status={order.status} type={order.type} />

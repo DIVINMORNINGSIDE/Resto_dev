@@ -31,6 +31,7 @@ Comptes de démo (mot de passe `MiamMiam2026`) :
 | Étudiant | etudiant@miammiam.test | /espace |
 | Employé | employe@miammiam.test | /employe |
 | Gérant | gerant@miammiam.test | /gerant |
+| Gérant de ZeDuc@Campus (2e restaurant) | gerant.campus@miammiam.test | /gerant |
 | Administrateur | admin@miammiam.test | /admin |
 
 Les emails envoyés en local (confirmation, mot de passe oublié) sont visibles sur http://127.0.0.1:54324.

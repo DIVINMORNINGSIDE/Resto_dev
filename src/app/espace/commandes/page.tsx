@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getMyOrders } from "@/features/orders/queries";
 import { LiveRefresh } from "@/features/orders/live-refresh";
+import { getOpenRestaurants } from "@/features/restaurants/queries";
 import { OrderCard } from "@/features/student/order-card";
 import { ListSkeleton, primaryButton, StudentHeader } from "@/features/student/ui";
 import { requireRole } from "@/lib/auth/dal";
@@ -24,7 +25,8 @@ export default function OrdersPage() {
 
 async function Orders() {
   const profile = await requireRole(allowedRolesFor("/espace"));
-  const orders = await getMyOrders(profile.id);
+  const [orders, restaurants] = await Promise.all([getMyOrders(profile.id), getOpenRestaurants()]);
+  const several = restaurants.length > 1;
   const active = orders.filter((o) => ACTIVE_STATUSES.includes(o.status));
   const past = orders.filter((o) => !ACTIVE_STATUSES.includes(o.status));
 
@@ -50,7 +52,7 @@ async function Orders() {
             <LiveRefresh table="orders" filter={`customer_id=eq.${profile.id}`} />
           </div>
           {active.map((order) => (
-            <OrderCard key={order.id} order={order} />
+            <OrderCard key={order.id} order={order} showRestaurant={several} />
           ))}
         </section>
       ) : null}
@@ -60,7 +62,7 @@ async function Orders() {
             Historique
           </h2>
           {past.map((order) => (
-            <OrderCard key={order.id} order={order} />
+            <OrderCard key={order.id} order={order} showRestaurant={several} />
           ))}
         </section>
       ) : null}
