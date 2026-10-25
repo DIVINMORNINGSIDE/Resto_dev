@@ -38,8 +38,14 @@ export function SiteNav() {
           </ul>
         </nav>
         <div className="flex items-center gap-2">
-          {/* Sous 1 024 px, les liens et le compte passent dans un menu déroulant. */}
-          <details className="group relative lg:hidden">
+          {/* Sous 1 024 px, le compte s'ouvre depuis la photo et les sections
+              passent dans un menu déroulant. */}
+          <div className="lg:hidden">
+            <Suspense fallback={null}>
+              <AccountLink variant="avatar" />
+            </Suspense>
+          </div>
+          <details name="menu-barre" className="group relative lg:hidden">
             <summary
               aria-label="Sections de la page"
               className="flex size-10 cursor-pointer list-none flex-col items-center justify-center gap-1.5 border border-cream/25 text-cream [&::-webkit-details-marker]:hidden"
@@ -62,12 +68,10 @@ export function SiteNav() {
                     Questions fréquentes
                   </Link>
                 </li>
-                {/* Tant que ce menu existe, le lien du compte y est rangé. */}
-                <li className="mt-1 border-t border-cream/10 pt-2">
-                  <Suspense fallback={<AccountLinkSkeleton />}>
-                    <AccountLink variant="menu" />
-                  </Suspense>
-                </li>
+                {/* Un visiteur y trouve « Se connecter » ; connecté, rien de plus. */}
+                <Suspense fallback={null}>
+                  <AccountLink variant="menu" />
+                </Suspense>
               </ul>
             </nav>
           </details>
