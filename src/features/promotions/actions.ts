@@ -10,6 +10,7 @@ import {
   promotionWindow,
   type BoFormState,
 } from "@/lib/backoffice/validation";
+import { currentRestaurantId } from "@/features/restaurants/queries";
 import { createClient } from "@/lib/supabase/server";
 
 const BASES = ["/admin/promotions", "/gerant/promotions"] as const;
@@ -58,7 +59,7 @@ export async function savePromotion(_prev: BoFormState, formData: FormData): Pro
   const id = text(formData, "id");
   const { error } = id
     ? await supabase.from("promotions").update(row).eq("id", id)
-    : await supabase.from("promotions").insert(row);
+    : await supabase.from("promotions").insert({ ...row, restaurant_id: await currentRestaurantId() });
   if (error) return { message: UNEXPECTED, values };
   redirect(base(formData));
 }

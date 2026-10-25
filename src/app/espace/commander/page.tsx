@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getFavoriteIds } from "@/features/favorites/queries";
 import { getMenuByCategory } from "@/features/menu/queries";
+import { RestaurantChips } from "@/features/restaurants/picker";
+import { getCurrentRestaurant, getOpenRestaurants } from "@/features/restaurants/queries";
 import { OrderMenu } from "@/features/student/order-menu";
 import { ListSkeleton, StudentHeader } from "@/features/student/ui";
 import { requireRole } from "@/lib/auth/dal";
@@ -22,7 +24,15 @@ export default function OrderPage() {
 
 async function Menu() {
   await requireRole(allowedRolesFor("/espace"));
-  const [menu, favoriteIds] = await Promise.all([getMenuByCategory(), getFavoriteIds()]);
+  const [restaurant, restaurants] = await Promise.all([getCurrentRestaurant(), getOpenRestaurants()]);
+  if (!restaurant) return <p className="text-mute">Aucun restaurant ne prend de commandes pour le moment.</p>;
+  const [menu, favoriteIds] = await Promise.all([getMenuByCategory(restaurant.id), getFavoriteIds()]);
+  const picker =
+    restaurants.length > 1 ? (
+      <div className="mb-6">
+        <RestaurantChips restaurants={restaurants} currentId={restaurant.id} label="Je commande chez" />
+      </div>
+    ) : null;
   const sections = menu
     .filter(({ items }) => items.length)
     .map(({ category, items }) => ({
@@ -33,6 +43,18 @@ async function Menu() {
         (a, b) => Number(b.isDishOfDay) - Number(a.isDishOfDay) || Number(b.isAvailable) - Number(a.isAvailable),
       ),
     }));
-  if (!sections.length) return <p className="text-mute">Le menu du jour arrive bientôt.</p>;
-  return <OrderMenu sections={sections} favoriteIds={favoriteIds} />;
+  if (!sections.length) {
+    return (
+      <>
+        {picker}
+        <p className="text-mute">Le menu du jour arrive bientôt.</p>
+      </>
+    );
+  }
+  return (
+    <>
+      {picker}
+      <OrderMenu sections={sections} favoriteIds={favoriteIds} restaurantId={restaurant.id} />
+    </>
+  );
 }

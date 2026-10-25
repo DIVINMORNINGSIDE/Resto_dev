@@ -6,6 +6,8 @@ import { ArrowIcon } from "@/components/ui/arrow-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentPromotion, getPublicMenu, getPublicReviews } from "@/features/home/queries";
 import { getLoyaltyRules } from "@/features/orders/queries";
+import { RestaurantChips } from "@/features/restaurants/picker";
+import { getCurrentRestaurant, getOpenRestaurants } from "@/features/restaurants/queries";
 import { ROLE_HOME } from "@/lib/auth/roles";
 import { formatFcfa } from "@/lib/format";
 import { formatDate } from "@/lib/orders/time";
@@ -14,6 +16,18 @@ import { outlineDark } from "./sections";
 // Sections de l'accueil qui lisent le menu et les promotions en base.
 
 const today = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: "Africa/Douala" });
+
+// Choix du restaurant dont l'accueil montre la carte, les promos et les avis
+// (seulement quand l'enseigne en a plusieurs).
+export async function HomeRestaurantPicker() {
+  const [restaurants, current] = await Promise.all([getOpenRestaurants(), getCurrentRestaurant()]);
+  if (restaurants.length < 2 || !current) return null;
+  return (
+    <div className="mx-auto mt-10 flex max-w-5xl justify-center text-center [&_[role=group]]:justify-center">
+      <RestaurantChips restaurants={restaurants} currentId={current.id} label="Nos restaurants" />
+    </div>
+  );
+}
 
 // Panneau rose « soirées et promos », à gauche du plat du jour.
 export async function PromoPanel() {

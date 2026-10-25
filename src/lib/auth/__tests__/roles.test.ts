@@ -54,6 +54,12 @@ describe("matrice des droits", () => {
     expect(can("admin", "personnel")).toBe(true);
     expect(can("gerant", "personnel")).toBe(false);
   });
+
+  it("seul l'admin crée et ferme les restaurants", () => {
+    expect(can("admin", "restaurants")).toBe(true);
+    expect(can("gerant", "restaurants")).toBe(false);
+    expect(can("employe", "restaurants")).toBe(false);
+  });
 });
 
 describe("redirection après connexion", () => {

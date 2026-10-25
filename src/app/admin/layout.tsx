@@ -3,6 +3,7 @@ import type { NavItem } from "@/components/backoffice/backoffice-nav";
 
 const NAV: NavItem[] = [
   { label: "Tableau de bord", href: "/admin" },
+  { label: "Restaurants", href: "/admin/restaurants" },
   { label: "Commandes", href: "/admin/commandes" },
   { label: "Menu", href: "/admin/menu" },
   { label: "Réclamations", href: "/admin/reclamations" },

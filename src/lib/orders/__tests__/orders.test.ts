@@ -5,8 +5,8 @@ import { nextStatuses, staffNextStatuses, trackingSteps } from "../status";
 import { arrivalFromClock, periodRange, suggestedArrival } from "../time";
 import { checkoutSchema } from "../validation";
 
-const poulet = { id: "a", name: "Poulet DG", priceFcfa: 3500, imageUrl: null };
-const jus = { id: "b", name: "Jus de bissap", priceFcfa: 500, imageUrl: null };
+const poulet = { id: "a", name: "Poulet DG", priceFcfa: 3500, imageUrl: null, restaurantId: "r1" };
+const jus = { id: "b", name: "Jus de bissap", priceFcfa: 500, imageUrl: null, restaurantId: "r1" };
 
 describe("points de fidélité", () => {
   it("1 point par tranche entière de 1 000 F", () => {
@@ -40,6 +40,18 @@ describe("panier", () => {
     expect(cart[0].quantity).toBe(20);
     cart = cartReducer(cart, { type: "set", id: "a", quantity: 0 });
     expect(cart.map((l) => l.id)).toEqual(["b"]);
+  });
+
+  it("ne mélange pas les plats de deux restaurants", () => {
+    let cart: CartLine[] = [];
+    cart = cartReducer(cart, { type: "add", item: poulet });
+    cart = cartReducer(cart, { type: "add", item: jus });
+    cart = cartReducer(cart, { type: "add", item: { id: "c", name: "Riz", priceFcfa: 1500, imageUrl: null, restaurantId: "r2" } });
+    expect(cart).toEqual([{ id: "c", name: "Riz", priceFcfa: 1500, imageUrl: null, restaurantId: "r2", quantity: 1 }]);
+  });
+
+  it("garde un ancien panier sans restaurant", () => {
+    expect(sanitizeCart([{ id: "a", name: "Poulet DG", priceFcfa: 3500, quantity: 1 }])[0].restaurantId).toBe("");
   });
 
   it("ignore un panier stocké abîmé", () => {
@@ -94,6 +106,7 @@ describe("validation de la commande", () => {
     arrival: "19:30",
     deliveryAddress: "",
     redeemBlocks: "0",
+    restaurantId: "00000000-0000-4000-8000-000000000001",
     items: [{ menu_item_id: "00000000-0000-4000-8000-000000000101", quantity: 2 }],
   };
 
@@ -106,6 +119,7 @@ describe("validation de la commande", () => {
 
   it("refuse un panier vide ou des quantités hors limites", () => {
     expect(checkoutSchema.safeParse({ ...base, items: [] }).success).toBe(false);
+    expect(checkoutSchema.safeParse({ ...base, restaurantId: "" }).success).toBe(false);
     expect(checkoutSchema.safeParse({ ...base, items: [{ ...base.items[0], quantity: 21 }] }).success).toBe(false);
   });
 });

@@ -45,14 +45,14 @@ isOneToOne: false
                   ]
                 },"complaints": {
                   Row: {
-                    "created_at": string,"customer_id": string,"decided_by": string | null,"id": string,"message": string,"order_id": string | null,"responded_by": string | null,"staff_response": string | null,"status": Database["public"]['Enums']["complaint_status"],"subject": string,"updated_at": string
+                    "created_at": string,"customer_id": string,"decided_by": string | null,"id": string,"message": string,"order_id": string | null,"responded_by": string | null,"restaurant_id": string,"staff_response": string | null,"status": Database["public"]['Enums']["complaint_status"],"subject": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"customer_id": string,"decided_by"?: string | null,"id"?: string,"message": string,"order_id"?: string | null,"responded_by"?: string | null,"staff_response"?: string | null,"status"?: Database["public"]['Enums']["complaint_status"],"subject": string,"updated_at"?: string
+                    "created_at"?: string,"customer_id": string,"decided_by"?: string | null,"id"?: string,"message": string,"order_id"?: string | null,"responded_by"?: string | null,"restaurant_id"?: string,"staff_response"?: string | null,"status"?: Database["public"]['Enums']["complaint_status"],"subject": string,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"customer_id"?: string,"decided_by"?: string | null,"id"?: string,"message"?: string,"order_id"?: string | null,"responded_by"?: string | null,"staff_response"?: string | null,"status"?: Database["public"]['Enums']["complaint_status"],"subject"?: string,"updated_at"?: string
+                    "created_at"?: string,"customer_id"?: string,"decided_by"?: string | null,"id"?: string,"message"?: string,"order_id"?: string | null,"responded_by"?: string | null,"restaurant_id"?: string,"staff_response"?: string | null,"status"?: Database["public"]['Enums']["complaint_status"],"subject"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -78,6 +78,12 @@ isOneToOne: false
       columns: ["responded_by"]
 isOneToOne: false
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "complaints_restaurant_id_fkey"
+      columns: ["restaurant_id"]
+isOneToOne: false
+      referencedRelation: "restaurants"
       referencedColumns: ["id"]
     }
                   ]
@@ -173,10 +179,10 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "menu_items_category_id_fkey"
-      columns: ["category_id"]
+      columns: ["category_id","restaurant_id"]
 isOneToOne: false
       referencedRelation: "categories"
-      referencedColumns: ["id"]
+      referencedColumns: ["id","restaurant_id"]
     },{
       foreignKeyName: "menu_items_restaurant_id_fkey"
       columns: ["restaurant_id"]
@@ -351,14 +357,14 @@ isOneToOne: false
                   ]
                 },"restaurants": {
                   Row: {
-                    "created_at": string,"fcfa_per_point": number,"games_enabled": boolean,"id": string,"name": string,"opening_hours": NonNullable<Json>,"points_validity_months": number,"quiz_points": number,"redeem_points_block": number,"redeem_value_fcfa": number,"referral_bonus_points": number,"slug": string,"updated_at": string
+                    "address": string | null,"created_at": string,"fcfa_per_point": number,"games_enabled": boolean,"id": string,"is_active": boolean,"name": string,"opening_hours": NonNullable<Json>,"points_validity_months": number,"quiz_points": number,"redeem_points_block": number,"redeem_value_fcfa": number,"referral_bonus_points": number,"slug": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"fcfa_per_point"?: number,"games_enabled"?: boolean,"id"?: string,"name": string,"opening_hours"?: NonNullable<Json>,"points_validity_months"?: number,"quiz_points"?: number,"redeem_points_block"?: number,"redeem_value_fcfa"?: number,"referral_bonus_points"?: number,"slug": string,"updated_at"?: string
+                    "address"?: string | null,"created_at"?: string,"fcfa_per_point"?: number,"games_enabled"?: boolean,"id"?: string,"is_active"?: boolean,"name": string,"opening_hours"?: NonNullable<Json>,"points_validity_months"?: number,"quiz_points"?: number,"redeem_points_block"?: number,"redeem_value_fcfa"?: number,"referral_bonus_points"?: number,"slug": string,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"fcfa_per_point"?: number,"games_enabled"?: boolean,"id"?: string,"name"?: string,"opening_hours"?: NonNullable<Json>,"points_validity_months"?: number,"quiz_points"?: number,"redeem_points_block"?: number,"redeem_value_fcfa"?: number,"referral_bonus_points"?: number,"slug"?: string,"updated_at"?: string
+                    "address"?: string | null,"created_at"?: string,"fcfa_per_point"?: number,"games_enabled"?: boolean,"id"?: string,"is_active"?: boolean,"name"?: string,"opening_hours"?: NonNullable<Json>,"points_validity_months"?: number,"quiz_points"?: number,"redeem_points_block"?: number,"redeem_value_fcfa"?: number,"referral_bonus_points"?: number,"slug"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -373,7 +379,7 @@ isOneToOne: false
 { Args: { "p_order_id": string,"p_status": Database["public"]['Enums']["order_status"] }; Returns: undefined
                            },
 "assign_staff_role":
-{ Args: { "p_email": string,"p_role": Database["public"]['Enums']["app_role"] }; Returns: string
+{ Args: { "p_email": string,"p_restaurant_id"?: string,"p_role": Database["public"]['Enums']["app_role"] }; Returns: string
                            },
 "cancel_my_order":
 { Args: { "p_order_id": string }; Returns: undefined
@@ -388,7 +394,7 @@ isOneToOne: false
 { Args: { "p_endpoint": string }; Returns: undefined
                            },
 "get_stats":
-{ Args: { "p_from": string,"p_to": string }; Returns: Json
+{ Args: { "p_from": string,"p_restaurant_id"?: string,"p_to": string }; Returns: Json
                            },
 "my_games_today":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -409,7 +415,7 @@ isOneToOne: false
             }[]
                            },
 "place_order":
-{ Args: { "p_arrival_time"?: string,"p_delivery_address"?: string,"p_items": Json,"p_order_type": Database["public"]['Enums']["order_type"],"p_redeem_blocks"?: number }; Returns: string
+{ Args: { "p_arrival_time"?: string,"p_delivery_address"?: string,"p_items": Json,"p_order_type": Database["public"]['Enums']["order_type"],"p_redeem_blocks"?: number,"p_restaurant_id"?: string }; Returns: string
                            },
 "play_quiz":
 { Args: { "p_answer": number,"p_question_id": string }; Returns: {
@@ -417,7 +423,7 @@ isOneToOne: false
             }[]
                            },
 "public_reviews":
-{ Args: { "p_limit"?: number }; Returns: {
+{ Args: { "p_limit"?: number,"p_restaurant_id"?: string }; Returns: {
               "author": string,"comment": string,"commented_at": string
             }[]
                            },
@@ -434,7 +440,7 @@ isOneToOne: false
 { Args: { "p_active": boolean,"p_user_id": string }; Returns: undefined
                            },
 "set_staff_role":
-{ Args: { "p_role": Database["public"]['Enums']["app_role"],"p_user_id": string }; Returns: undefined
+{ Args: { "p_restaurant_id"?: string,"p_role": Database["public"]['Enums']["app_role"],"p_user_id": string }; Returns: undefined
                            },
 "spin_wheel":
 { Args: Record<PropertyKey, never>; Returns: {

@@ -16,6 +16,8 @@ export type CurrentProfile = {
   deliveryAddress: string | null;
   avatarPath: string | null;
   avatarUrl: string | null;
+  // Restaurant où travaille un membre du personnel (null pour un étudiant).
+  restaurantId: string | null;
 };
 
 // Couche d'accès aux données : un seul endroit lit la session et le profil.
@@ -27,7 +29,7 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, email, full_name, role, points_balance, referral_code, phone, delivery_address, avatar_path, is_active")
+    .select("id, email, full_name, role, points_balance, referral_code, phone, delivery_address, avatar_path, is_active, restaurant_id")
     .eq("id", userId)
     .single();
   if (!profile || !profile.is_active) return null;
@@ -43,6 +45,7 @@ export const getCurrentProfile = cache(async (): Promise<CurrentProfile | null> 
     deliveryAddress: profile.delivery_address,
     avatarPath: profile.avatar_path,
     avatarUrl: avatarUrl(profile.avatar_path, process.env.NEXT_PUBLIC_SUPABASE_URL),
+    restaurantId: profile.restaurant_id,
   };
 });
 

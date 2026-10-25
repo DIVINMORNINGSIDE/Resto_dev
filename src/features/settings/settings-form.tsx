@@ -18,6 +18,8 @@ export type Settings = {
   referralBonusPoints: number;
   gamesEnabled: boolean;
   quizPoints: number;
+  // Les mini-jeux sont communs à l'enseigne : réglés sur le restaurant principal.
+  mainRestaurantName: string | null;
 };
 
 export function SettingsForm({ settings }: { settings: Settings }) {
@@ -107,27 +109,39 @@ export function SettingsForm({ settings }: { settings: Settings }) {
         </p>
       </BoCard>
 
-      <BoCard className="flex flex-col gap-4">
-        <h2 className="font-display text-xl">Mini-jeux</h2>
-        <BoCheckbox
-          label="Jeux ouverts aux étudiants"
-          name="gamesEnabled"
-          defaultChecked={v ? v.gamesEnabled === "on" : settings.gamesEnabled}
-        />
-        <BoField
-          label="Points pour une bonne réponse au quiz"
-          name="quizPoints"
-          type="number"
-          min={0}
-          max={50}
-          defaultValue={val("quizPoints", settings.quizPoints)}
-          error={e.quizPoints}
-        />
-        <p className="rounded-xl bg-bo-bg px-4 py-3 text-sm text-bo-text2">
-          Chaque étudiant joue une fois par jour au quiz et à la roue. La roue rapporte 0, 1, 2, 3 ou 5 points
-          (1,5 point en moyenne).
-        </p>
-      </BoCard>
+      {settings.mainRestaurantName ? (
+        <BoCard className="flex flex-col gap-3">
+          <h2 className="font-display text-xl">Mini-jeux</h2>
+          <input type="hidden" name="gamesEnabled" value={settings.gamesEnabled ? "on" : ""} />
+          <input type="hidden" name="quizPoints" value={settings.quizPoints} />
+          <p className="rounded-xl bg-bo-bg px-4 py-3 text-sm text-bo-text2">
+            Le quiz et la roue sont communs à tous les restaurants. Ils se règlent dans les paramètres de{" "}
+            <b>{settings.mainRestaurantName}</b>, le restaurant principal.
+          </p>
+        </BoCard>
+      ) : (
+        <BoCard className="flex flex-col gap-4">
+          <h2 className="font-display text-xl">Mini-jeux</h2>
+          <BoCheckbox
+            label="Jeux ouverts aux étudiants"
+            name="gamesEnabled"
+            defaultChecked={v ? v.gamesEnabled === "on" : settings.gamesEnabled}
+          />
+          <BoField
+            label="Points pour une bonne réponse au quiz"
+            name="quizPoints"
+            type="number"
+            min={0}
+            max={50}
+            defaultValue={val("quizPoints", settings.quizPoints)}
+            error={e.quizPoints}
+          />
+          <p className="rounded-xl bg-bo-bg px-4 py-3 text-sm text-bo-text2">
+            Chaque étudiant joue une fois par jour au quiz et à la roue. La roue rapporte 0, 1, 2, 3 ou 5 points
+            (1,5 point en moyenne).
+          </p>
+        </BoCard>
+      )}
 
       <div className="flex flex-col gap-3 xl:col-span-2">
         <BoNotice message={state.message} success={state.success} />

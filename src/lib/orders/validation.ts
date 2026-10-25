@@ -7,6 +7,7 @@ export const checkoutSchema = z
     arrival: z.string().trim(),
     deliveryAddress: z.string().trim().max(200, "200 caractères maximum."),
     redeemBlocks: z.coerce.number().int().min(0).max(1000),
+    restaurantId: z.uuid("Choisis un restaurant."),
     items: z
       .array(z.object({ menu_item_id: z.uuid(), quantity: z.number().int().min(1).max(MAX_QUANTITY) }))
       .min(1, "Ton panier est vide.")

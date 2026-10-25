@@ -44,6 +44,7 @@ async function OrderDetail({ params, searchParams }: Pick<PageProps<"/espace/com
           <h1 className="mt-2 font-display text-5xl">Commande {order.number}</h1>
           <p className="mt-1 text-xs text-mute">
             {formatDateTime(order.createdAt)} · {ORDER_TYPE_LABELS[order.type]}
+            {order.restaurantName ? ` · ${order.restaurantName}` : ""}
           </p>
         </div>
         <StatusBadge status={order.status} type={order.type} />

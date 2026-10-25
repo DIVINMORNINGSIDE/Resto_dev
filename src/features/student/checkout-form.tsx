@@ -9,15 +9,26 @@ import { Spinner } from "@/components/ui/spinner";
 import { useCart } from "@/features/cart/cart-provider";
 import { placeOrder, type CheckoutState } from "@/features/orders/actions";
 import { cartSubtotal } from "@/lib/orders/cart";
-import { maxRedeemBlocks, orderTotals, type LoyaltyRules } from "@/lib/orders/loyalty";
+import { DEFAULT_RULES, maxRedeemBlocks, orderTotals, type LoyaltyRules } from "@/lib/orders/loyalty";
 import { suggestedArrival } from "@/lib/orders/time";
 import { formatFcfa } from "@/lib/format";
 import { Notice, primaryButton } from "./ui";
 
-type CheckoutFormProps = { balance: number; defaultAddress: string; rules: LoyaltyRules };
+type CheckoutFormProps = {
+  balance: number;
+  defaultAddress: string;
+  restaurants: { id: string; name: string; rules: LoyaltyRules }[];
+  // Restaurant choisi, pour un panier enregistré avant les restaurants multiples.
+  fallbackRestaurantId: string;
+  showRestaurant: boolean;
+};
 
-export function CheckoutForm({ balance, defaultAddress, rules }: CheckoutFormProps) {
+export function CheckoutForm({ balance, defaultAddress, restaurants, fallbackRestaurantId, showRestaurant }: CheckoutFormProps) {
   const { lines, dispatch, ready } = useCart();
+  const restaurant =
+    restaurants.find((r) => r.id === (lines[0]?.restaurantId || fallbackRestaurantId)) ??
+    restaurants.find((r) => r.id === fallbackRestaurantId);
+  const rules = restaurant?.rules ?? DEFAULT_RULES;
   const router = useRouter();
   const [state, action] = useActionState<CheckoutState, FormData>(placeOrder, {});
   const [orderType, setOrderType] = useState<"sur_place" | "livraison">("sur_place");
@@ -63,8 +74,14 @@ export function CheckoutForm({ balance, defaultAddress, rules }: CheckoutFormPro
       <input type="hidden" name="items" value={items} />
       <input type="hidden" name="orderType" value={orderType} />
       <input type="hidden" name="redeemBlocks" value={usedBlocks} />
+      <input type="hidden" name="restaurantId" value={restaurant?.id ?? ""} />
 
       <div className="flex flex-col gap-6">
+        {showRestaurant && restaurant ? (
+          <p className="deco text-mute" data-testid="cart-restaurant">
+            Commande chez <span className="text-accent">{restaurant.name}</span>
+          </p>
+        ) : null}
         <section aria-label="Plats du panier" className="flex flex-col divide-y divide-line border border-cream/15 bg-s1">
           {lines.map((line) => (
             <div key={line.id} className="flex items-center gap-3 p-3">

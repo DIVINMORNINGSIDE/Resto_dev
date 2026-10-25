@@ -3,6 +3,8 @@ export type CartLine = {
   name: string;
   priceFcfa: number;
   imageUrl: string | null;
+  // Restaurant du plat : un panier ne contient les plats que d'un restaurant.
+  restaurantId: string;
   quantity: number;
 };
 
@@ -16,10 +18,14 @@ export type CartAction =
   | { type: "clear" }
   | { type: "replace"; lines: CartLine[] };
 
-// Panier pur et testable : quantités bornées, une ligne par plat.
+// Panier pur et testable : quantités bornées, une ligne par plat, un seul
+// restaurant (un plat d'un autre restaurant remplace le panier).
 export function cartReducer(lines: CartLine[], action: CartAction): CartLine[] {
   switch (action.type) {
     case "add": {
+      if (lines.length && lines[0].restaurantId !== action.item.restaurantId) {
+        return [{ ...action.item, quantity: 1 }];
+      }
       const existing = lines.find((l) => l.id === action.item.id);
       if (existing) {
         return lines.map((l) => (l.id === action.item.id ? { ...l, quantity: Math.min(MAX_QUANTITY, l.quantity + 1) } : l));
@@ -70,6 +76,8 @@ export function sanitizeCart(value: unknown): CartLine[] {
         name: l.name,
         priceFcfa: l.priceFcfa,
         imageUrl: typeof l.imageUrl === "string" ? l.imageUrl : null,
+        // Panier enregistré avant les restaurants multiples : restaurant inconnu.
+        restaurantId: typeof l.restaurantId === "string" ? l.restaurantId : "",
         quantity: Math.min(MAX_QUANTITY, l.quantity),
       });
     }

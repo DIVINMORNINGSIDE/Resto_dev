@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/dal";
 import { PERMISSIONS } from "@/lib/auth/roles";
 import { assignableRoles, canManage } from "@/lib/backoffice/validation";
+import { getCurrentRestaurant, getRestaurants } from "@/features/restaurants/queries";
 import { getStaff } from "./queries";
 import { AddStaffForm, StaffRow } from "./staff-forms";
 
@@ -21,8 +22,9 @@ export function StaffPage() {
 
 async function StaffManager() {
   const viewer = await requireRole(PERMISSIONS.personnel);
-  const staff = await getStaff();
+  const [staff, restaurants, current] = await Promise.all([getStaff(), getRestaurants(), getCurrentRestaurant()]);
   const roles = assignableRoles(viewer.role);
+  const options = restaurants.map((r) => ({ id: r.id, name: r.name }));
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
       <BoCard flush>
@@ -36,13 +38,14 @@ async function StaffManager() {
               member={member}
               roles={roles}
               editable={canManage(viewer.role, viewer.id, member)}
+              restaurants={options}
             />
           ))}
         </ul>
       </BoCard>
       <BoCard className="self-start">
         <h2 className="mb-3 font-display text-xl">Ajouter une personne</h2>
-        <AddStaffForm roles={roles} />
+        <AddStaffForm roles={roles} restaurants={options} defaultRestaurantId={current?.id ?? options[0]?.id ?? ""} />
       </BoCard>
     </div>
   );

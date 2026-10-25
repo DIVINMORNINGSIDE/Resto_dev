@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { getLoyaltyRules } from "@/features/orders/queries";
+import { getCurrentRestaurant, getOpenRestaurants } from "@/features/restaurants/queries";
 import { CheckoutForm } from "@/features/student/checkout-form";
 import { ListSkeleton, StudentHeader } from "@/features/student/ui";
 import { requireRole } from "@/lib/auth/dal";
@@ -21,12 +21,15 @@ export default function CartPage() {
 
 async function Checkout() {
   const profile = await requireRole(allowedRolesFor("/espace"));
-  const rules = await getLoyaltyRules();
+  const [restaurants, current] = await Promise.all([getOpenRestaurants(), getCurrentRestaurant()]);
+  // Le panier dit de quel restaurant viennent ses plats ; chaque restaurant a ses règles de fidélité.
   return (
     <CheckoutForm
       balance={profile.pointsBalance}
       defaultAddress={profile.deliveryAddress ?? ""}
-      rules={{ fcfaPerPoint: rules.fcfaPerPoint, redeemPointsBlock: rules.redeemPointsBlock, redeemValueFcfa: rules.redeemValueFcfa }}
+      restaurants={restaurants.map((r) => ({ id: r.id, name: r.name, rules: r.rules }))}
+      fallbackRestaurantId={current?.id ?? ""}
+      showRestaurant={restaurants.length > 1}
     />
   );
 }

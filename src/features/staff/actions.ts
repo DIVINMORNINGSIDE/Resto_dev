@@ -24,16 +24,21 @@ function rpcMessage(error: { code?: string; message: string }): string {
 
 export async function addStaff(_prev: BoFormState, formData: FormData): Promise<BoFormState> {
   const viewer = await requireRole(PERMISSIONS.personnel);
-  const values = { email: text(formData, "email"), fullName: text(formData, "fullName"), role: text(formData, "role") };
+  const values = {
+    email: text(formData, "email"),
+    fullName: text(formData, "fullName"),
+    role: text(formData, "role"),
+    restaurantId: text(formData, "restaurantId"),
+  };
   const parsed = staffInviteSchema.safeParse(values);
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
-  const { email, fullName, role } = parsed.data;
+  const { email, fullName, role, restaurantId } = parsed.data;
   if (!assignableRoles(viewer.role).includes(role)) {
     return { errors: { role: "Tu ne peux pas attribuer ce rôle." }, values };
   }
 
   const supabase = await createClient();
-  const first = await supabase.rpc("assign_staff_role", { p_email: email, p_role: role });
+  const first = await supabase.rpc("assign_staff_role", { p_email: email, p_role: role, p_restaurant_id: restaurantId });
   if (first.error) return { message: rpcMessage(first.error), values };
   if (first.data) {
     refresh();
@@ -68,7 +73,7 @@ export async function addStaff(_prev: BoFormState, formData: FormData): Promise<
     };
   }
 
-  const second = await supabase.rpc("assign_staff_role", { p_email: email, p_role: role });
+  const second = await supabase.rpc("assign_staff_role", { p_email: email, p_role: role, p_restaurant_id: restaurantId });
   if (second.error || !second.data) return { message: second.error ? rpcMessage(second.error) : UNEXPECTED, values };
 
   refresh();
@@ -84,12 +89,17 @@ export async function changeStaffRole(_prev: BoFormState, formData: FormData): P
   await requireRole(PERMISSIONS.personnel);
   const role = text(formData, "role") as AppRole;
   if (!ROLES.includes(role)) return { message: UNEXPECTED };
+  const restaurantId = text(formData, "restaurantId");
   const supabase = await createClient();
-  const { error } = await supabase.rpc("set_staff_role", { p_user_id: text(formData, "id"), p_role: role });
+  const { error } = await supabase.rpc("set_staff_role", {
+    p_user_id: text(formData, "id"),
+    p_role: role,
+    p_restaurant_id: /^[0-9a-f-]{36}$/i.test(restaurantId) ? restaurantId : undefined,
+  });
   if (error) return { message: rpcMessage(error) };
   refresh();
   return {
-    success: role === "etudiant" ? "Compte retiré du personnel." : `Rôle changé : ${ROLE_LABELS[role].toLowerCase()}.`,
+    success: role === "etudiant" ? "Compte retiré du personnel." : `Enregistré : ${ROLE_LABELS[role].toLowerCase()}.`,
   };
 }
 

@@ -7,7 +7,9 @@ import {
   isAllowedPhotoUrl,
   menuItemSchema,
   quizQuestionSchema,
+  restaurantSchema,
   settingsSchema,
+  slugify,
   staffInviteSchema,
   storagePathOf,
 } from "../validation";
@@ -74,8 +76,8 @@ describe("gestion du personnel", () => {
   });
 
   it("valide l'invitation", () => {
-    expect(staffInviteSchema.parse({ email: " Paul@Test.cm ", fullName: "", role: "employe" }).email).toBe("paul@test.cm");
-    expect(staffInviteSchema.safeParse({ email: "x@y.cm", fullName: "", role: "etudiant" }).success).toBe(false);
+    expect(staffInviteSchema.parse({ email: " Paul@Test.cm ", fullName: "", role: "employe", restaurantId: "00000000-0000-4000-8000-000000000001" }).email).toBe("paul@test.cm");
+    expect(staffInviteSchema.safeParse({ email: "x@y.cm", fullName: "", role: "etudiant", restaurantId: "00000000-0000-4000-8000-000000000001" }).success).toBe(false);
   });
 
   it("génère des mots de passe provisoires valides et différents", () => {
@@ -138,5 +140,18 @@ describe("quizQuestionSchema", () => {
     expect(quizQuestionSchema.safeParse({ ...valid, choices: ["Manioc", "", "", ""], correct: "0" }).success).toBe(false);
     expect(quizQuestionSchema.safeParse({ ...valid, correct: "2" }).success).toBe(false);
     expect(quizQuestionSchema.safeParse({ ...valid, question: "Hein" }).success).toBe(false);
+  });
+});
+
+describe("restaurants", () => {
+  it("tire l'adresse courte du nom", () => {
+    expect(slugify("ZeDuc@Campus Nord")).toBe("zeduc-campus-nord");
+    expect(slugify("  Café de l'Été  ")).toBe("cafe-de-l-ete");
+  });
+
+  it("valide le formulaire et ajoute l'adresse courte", () => {
+    const ok = restaurantSchema.safeParse({ name: "ZeDuc@Campus", address: "Bâtiment B", isActive: "on" });
+    expect(ok.success && ok.data).toEqual({ name: "ZeDuc@Campus", address: "Bâtiment B", isActive: true, slug: "zeduc-campus" });
+    expect(restaurantSchema.safeParse({ name: "@@", address: "", isActive: "" }).success).toBe(false);
   });
 });

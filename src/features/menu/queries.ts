@@ -1,4 +1,5 @@
 import "server-only";
+import { currentRestaurantId } from "@/features/restaurants/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export type MenuCategory = { id: string; name: string; position: number };
@@ -13,21 +14,28 @@ export type MenuRow = {
   categoryId: string;
 };
 
-export async function getCategories(): Promise<MenuCategory[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from("categories").select("id, name, position").order("position").order("name");
+// Carte du restaurant affiché (ou de celui demandé).
+export async function getCategories(restaurantId?: string): Promise<MenuCategory[]> {
+  const [supabase, id] = await Promise.all([createClient(), restaurantId ?? currentRestaurantId()]);
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, position")
+    .eq("restaurant_id", id)
+    .order("position")
+    .order("name");
   if (error) throw new Error("Les catégories n'ont pas pu être chargées.");
   return data;
 }
 
 // Menu complet groupé par catégorie, dans l'ordre d'affichage.
-export async function getMenuByCategory(): Promise<{ category: MenuCategory; items: MenuRow[] }[]> {
-  const supabase = await createClient();
+export async function getMenuByCategory(restaurantId?: string): Promise<{ category: MenuCategory; items: MenuRow[] }[]> {
+  const [supabase, id] = await Promise.all([createClient(), restaurantId ?? currentRestaurantId()]);
   const [categories, items] = await Promise.all([
-    getCategories(),
+    getCategories(id),
     supabase
       .from("menu_items")
       .select("id, name, description, price_fcfa, image_url, is_available, is_dish_of_day, category_id")
+      .eq("restaurant_id", id)
       .order("name"),
   ]);
   if (items.error) throw new Error("Le menu n'a pas pu être chargé.");
