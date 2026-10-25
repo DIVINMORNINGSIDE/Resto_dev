@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { AuthSwitch } from "@/components/account/auth-switch";
 import {
+  CustomerReviews,
+  CustomerReviewsSkeleton,
   DishOfDayPanel,
   DishOfDaySkeleton,
   LoyaltyRulesCards,
@@ -94,6 +96,32 @@ export default function HomePage() {
             <Suspense fallback={<LoyaltyRulesSkeleton />}>
               <LoyaltyRulesCards />
             </Suspense>
+          </div>
+        </section>
+
+        <section id="avis" className="scroll-mt-24 overflow-hidden bg-ink px-4 py-20 md:py-28">
+          <SectionTitle kicker="Avis clients">Ce que nos clients en disent</SectionTitle>
+          <div className="mx-auto mt-12 max-w-6xl">
+            <Suspense fallback={<CustomerReviewsSkeleton />}>
+              <CustomerReviews />
+            </Suspense>
+          </div>
+          <div className="mt-10 flex justify-center">
+            <AuthSwitch
+              fallback={<span className="block h-11" />}
+              guest={
+                <Link href="/inscription" className="deco inline-flex min-h-11 items-center border border-cream/40 px-5 text-cream transition hover:border-accent hover:text-accent">
+                  Commander et donner mon avis
+                </Link>
+              }
+              member={(profile) =>
+                profile.role === "etudiant" ? (
+                  <Link href="/espace/commandes" className="deco inline-flex min-h-11 items-center border border-cream/40 px-5 text-cream transition hover:border-accent hover:text-accent">
+                    Donner mon avis
+                  </Link>
+                ) : null
+              }
+            />
           </div>
         </section>
 

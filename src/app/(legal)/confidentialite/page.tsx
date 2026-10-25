@@ -32,6 +32,10 @@ export default function PrivacyPage() {
             réductions.
           </li>
           <li>
+            <b>Tes avis</b> : le texte que tu laisses après une commande servie. Il peut être affiché sur la page
+            d&apos;accueil avec ton prénom et l&apos;initiale de ton nom ; le gérant peut le retirer.
+          </li>
+          <li>
             <b>Tes réclamations</b> : sujet, message et réponse du restaurant, pour traiter ton problème.
           </li>
         </ul>

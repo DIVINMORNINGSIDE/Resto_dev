@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/dal";
 import { PERMISSIONS } from "@/lib/auth/roles";
 import { formatFcfa } from "@/lib/format";
+import { ReviewVisibility } from "@/features/orders/review-visibility";
 import { getRecentComments, getTopCustomers, type OrderComment, type TopCustomer } from "@/features/orders/queries";
 import { formatDateTime, formatDay, periodRange, type Period } from "@/lib/orders/time";
 import { getStats, type Stats } from "./queries";
@@ -107,7 +108,11 @@ async function StatsLoader({ basePath, searchParams }: { basePath: string; searc
           <TopCustomers customers={top} />
         </BoCard>
         <BoCard>
-          <h2 className="mb-4 font-display text-2xl">Derniers avis</h2>
+          <h2 className="font-display text-2xl">Derniers avis</h2>
+          <p className="mb-4 mt-1 text-sm text-bo-text2">
+            Les avis s&apos;affichent sur l&apos;accueil avec le prénom et l&apos;initiale du client. Masque ceux qui ne
+            doivent pas y figurer.
+          </p>
           <RecentComments comments={comments} />
         </BoCard>
       </div>
@@ -137,11 +142,15 @@ function RecentComments({ comments }: { comments: OrderComment[] }) {
   return (
     <ul className="flex flex-col gap-3">
       {comments.map((c) => (
-        <li key={c.id} className="border-l-2 border-bo-accent pl-3 text-sm">
+        <li key={c.id} className={`border-l-2 pl-3 text-sm ${c.hidden ? "border-bo-line text-bo-text2" : "border-bo-accent"}`}>
           <p>{c.comment}</p>
           <p className="mt-1 text-xs text-bo-text2">
             {c.customer} · commande {c.number} · {formatDateTime(c.commentedAt)}
+            {c.hidden ? " · masqué de l'accueil" : ""}
           </p>
+          <div className="mt-2">
+            <ReviewVisibility orderId={c.id} number={c.number} hidden={c.hidden} />
+          </div>
         </li>
       ))}
     </ul>

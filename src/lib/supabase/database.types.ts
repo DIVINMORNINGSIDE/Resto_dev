@@ -187,14 +187,14 @@ isOneToOne: false
                   ]
                 },"orders": {
                   Row: {
-                    "arrival_time": string | null,"commented_at": string | null,"created_at": string,"customer_comment": string | null,"customer_id": string,"delivery_address": string | null,"discount_fcfa": number,"id": string,"order_type": Database["public"]['Enums']["order_type"],"points_earned": number,"points_used": number,"restaurant_id": string,"status": Database["public"]['Enums']["order_status"],"subtotal_fcfa": number,"total_fcfa": number,"updated_at": string
+                    "arrival_time": string | null,"commented_at": string | null,"created_at": string,"customer_comment": string | null,"customer_id": string,"delivery_address": string | null,"discount_fcfa": number,"id": string,"order_type": Database["public"]['Enums']["order_type"],"points_earned": number,"points_used": number,"restaurant_id": string,"review_hidden": boolean,"status": Database["public"]['Enums']["order_status"],"subtotal_fcfa": number,"total_fcfa": number,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "arrival_time"?: string | null,"commented_at"?: string | null,"created_at"?: string,"customer_comment"?: string | null,"customer_id": string,"delivery_address"?: string | null,"discount_fcfa"?: number,"id"?: string,"order_type": Database["public"]['Enums']["order_type"],"points_earned"?: number,"points_used"?: number,"restaurant_id"?: string,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fcfa": number,"total_fcfa": number,"updated_at"?: string
+                    "arrival_time"?: string | null,"commented_at"?: string | null,"created_at"?: string,"customer_comment"?: string | null,"customer_id": string,"delivery_address"?: string | null,"discount_fcfa"?: number,"id"?: string,"order_type": Database["public"]['Enums']["order_type"],"points_earned"?: number,"points_used"?: number,"restaurant_id"?: string,"review_hidden"?: boolean,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fcfa": number,"total_fcfa": number,"updated_at"?: string
                   }
                   Update: {
-                    "arrival_time"?: string | null,"commented_at"?: string | null,"created_at"?: string,"customer_comment"?: string | null,"customer_id"?: string,"delivery_address"?: string | null,"discount_fcfa"?: number,"id"?: string,"order_type"?: Database["public"]['Enums']["order_type"],"points_earned"?: number,"points_used"?: number,"restaurant_id"?: string,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fcfa"?: number,"total_fcfa"?: number,"updated_at"?: string
+                    "arrival_time"?: string | null,"commented_at"?: string | null,"created_at"?: string,"customer_comment"?: string | null,"customer_id"?: string,"delivery_address"?: string | null,"discount_fcfa"?: number,"id"?: string,"order_type"?: Database["public"]['Enums']["order_type"],"points_earned"?: number,"points_used"?: number,"restaurant_id"?: string,"review_hidden"?: boolean,"status"?: Database["public"]['Enums']["order_status"],"subtotal_fcfa"?: number,"total_fcfa"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -390,11 +390,19 @@ isOneToOne: false
               "correct_index": number,"points": number
             }[]
                            },
+"public_reviews":
+{ Args: { "p_limit"?: number }; Returns: {
+              "author": string,"comment": string,"commented_at": string
+            }[]
+                           },
 "respond_complaint":
 { Args: { "p_complaint_id": string,"p_response": string }; Returns: undefined
                            },
 "save_push_subscription":
 { Args: { "p_auth": string,"p_endpoint": string,"p_p256dh": string,"p_user_agent": string }; Returns: undefined
+                           },
+"set_review_hidden":
+{ Args: { "p_hidden": boolean,"p_order_id": string }; Returns: undefined
                            },
 "set_staff_active":
 { Args: { "p_active": boolean,"p_user_id": string }; Returns: undefined

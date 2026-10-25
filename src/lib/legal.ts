@@ -7,7 +7,7 @@ export const LEGAL = {
   director: "the_morningside",
   email: "divinmdiv@gmail.com",
   phone: "+243 844 750 542",
-  updatedAt: "24 octobre 2026",
+  updatedAt: "25 octobre 2026",
 };
 
 export const COOKIE_CONSENT_KEY = "miam-cookies";
