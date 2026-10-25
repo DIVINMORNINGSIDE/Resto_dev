@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { getFavoriteIds } from "@/features/favorites/queries";
 import { getMenuByCategory } from "@/features/menu/queries";
 import { OrderMenu } from "@/features/student/order-menu";
 import { ListSkeleton, StudentHeader } from "@/features/student/ui";
@@ -21,7 +22,7 @@ export default function OrderPage() {
 
 async function Menu() {
   await requireRole(allowedRolesFor("/espace"));
-  const menu = await getMenuByCategory();
+  const [menu, favoriteIds] = await Promise.all([getMenuByCategory(), getFavoriteIds()]);
   const sections = menu
     .filter(({ items }) => items.length)
     .map(({ category, items }) => ({
@@ -33,5 +34,5 @@ async function Menu() {
       ),
     }));
   if (!sections.length) return <p className="text-mute">Le menu du jour arrive bientôt.</p>;
-  return <OrderMenu sections={sections} />;
+  return <OrderMenu sections={sections} favoriteIds={favoriteIds} />;
 }

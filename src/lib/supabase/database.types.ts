@@ -81,6 +81,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"favorites": {
+                  Row: {
+                    "created_at": string,"customer_id": string,"menu_item_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"customer_id": string,"menu_item_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"customer_id"?: string,"menu_item_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "favorites_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "favorites_menu_item_id_fkey"
+      columns: ["menu_item_id"]
+isOneToOne: false
+      referencedRelation: "menu_items"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"game_plays": {
                   Row: {
                     "answer_index": number | null,"correct_index": number | null,"created_at": string,"game": string,"id": string,"played_on": string,"points": number,"question_id": string | null,"user_id": string,"wheel_segment": number | null

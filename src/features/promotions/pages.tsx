@@ -7,9 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { requireRole } from "@/lib/auth/dal";
 import { allowedRolesFor } from "@/lib/auth/roles";
 import { doualaDay } from "@/lib/backoffice/validation";
-import { formatDate } from "@/lib/orders/time";
 import { PromotionForm } from "./promotion-form";
-import { getPromotion, getPromotions, PROMOTION_KIND_LABELS, promotionState, type Promotion, type PromotionState } from "./queries";
+import { getPromotion, getPromotions, promotionState, type Promotion, type PromotionState } from "./queries";
 
 // Pages des affiches partagées par l'administration et l'espace gérant.
 type Area = "/admin" | "/gerant";
@@ -64,26 +63,28 @@ async function PromotionList({ area, base }: { area: Area; base: string }) {
   );
 }
 
+// Carte épurée : l'affiche, son état et son titre. Les dates et le texte
+// s'affichent une fois la carte ouverte.
 function PromotionCard({ promotion: p, href }: { promotion: Promotion; href: string }) {
   const state = STATE_LABELS[promotionState(p)];
   return (
     <Link
       href={href}
       aria-label={`Modifier l'affiche ${p.title}`}
-      className="flex h-full gap-4 rounded-2xl border border-bo-line bg-bo-card p-4 transition hover:border-bo-accent"
+      className="group flex h-full items-center gap-4 rounded-2xl border border-bo-line bg-bo-card p-3 transition hover:-translate-y-0.5 hover:border-bo-accent hover:shadow-md"
     >
-      <div className="relative aspect-[3/4] w-24 shrink-0 overflow-hidden rounded-lg bg-bo-bg">
-        {p.posterUrl ? <MenuPhoto src={p.posterUrl} alt="" sizes="96px" /> : null}
+      <div className="relative aspect-[3/4] w-20 shrink-0 overflow-hidden rounded-lg bg-bo-bg">
+        {p.posterUrl ? (
+          <MenuPhoto src={p.posterUrl} alt="" sizes="80px" className="transition duration-500 ease-soft group-hover:scale-105" />
+        ) : null}
       </div>
-      <div className="flex min-w-0 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         <span className={`deco self-start rounded-full px-2 py-0.5 text-[10px] ${state.tone}`}>{state.label}</span>
-        <p className="font-display text-xl leading-tight">{p.title}</p>
-        <p className="text-xs text-bo-text2">
-          {PROMOTION_KIND_LABELS[p.kind]} · du {formatDate(p.startsAt)}
-          {p.endsAt ? ` au ${formatDate(p.endsAt)}` : ", sans fin"}
-        </p>
-        {p.description ? <p className="line-clamp-2 text-sm text-bo-text2">{p.description}</p> : null}
+        <p className="line-clamp-2 font-display text-xl leading-tight">{p.title}</p>
       </div>
+      <span aria-hidden="true" className="pr-1 text-xl text-bo-text2 transition group-hover:translate-x-0.5 group-hover:text-bo-accent">
+        →
+      </span>
     </Link>
   );
 }

@@ -9,8 +9,8 @@ const LINKS: { href: `#${string}`; label: string }[] = [
   { href: "#maison", label: "La maison" },
   { href: "#menu", label: "Menu" },
   { href: "#fidelite", label: "Fidélité" },
-  { href: "#avis", label: "Avis" },
   { href: "#etapes", label: "Comment ça marche" },
+  { href: "#avis", label: "Avis" },
 ];
 
 // Barre flottante posée sur la photo d'accueil, comme sur Kado. Elle reste
