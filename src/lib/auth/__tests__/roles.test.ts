@@ -26,6 +26,11 @@ describe("matrice des droits", () => {
     for (const role of ["employe", "gerant", "admin"] as const) expect(can(role, "commander")).toBe(false);
   });
 
+  it("seul l'étudiant a des favoris", () => {
+    expect(can("etudiant", "favoris")).toBe(true);
+    for (const role of ["employe", "gerant", "admin"] as const) expect(can(role, "favoris")).toBe(false);
+  });
+
   it("le personnel voit commandes et menu, l'étudiant non", () => {
     for (const role of ["employe", "gerant", "admin"] as const) {
       expect(can(role, "voirCommandes")).toBe(true);

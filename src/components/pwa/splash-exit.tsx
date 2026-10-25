@@ -3,10 +3,10 @@
 import { useEffect } from "react";
 import { SPLASH_SEEN_KEY } from "./splash-key";
 
-// L'écran reste au moins le temps de son animation, puis part dès que la page
-// est chargée (au plus tard après quelques secondes, même sur un réseau lent).
-const MIN_MS = 1500;
-const MAX_MS = 3500;
+// L'écran reste au moins cinq secondes, le temps que la barre arrive à 100 %,
+// puis part dès que la page est chargée (au plus tard après 8 s sur un réseau lent).
+const MIN_MS = 5300;
+const MAX_MS = 8000;
 
 export function SplashExit() {
   useEffect(() => {

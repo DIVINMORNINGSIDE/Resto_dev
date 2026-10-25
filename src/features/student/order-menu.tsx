@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { MenuPhoto } from "@/components/menu/menu-photo";
 import { useCart } from "@/features/cart/cart-provider";
+import { FavoriteButton } from "@/features/favorites/favorite-button";
 import { cartCount, cartSubtotal } from "@/lib/orders/cart";
 import { formatFcfa } from "@/lib/format";
 import { primaryButton } from "./ui";
@@ -14,8 +15,9 @@ export type MenuSection = {
   items: { id: string; name: string; description: string | null; priceFcfa: number; imageUrl: string | null; isAvailable: boolean; isDishOfDay: boolean }[];
 };
 
-// Carte à commander : un bouton « Ajouter », puis des boutons − / + par plat.
-export function OrderMenu({ sections }: { sections: MenuSection[] }) {
+// Carte à commander : un bouton « Ajouter », puis des boutons − / + par plat,
+// et un cœur pour garder le plat dans ses favoris.
+export function OrderMenu({ sections, favoriteIds }: { sections: MenuSection[]; favoriteIds: string[] }) {
   const { lines, dispatch, ready } = useCart();
   const count = cartCount(lines);
 
@@ -60,7 +62,8 @@ export function OrderMenu({ sections }: { sections: MenuSection[] }) {
                         <span className="deco mt-1 self-start bg-accent px-2 py-0.5 text-[10px] text-ink">Plat du jour</span>
                       ) : null}
                       {item.description ? <p className="mt-1 line-clamp-2 text-xs text-mute">{item.description}</p> : null}
-                      <div className="mt-auto flex justify-end pt-2">
+                      <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                        <FavoriteButton menuItemId={item.id} itemName={item.name} favorite={favoriteIds.includes(item.id)} />
                         {!item.isAvailable ? (
                           <span className="deco text-bad">Épuisé</span>
                         ) : line ? (

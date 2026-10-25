@@ -153,3 +153,28 @@ test("statistiques : le gérant change de période, l'employé n'y a pas accès"
   await page.goto("/gerant/statistiques");
   await expect(page).toHaveURL(/\/employe\/commandes$/);
 });
+
+test("l'étudiant met un plat en favori et le retrouve dans son espace", async ({ page }) => {
+  await loginAs(page, STUDENT, /\/espace$/);
+  const favorites = page.getByRole("region", { name: "Mes favoris" });
+  await page.goto("/espace/commander");
+  const add = page.getByRole("button", { name: "Ajouter Poulet braisé à mes favoris" });
+  const remove = page.getByRole("button", { name: "Retirer Poulet braisé de mes favoris" });
+  // Le test tourne sur plusieurs navigateurs avec le même compte : on repart sans ce favori.
+  await expect(add.or(remove)).toBeVisible();
+  if (await remove.isVisible()) {
+    await remove.click();
+    await expect(add).toBeVisible();
+  }
+  await add.click();
+  await expect(remove).toHaveAttribute("aria-pressed", "true");
+
+  await page.goto("/espace");
+  await expect(favorites.getByRole("heading", { name: "Poulet braisé" })).toBeVisible();
+  await favorites.getByRole("link", { name: "Commander" }).first().click();
+  await expect(page).toHaveURL(/\/espace\/commander#plat-/);
+
+  await page.goto("/espace");
+  await favorites.getByRole("button", { name: "Retirer Poulet braisé de mes favoris" }).click();
+  await expect(favorites.getByRole("heading", { name: "Poulet braisé" })).toHaveCount(0);
+});

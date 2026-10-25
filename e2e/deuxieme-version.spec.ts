@@ -24,7 +24,15 @@ test("le gérant publie une affiche, l'étudiant la voit, puis elle est supprim�
 
   const student = await browser.newPage();
   await loginAs(student, STUDENT, /\/espace$/);
-  await expect(student.getByRole("region", { name: "À l'affiche" }).getByRole("heading", { name: title })).toBeVisible();
+  // L'affiche ne montre que le badge et le titre ; le texte s'ouvre au toucher.
+  const poster = student.getByRole("region", { name: "À l'affiche" }).getByRole("button", { name: title });
+  await expect(poster).toBeVisible();
+  await expect(poster).not.toContainText("manettes fournies");
+  await poster.click();
+  const details = student.getByRole("dialog", { name: title });
+  await expect(details.getByText("Inscriptions au comptoir, manettes fournies.")).toBeVisible();
+  await details.getByRole("button", { name: "Fermer" }).click();
+  await expect(details).toBeHidden();
   await student.close();
 
   page.once("dialog", (dialog) => dialog.accept());

@@ -30,6 +30,8 @@ const MANAGERS: readonly AppRole[] = ["gerant", "admin"];
 export const PERMISSIONS = {
   // Seul un étudiant passe commande ; le personnel voit le menu sans commander.
   commander: ["etudiant"],
+  // Mettre un plat en favori et retrouver ses favoris : l'étudiant seulement.
+  favoris: ["etudiant"],
   voirCommandes: STAFF,
   // Accepter une commande (la lancer en cuisine) ou l'annuler.
   validerCommande: MANAGERS,

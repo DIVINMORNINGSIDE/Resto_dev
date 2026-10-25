@@ -99,6 +99,7 @@ export default function HomePage() {
           </div>
         </section>
 
+        <HowItWorks />
         <section id="avis" className="scroll-mt-24 overflow-hidden bg-ink px-4 py-20 md:py-28">
           <SectionTitle kicker="Avis clients">Ce que nos clients en disent</SectionTitle>
           <div className="mx-auto mt-12 max-w-6xl">
@@ -125,7 +126,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        <HowItWorks />
         <TableCta />
       </main>
       <SiteFooter />

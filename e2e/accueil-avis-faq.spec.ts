@@ -3,7 +3,8 @@ import { loginAs } from "./helpers";
 
 test("sur téléphone, un écran de lancement animé s'affiche une fois par visite", async ({ page, isMobile }) => {
   const splash = page.locator("#miam-splash");
-  await page.goto("/");
+  // Les navigateurs de test sautent l'écran, sauf avec ?splash.
+  await page.goto("/?splash");
   if (!isMobile) {
     // Sur ordinateur (hors application installée), l'accueil s'affiche directement.
     await expect(splash).toBeHidden();
@@ -11,6 +12,9 @@ test("sur téléphone, un écran de lancement animé s'affiche une fois par visi
   }
   await expect(splash).toBeVisible();
   await expect(splash).toContainText("Mon Miam Miam");
+  // Il reste au moins cinq secondes, le temps que la barre se remplisse.
+  await page.waitForTimeout(4000);
+  await expect(splash).toBeVisible();
   await expect(splash).toBeHidden({ timeout: 6000 });
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 

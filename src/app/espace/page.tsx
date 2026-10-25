@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { FavoriteList } from "@/features/favorites/favorite-list";
+import { getFavorites } from "@/features/favorites/queries";
 import { AppCard } from "@/features/notifications/app-card";
 import { getLoyaltyRules, getMyOrders } from "@/features/orders/queries";
 import { getCurrentPromotions } from "@/features/promotions/queries";
@@ -27,7 +29,12 @@ export default function StudentHomePage() {
 async function StudentHome() {
   const profile = await requireRole(allowedRolesFor("/espace"));
   const firstName = profile.fullName.split(" ")[0];
-  const [orders, rules, promotions] = await Promise.all([getMyOrders(profile.id), getLoyaltyRules(), getCurrentPromotions()]);
+  const [orders, rules, promotions, favorites] = await Promise.all([
+    getMyOrders(profile.id),
+    getLoyaltyRules(),
+    getCurrentPromotions(),
+    getFavorites(),
+  ]);
   const current = orders.filter((o) => ACTIVE_STATUSES.includes(o.status));
 
   return (
@@ -70,6 +77,8 @@ async function StudentHome() {
           Commander maintenant
         </Link>
       )}
+
+      <FavoriteList favorites={favorites} />
 
       <Link
         href="/espace/jeux"
