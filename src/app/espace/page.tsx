@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { AppCard } from "@/features/notifications/app-card";
 import { getLoyaltyRules, getMyOrders } from "@/features/orders/queries";
 import { getCurrentPromotions } from "@/features/promotions/queries";
 import { OrderCard } from "@/features/student/order-card";
@@ -82,6 +83,8 @@ async function StudentHome() {
           →
         </span>
       </Link>
+
+      <AppCard />
 
       <PromoPosters promotions={promotions} />
 

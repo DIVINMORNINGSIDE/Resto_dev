@@ -48,6 +48,10 @@ jobs:
           eval "$(npx supabase status -o env)"
           echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL" >> .env.local
           echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY" >> .env.local
+          # Clés de notification jetables, propres à ce test.
+          npx web-push generate-vapid-keys --json > vapid.json
+          node -e 'const k=require("./vapid.json"); console.log("NEXT_PUBLIC_VAPID_PUBLIC_KEY=" + k.publicKey + "\nVAPID_PRIVATE_KEY=" + k.privateKey)' >> .env.local
+          rm vapid.json
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run build
       - run: npm run test:e2e

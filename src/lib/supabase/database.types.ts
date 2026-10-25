@@ -257,6 +257,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"push_subscriptions": {
+                  Row: {
+                    "auth": string,"created_at": string,"endpoint": string,"id": string,"p256dh": string,"user_agent": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "auth": string,"created_at"?: string,"endpoint": string,"id"?: string,"p256dh": string,"user_agent"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "auth"?: string,"created_at"?: string,"endpoint"?: string,"id"?: string,"p256dh"?: string,"user_agent"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "push_subscriptions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"quiz_questions": {
                   Row: {
                     "choices": (string)[],"correct_index": number,"created_at": string,"id": string,"is_active": boolean,"question": string,"restaurant_id": string,"updated_at": string
@@ -338,6 +358,9 @@ isOneToOne: false
 "decide_complaint":
 { Args: { "p_bonus_points"?: number,"p_complaint_id": string,"p_decision": string }; Returns: undefined
                            },
+"forget_push_subscription":
+{ Args: { "p_endpoint": string }; Returns: undefined
+                           },
 "get_stats":
 { Args: { "p_from": string,"p_to": string }; Returns: Json
                            },
@@ -354,6 +377,11 @@ isOneToOne: false
               "first_name": string,"joined_at": string,"reward_points": number,"rewarded_at": string
             }[]
                            },
+"order_push_targets":
+{ Args: { "p_order_id": string,"p_status": Database["public"]['Enums']["order_status"] }; Returns: {
+              "auth": string,"endpoint": string,"order_type": Database["public"]['Enums']["order_type"],"p256dh": string
+            }[]
+                           },
 "place_order":
 { Args: { "p_arrival_time"?: string,"p_delivery_address"?: string,"p_items": Json,"p_order_type": Database["public"]['Enums']["order_type"],"p_redeem_blocks"?: number }; Returns: string
                            },
@@ -364,6 +392,9 @@ isOneToOne: false
                            },
 "respond_complaint":
 { Args: { "p_complaint_id": string,"p_response": string }; Returns: undefined
+                           },
+"save_push_subscription":
+{ Args: { "p_auth": string,"p_endpoint": string,"p_p256dh": string,"p_user_agent": string }; Returns: undefined
                            },
 "set_staff_active":
 { Args: { "p_active": boolean,"p_user_id": string }; Returns: undefined
