@@ -95,6 +95,9 @@ async function StudentHome() {
         <Link href="/espace/reclamations" className="deco text-cream/80 underline hover:text-accent">
           Mes réclamations
         </Link>
+        <Link href="/faq" className="deco text-cream/80 underline hover:text-accent">
+          Questions fréquentes
+        </Link>
       </div>
 
       <div className="flex flex-wrap gap-2">

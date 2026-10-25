@@ -39,6 +39,8 @@ export const PERMISSIONS = {
   tableauDeBord: MANAGERS,
   reclamations: MANAGERS,
   statistiques: MANAGERS,
+  // Masquer un avis client de l'accueil (ou l'y remettre).
+  avis: MANAGERS,
   parametres: MANAGERS,
   promotions: MANAGERS,
   // Questions du quiz et réglages des mini-jeux ; seuls les étudiants jouent.

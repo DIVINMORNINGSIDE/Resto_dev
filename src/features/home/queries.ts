@@ -59,3 +59,36 @@ export async function getCurrentPromotion(): Promise<PublicPromotion | null> {
     .maybeSingle();
   return data ? { title: data.title, description: data.description, kind: data.kind, posterUrl: data.poster_url } : null;
 }
+
+export type PublicReview = { author: string; comment: string; commentedAt: string };
+
+// Derniers avis laissés après une commande servie, sans ceux masqués par le
+// gérant ou l'admin. Lisibles sans connexion (prénom et initiale seulement).
+export async function getPublicReviews(limit = 6): Promise<PublicReview[] | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("public_reviews", { p_limit: limit });
+  if (error) return null;
+  return data.map((r) => ({ author: r.author, comment: r.comment, commentedAt: r.commented_at }));
+}
+
+export type RestaurantInfo = { openingHours: Partial<Record<string, string>>; gamesEnabled: boolean; quizPoints: number };
+
+// Horaires et réglages des mini-jeux, pour la FAQ (lisibles sans connexion).
+export async function getRestaurantInfo(): Promise<RestaurantInfo> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("restaurants")
+    .select("opening_hours, games_enabled, quiz_points")
+    .order("created_at")
+    .limit(1)
+    .maybeSingle();
+  const hours = data?.opening_hours;
+  return {
+    openingHours:
+      hours && typeof hours === "object" && !Array.isArray(hours)
+        ? Object.fromEntries(Object.entries(hours).filter(([, v]) => typeof v === "string" && v.trim()).map(([k, v]) => [k, String(v).trim()]))
+        : {},
+    gamesEnabled: data?.games_enabled ?? true,
+    quizPoints: data?.quiz_points ?? 2,
+  };
+}

@@ -97,3 +97,13 @@ export async function commentMyOrder(_prev: CommentState, formData: FormData): P
   refresh();
   return { success: "Merci pour ton avis !" };
 }
+
+// Le gérant ou l'admin retire un avis de l'accueil, ou l'y remet.
+export async function setReviewHidden(orderId: string, hidden: boolean): Promise<{ error?: string }> {
+  await requireRole(PERMISSIONS.avis);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_review_hidden", { p_order_id: orderId, p_hidden: hidden });
+  if (error) return { error: sqlMessage(error) };
+  refresh();
+  return {};
+}

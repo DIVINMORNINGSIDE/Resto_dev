@@ -254,6 +254,9 @@ export function SiteFooter() {
               )}
             />
             <li>
+              <Link href="/faq" className={footerLink}>Questions fréquentes</Link>
+            </li>
+            <li>
               <Link href="/mentions-legales" className="deco text-cream/80 hover:text-accent">Mentions légales</Link>
             </li>
             <li>

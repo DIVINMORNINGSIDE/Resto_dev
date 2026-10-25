@@ -46,6 +46,7 @@ export function OrderComment({ orderId, comment }: { orderId: string; comment: s
         placeholder="Le goût, la quantité, le service…"
         className="border border-line bg-s1 px-4 py-3 text-base text-cream placeholder:text-mute/70 focus:border-accent focus:outline-none"
       />
+      <p className="text-xs text-mute">Ton avis peut apparaître sur l&apos;accueil avec ton prénom et l&apos;initiale de ton nom.</p>
       <Notice message={state.error} />
       <SendButton />
     </form>

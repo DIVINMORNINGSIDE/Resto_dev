@@ -178,14 +178,14 @@ export async function getTopCustomers(period: TopPeriod): Promise<TopCustomer[]>
   return data.map((r) => ({ rank: r.rank, name: r.name, orders: r.orders, isMe: r.is_me }));
 }
 
-export type OrderComment = { id: string; number: string; comment: string; commentedAt: string; customer: string };
+export type OrderComment = { id: string; number: string; comment: string; commentedAt: string; customer: string; hidden: boolean };
 
 // Derniers avis laissés par les clients (personnel uniquement, via la RLS).
 export async function getRecentComments(limit = 6): Promise<OrderComment[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("orders")
-    .select("id, customer_comment, commented_at, profiles!orders_customer_id_fkey(full_name)")
+    .select("id, customer_comment, commented_at, review_hidden, profiles!orders_customer_id_fkey(full_name)")
     .not("commented_at", "is", null)
     .order("commented_at", { ascending: false })
     .limit(limit);
@@ -196,5 +196,6 @@ export async function getRecentComments(limit = 6): Promise<OrderComment[]> {
     comment: r.customer_comment ?? "",
     commentedAt: r.commented_at!,
     customer: r.profiles?.full_name ?? "Client",
+    hidden: r.review_hidden,
   }));
 }

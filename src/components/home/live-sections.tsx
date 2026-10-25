@@ -4,10 +4,11 @@ import { AuthSwitch } from "@/components/account/auth-switch";
 import { MenuPhoto } from "@/components/menu/menu-photo";
 import { ArrowIcon } from "@/components/ui/arrow-icon";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCurrentPromotion, getPublicMenu } from "@/features/home/queries";
+import { getCurrentPromotion, getPublicMenu, getPublicReviews } from "@/features/home/queries";
 import { getLoyaltyRules } from "@/features/orders/queries";
 import { ROLE_HOME } from "@/lib/auth/roles";
 import { formatFcfa } from "@/lib/format";
+import { formatDate } from "@/lib/orders/time";
 import { outlineDark } from "./sections";
 
 // Sections de l'accueil qui lisent le menu et les promotions en base.
@@ -156,6 +157,64 @@ export function LoyaltyRulesSkeleton() {
       {Array.from({ length: 3 }, (_, i) => (
         <li key={i}>
           <Skeleton tone="light" className="h-28 w-full" />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const REVIEW_TONES = ["from-blush to-peach", "from-peach to-sky", "from-sky to-lime"];
+
+// Avis clients : les commentaires laissés après une commande servie, en cartes
+// pastel comme les avis du site Kado. Au téléphone, on les fait défiler.
+export async function CustomerReviews() {
+  const reviews = await getPublicReviews();
+  if (!reviews?.length) {
+    return (
+      <p className="mx-auto max-w-md bg-gradient-to-b from-blush to-peach p-6 text-center text-ink">
+        <span className="font-display text-3xl">Pas encore d&apos;avis</span>
+        <span className="mt-2 block text-sm text-ink/80">
+          Après ta commande, laisse ton avis depuis ton suivi de commande : il apparaîtra ici.
+        </span>
+      </p>
+    );
+  }
+  return (
+    <ul
+      aria-label="Avis de nos clients"
+      className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3"
+    >
+      {reviews.map((review, i) => (
+        <li
+          key={`${review.commentedAt}-${i}`}
+          className={`flex w-[82%] shrink-0 snap-center flex-col bg-gradient-to-b ${REVIEW_TONES[i % REVIEW_TONES.length]} p-6 text-ink shadow-2xl shadow-ink/40 animate-rise sm:w-[60%] md:w-auto`}
+          style={{ animationDelay: `${i * 80}ms` }}
+        >
+          <span aria-hidden="true" className="font-display text-6xl leading-none text-ink/25">
+            &ldquo;
+          </span>
+          <blockquote className="mt-1 flex-1 text-base leading-snug">{review.comment}</blockquote>
+          <div className="mt-6 flex items-center gap-3">
+            <span aria-hidden="true" className="grid size-9 place-items-center rounded-full bg-ink font-display text-lg text-accent">
+              {review.author.charAt(0)}
+            </span>
+            <span className="leading-tight">
+              <b className="block text-sm">{review.author}</b>
+              <span className="text-xs text-ink/70">Client · {formatDate(review.commentedAt)}</span>
+            </span>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function CustomerReviewsSkeleton() {
+  return (
+    <ul className="-mx-4 flex gap-4 overflow-hidden px-4 md:mx-0 md:grid md:grid-cols-2 md:px-0 lg:grid-cols-3" aria-busy="true">
+      {Array.from({ length: 3 }, (_, i) => (
+        <li key={i} className="w-[82%] shrink-0 sm:w-[60%] md:w-auto">
+          <Skeleton className="h-56 w-full" />
         </li>
       ))}
     </ul>

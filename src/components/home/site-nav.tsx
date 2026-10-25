@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { AccountLink, AccountLinkSkeleton } from "@/components/account/account-link";
 import { ArrowIcon } from "@/components/ui/arrow-icon";
 import { Logo } from "@/components/ui/logo";
@@ -8,6 +9,7 @@ const LINKS: { href: `#${string}`; label: string }[] = [
   { href: "#maison", label: "La maison" },
   { href: "#menu", label: "Menu" },
   { href: "#fidelite", label: "Fidélité" },
+  { href: "#avis", label: "Avis" },
   { href: "#etapes", label: "Comment ça marche" },
 ];
 
@@ -27,6 +29,12 @@ export function SiteNav() {
                 </SectionLink>
               </li>
             ))}
+            {/* Sous 1 280 px, la FAQ reste dans le pied de page pour ne pas serrer la barre. */}
+            <li className="hidden xl:block">
+              <Link href="/faq" className="deco text-cream/85 transition hover:text-accent">
+                FAQ
+              </Link>
+            </li>
           </ul>
         </nav>
         <div className="flex items-center gap-2">
@@ -49,6 +57,11 @@ export function SiteNav() {
                     </SectionLink>
                   </li>
                 ))}
+                <li>
+                  <Link href="/faq" className="deco flex min-h-11 items-center px-3 text-cream/85 transition hover:text-accent">
+                    Questions fréquentes
+                  </Link>
+                </li>
                 {/* Tant que ce menu existe, le lien du compte y est rangé. */}
                 <li className="mt-1 border-t border-cream/10 pt-2">
                   <Suspense fallback={<AccountLinkSkeleton />}>
